@@ -1,4 +1,11 @@
 package com.uade.tpo.grupo11.gallery.services;
 
-public class ObraService {
+import com.uade.tpo.grupo11.gallery.entities.Obra;
+import jakarta.annotation.Nullable;
+import org.springframework.stereotype.Service;
+
+@Service
+//Conecta con el Repository
+public interface ObraService {
+    Obra getObraById(Long obra_id);
 }
