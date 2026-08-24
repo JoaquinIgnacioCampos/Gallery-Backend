@@ -2,18 +2,40 @@ package com.uade.tpo.grupo11.gallery.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
+
+import java.util.List;
+
 @Data
+@EqualsAndHashCode(of = "id")               // identidad = id, evita recursión con relaciones
+@ToString(exclude = {"variantes", "imagenes"})
 @Entity
-@Table
+@Table(name = "obra")
 public class Obra {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column
-    private String nombre_obra;
-    @Column
-    private String descripcion_obra ;
-    @Column
-    private Boolean en_venta_obra ;
+    private Long id;                        // Long y no int: null = todavía no está en la base
+
+    @Column(nullable = false, length = 150)
+    private String nombreObra;              // camelCase en Java → columna nombre_obra
+
+    @Column(length = 1000)
+    private String descripcionObra;
+
+    @Column(nullable = false)
+    private boolean enVenta;
+
+    // Muchas obras pertenecen a un artista. La FK vive en esta tabla.
+    @ManyToOne
+    @JoinColumn(name = "artista_id", nullable = false)
+    private Usuario artista;
+
+    // Una obra tiene muchas variantes. La FK vive en Variante, en su campo "obra".
+    @OneToMany(mappedBy = "obra")
+    private List<Variante> variantes;
+
+    @OneToMany(mappedBy = "obra")
+    private List<Imagen> imagenes;
 }

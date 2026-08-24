@@ -2,28 +2,25 @@ package com.uade.tpo.grupo11.gallery.controllers;
 
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.services.ObraService;
-import com.uade.tpo.grupo11.gallery.services.ObraServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
 
-//Conecta con el Service
-@Controller
-//Qué endpoint va a ser - url
-@RequestMapping("/obra")
+// Atiende peticiones web y devuelve JSON (no vistas HTML)
+@RestController
+// Todos los endpoints de esta clase cuelgan de /obras
+@RequestMapping("/obras")
 public class ObraController {
 
-    //conecta las capas, al controller cuando precise se le inyecta un Service
+    // Spring inyecta la implementación de ObraService; el controller solo conoce la interfaz
     @Autowired
     private ObraService servicioObra;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Obra> getObraById(@RequestParam Long obra_id){
-    return ResponseEntity.ok(servicioObra.getObraById(obra_id)); // 200 - OK - respuesta http
+    // GET /obras/{obraId} — el nombre del parámetro debe coincidir con el de la ruta
+    @GetMapping("/{obraId}")
+    public ResponseEntity<Obra> getObraById(@PathVariable UUID obraId) {
+        return ResponseEntity.ok(servicioObra.getObraById(obraId)); // 200 OK
     }
-
 }
