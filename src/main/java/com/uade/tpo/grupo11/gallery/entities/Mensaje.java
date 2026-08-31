@@ -2,7 +2,8 @@ package com.uade.tpo.grupo11.gallery.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.util.UUID;
+
+import java.time.LocalDateTime;
 
 
 @Entity
@@ -11,9 +12,9 @@ import java.util.UUID;
 
 public class Mensaje {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "mensaje_id")
-    private UUID id;
+    private Long id;
 
     // Relacion mensaje encargo
     @ManyToOne(fetch = FetchType.LAZY)
