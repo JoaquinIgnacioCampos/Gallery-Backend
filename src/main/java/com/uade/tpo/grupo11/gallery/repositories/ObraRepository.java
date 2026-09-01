@@ -7,7 +7,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ObraRepository extends JpaRepository<Obra, Long> {
     // Los métodos CRUD vienen heredados. Acá van solo las consultas propias.
-    List<Obra> findByArtistaId(Long artistaId);
-    List<Obra> findByEnVentaTrue();
-    List<Obra> findByNombreObraContainingIgnoreCase(String texto);
+    //Como parámetros va la Entity y su Tipo
+
+    //CRUD básico → ya viene con JpaRepository.
+    // Consultas especiales → las agregás vos en el repository.
+
 }
+
