@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.services;
+package com.uade.tpo.grupo11.gallery.services.itemCarrito;
 
 import com.uade.tpo.grupo11.gallery.controllers.Item_Carrito.Item_CarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;

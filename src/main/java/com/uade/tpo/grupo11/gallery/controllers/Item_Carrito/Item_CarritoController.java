@@ -1,7 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.Item_Carrito;
 
 import com.uade.tpo.grupo11.gallery.entities.Item_Carrito;
-import com.uade.tpo.grupo11.gallery.services.Item_CarritoService;
+import com.uade.tpo.grupo11.gallery.services.itemCarrito.Item_CarritoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
