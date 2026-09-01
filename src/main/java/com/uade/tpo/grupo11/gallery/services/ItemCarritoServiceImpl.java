@@ -1,12 +1,12 @@
 package com.uade.tpo.grupo11.gallery.services;
 
-import com.uade.tpo.grupo11.gallery.controllers.Item_Carrito.Item_CarritoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.ItemCarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
-import com.uade.tpo.grupo11.gallery.entities.Item_Carrito;
+import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 // Agregar import com.uade.tpo.grupo11.gallery.entities.Marco;
 // Agregar import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
-import com.uade.tpo.grupo11.gallery.repositories.Item_CarritoRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 // Agregar import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 // Agregar import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 
@@ -16,10 +16,10 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class Item_CarritoServiceImpl implements Item_CarritoService {
+public class ItemCarritoServiceImpl implements ItemCarritoService {
 
     @Autowired
-    private Item_CarritoRepository itemCarritoRepository;
+    private ItemCarritoRepository itemCarritoRepository;
 
     @Autowired
     private CarritoRepository carritoRepository;
@@ -32,14 +32,14 @@ public class Item_CarritoServiceImpl implements Item_CarritoService {
 
 
     @Override
-    public List<Item_Carrito> getItemsCarrito() {
+    public List<ItemCarrito> getItemsCarrito() {
 
         return itemCarritoRepository.findAll();
     }
 
 
     @Override
-    public Item_Carrito getItemCarritoById(Long itemId) {
+    public ItemCarrito getItemCarritoById(Long itemId) {
 
         return itemCarritoRepository
                 .findById(itemId)
@@ -49,7 +49,7 @@ public class Item_CarritoServiceImpl implements Item_CarritoService {
 
 
     @Override
-    public Item_Carrito createItemCarrito(Item_CarritoRequest request) {
+    public ItemCarrito createItemCarrito(ItemCarritoRequest request) {
 
         Carrito carrito = carritoRepository
                 .findById(request.getCarritoId())
@@ -66,7 +66,7 @@ public class Item_CarritoServiceImpl implements Item_CarritoService {
                 .orElseThrow(() ->
                         new RuntimeException("Variante no encontrada"));
 
-        Item_Carrito itemCarrito = ItemCarrito.builder()
+        ItemCarrito itemCarrito = ItemCarrito.builder()
                 .carrito(carrito)
                 .marco(marco)
                 .variante(variante)
@@ -78,11 +78,11 @@ public class Item_CarritoServiceImpl implements Item_CarritoService {
 
 
     @Override
-    public Item_Carrito updateItemCarrito(
+    public ItemCarrito updateItemCarrito(
             Long itemId,
-            Item_CarritoRequest request) {
+            ItemCarritoRequest request) {
 
-        Item_Carrito itemCarrito = itemCarritoRepository
+        ItemCarrito itemCarrito = itemCarritoRepository
                 .findById(itemId)
                 .orElseThrow(() ->
                         new RuntimeException("Item del carrito no encontrado"));
@@ -114,7 +114,7 @@ public class Item_CarritoServiceImpl implements Item_CarritoService {
     @Override
     public void deleteItemCarrito(Long itemId) {
 
-        Item_Carrito itemCarrito = itemCarritoRepository
+        ItemCarrito itemCarrito = itemCarritoRepository
                 .findById(itemId)
                 .orElseThrow(() ->
                         new RuntimeException("Item del carrito no encontrado"));
