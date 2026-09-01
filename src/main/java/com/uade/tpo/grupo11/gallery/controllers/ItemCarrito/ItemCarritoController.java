@@ -1,7 +1,7 @@
-package com.uade.tpo.grupo11.gallery.controllers.Item_Carrito;
+package com.uade.tpo.grupo11.gallery.controllers.ItemCarrito;
 
-import com.uade.tpo.grupo11.gallery.entities.Item_Carrito;
-import com.uade.tpo.grupo11.gallery.services.Item_CarritoService;
+import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
+import com.uade.tpo.grupo11.gallery.services.ItemCarritoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -10,15 +10,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/items-carrito")
-public class Item_CarritoController {
+public class ItemCarritoController {
 
     @Autowired
-    private Item_CarritoService itemCarritoService;
+    private ItemCarritoService itemCarritoService;
 
 
     // GET - Obtener todos los items
     @GetMapping
-    public List<Item_Carrito> getItemsCarrito() {
+    public List<ItemCarrito> getItemsCarrito() {
 
         return itemCarritoService.getItemsCarrito();
     }
@@ -26,7 +26,7 @@ public class Item_CarritoController {
 
     // GET - Obtener un item por ID
     @GetMapping("/{itemId}")
-    public Item_Carrito getItemCarritoById(
+    public ItemCarrito getItemCarritoById(
             @PathVariable Long itemId) {
 
         return itemCarritoService.getItemCarritoById(itemId);
@@ -35,8 +35,8 @@ public class Item_CarritoController {
 
     // POST - Crear item
     @PostMapping
-    public Item_Carrito createItemCarrito(
-            @RequestBody Item_CarritoRequest request) {
+    public ItemCarrito createItemCarrito(
+            @RequestBody ItemCarritoRequest request) {
 
         return itemCarritoService.createItemCarrito(request);
     }
@@ -44,9 +44,9 @@ public class Item_CarritoController {
 
     // PUT - Modificar item
     @PutMapping("/{itemId}")
-    public Item_Carrito updateItemCarrito(
+    public ItemCarrito updateItemCarrito(
             @PathVariable Long itemId,
-            @RequestBody Item_CarritoRequest request) {
+            @RequestBody ItemCarritoRequest request) {
 
         return itemCarritoService.updateItemCarrito(
                 itemId,
