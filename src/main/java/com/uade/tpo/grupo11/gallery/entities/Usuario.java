@@ -1,5 +1,6 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
+import com.uade.tpo.grupo11.gallery.controllers.usuario.UsuarioRequest;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -9,6 +10,17 @@ import java.util.List;
 @Data
 @Entity
 public class Usuario {
+
+    public Usuario() {
+
+    }
+
+    public Usuario (UsuarioRequest usuario_request) {
+        this.nombre_usuario = usuario_request.getNombre_usuario();
+        this.email_usuario = usuario_request.getEmail_usuario();
+        this.contrasenia_usuario = usuario_request.getContrasenia_usuario();
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long usuario_id;
