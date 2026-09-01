@@ -1,15 +1,13 @@
-package com.uade.tpo.grupo11.gallery.controllers;
+package com.uade.tpo.grupo11.gallery.controllers.obra;
 
 import com.uade.tpo.grupo11.gallery.entities.Obra;
-import com.uade.tpo.grupo11.gallery.services.ObraService;
+import com.uade.tpo.grupo11.gallery.services.obra.ObraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.print.DocFlavor;
 import java.util.List;
-import java.util.UUID;
 
 // Atiende peticiones web y devuelve JSON (no vistas HTML)
 @RestController
@@ -24,9 +22,9 @@ public class ObraController {
     //Otra forma es inyectarlo por contructor:
 
     //CONSTRUCTOR:
-    //private final ObraService servicioObra;
-   // public ObraController(ObraService servicioObra) {
-      //  this.servicioObra = servicioObra;}
+   public ObraController(ObraService servicioObra) {
+       this.servicioObra = servicioObra;}
+
 
     @GetMapping()
     public ResponseEntity<List<Obra>> getListObras() {

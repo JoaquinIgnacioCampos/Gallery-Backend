@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.services;
+package com.uade.tpo.grupo11.gallery.services.usuario;
 
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UsuarioSeriviceImpl implements UsuarioService{
+public class UsuarioSeriviceImpl implements UsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
 

@@ -1,9 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.usuario;
 
 import com.uade.tpo.grupo11.gallery.entities.*;
-import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUserMailException;
-import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUsernameException;
-import com.uade.tpo.grupo11.gallery.services.UsuarioService;
+import com.uade.tpo.grupo11.gallery.services.usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

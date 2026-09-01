@@ -1,7 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.mensaje;
 
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
-import com.uade.tpo.grupo11.gallery.services.MensajeService;
+import com.uade.tpo.grupo11.gallery.services.Mensaje.MensajeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
