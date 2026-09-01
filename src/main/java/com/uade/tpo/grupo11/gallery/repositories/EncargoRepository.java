@@ -1,0 +1,13 @@
+package com.uade.tpo.grupo11.gallery.repositories;
+
+import com.uade.tpo.grupo11.gallery.entities.Encargo;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface EncargoRepository extends JpaRepository<Encargo, Long> {
+    List<Encargo> findByArtistaId(Long artistaId);
+    List<Encargo> findByUsuarioId(Long usuarioId);
+}
