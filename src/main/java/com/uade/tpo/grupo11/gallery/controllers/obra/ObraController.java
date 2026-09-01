@@ -1,7 +1,7 @@
-package com.uade.tpo.grupo11.gallery.controllers;
+package com.uade.tpo.grupo11.gallery.controllers.obra;
 
 import com.uade.tpo.grupo11.gallery.entities.Obra;
-import com.uade.tpo.grupo11.gallery.services.ObraService;
+import com.uade.tpo.grupo11.gallery.services.obra.ObraService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,13 @@ public class ObraController {
     @Autowired
     private ObraService servicioObra;
 
-    @GetMapping
+
+    //CONSTRUCTOR:
+   public ObraController(ObraService servicioObra) {
+       this.servicioObra = servicioObra;}
+
+
+    @GetMapping()
     public ResponseEntity<List<Obra>> getListObras() {
         return ResponseEntity.ok(servicioObra.getListObras());
     }

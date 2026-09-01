@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.services;
+package com.uade.tpo.grupo11.gallery.services.encargo;
 
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;

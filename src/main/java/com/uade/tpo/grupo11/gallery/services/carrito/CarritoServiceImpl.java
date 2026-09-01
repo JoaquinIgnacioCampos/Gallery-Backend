@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.services;
+package com.uade.tpo.grupo11.gallery.services.carrito;
 
 
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
