@@ -1,7 +1,6 @@
-package com.uade.tpo.grupo11.gallery.services;
+package com.uade.tpo.grupo11.gallery.services.obra;
 
 import com.uade.tpo.grupo11.gallery.entities.Obra;
-import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 

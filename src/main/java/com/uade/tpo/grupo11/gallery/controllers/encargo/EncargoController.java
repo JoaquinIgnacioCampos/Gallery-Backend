@@ -2,8 +2,8 @@ package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
-import com.uade.tpo.grupo11.gallery.services.EncargoService;
-import com.uade.tpo.grupo11.gallery.services.MensajeService;
+import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
+import com.uade.tpo.grupo11.gallery.services.Mensaje.MensajeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

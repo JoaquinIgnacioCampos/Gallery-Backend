@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
-import com.uade.tpo.grupo11.gallery.services.CarritoService;
+import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 
 import java.util.List;
 
