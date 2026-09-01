@@ -30,7 +30,7 @@ public class Obra {
     // Muchas obras pertenecen a un artista. La FK vive en esta tabla.
     @ManyToOne
     @JoinColumn(name = "artista_id", nullable = false)
-    private Usuario artista;
+    private PerfilArtista artista;
 
     // Una obra tiene muchas variantes. La FK vive en Variante, en su campo "obra".
     @OneToMany(mappedBy = "obra")
