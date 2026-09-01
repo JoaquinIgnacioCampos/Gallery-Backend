@@ -47,7 +47,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{usuario_id}/perfil-artista")
-    public ResponseEntity<Perfil_Artista> getPerfilArtista(@PathVariable("usuario_id") Integer usuarioId) {
+    public ResponseEntity<PerfilArtista> getPerfilArtista(@PathVariable("usuario_id") Integer usuarioId) {
 
     }
 

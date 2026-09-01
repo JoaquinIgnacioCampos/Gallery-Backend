@@ -37,8 +37,8 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private Rol rol_usuario;
 
-    @OneToOne(mappedBy = "usuario_id")
-    private Perfil_Artista perfil_artista;
+    @OneToOne(mappedBy = "usuario")
+    private PerfilArtista perfil_artista;
 
     @OneToMany(mappedBy = "usuario_id")
     private List<Compra> compras_usuario;
