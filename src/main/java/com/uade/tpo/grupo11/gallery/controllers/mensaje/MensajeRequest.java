@@ -5,7 +5,7 @@ import java.util.UUID;
 
 @Data
 public class MensajeRequest {
-    private UUID encargoId;
-    private UUID usuarioEmisorId;
+    private Long encargoId;
+    private Long usuarioEmisorId;
     private String contenido;
 }

@@ -1,7 +1,9 @@
 package com.uade.tpo.grupo11.gallery.controllers.Encargo;
 
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
+import com.uade.tpo.grupo11.gallery.entities.Mensaje;
 import com.uade.tpo.grupo11.gallery.services.EncargoService;
+import com.uade.tpo.grupo11.gallery.services.MensajeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +16,9 @@ public class EncargoController {
 
     @Autowired
     private EncargoService encargoService;
+
+    @Autowired
+    private MensajeService mensajeService;
 
     @GetMapping("/{id}")
     public ResponseEntity<Encargo> getEncargoPorId(@PathVariable Long id) {
@@ -33,5 +38,9 @@ public class EncargoController {
     @PostMapping
     public ResponseEntity<Encargo> crearEncargo(@RequestBody EncargoRequest request) {
         return ResponseEntity.ok(encargoService.crearEncargo(request));
+    }
+    @GetMapping("/{encargoId}/mensajes")
+    public ResponseEntity<List<Mensaje>> getMensajesPorEncargo(@PathVariable Long encargoId) {
+        return ResponseEntity.ok(mensajeService.obtenerPorEncargo(encargoId));
     }
 }
