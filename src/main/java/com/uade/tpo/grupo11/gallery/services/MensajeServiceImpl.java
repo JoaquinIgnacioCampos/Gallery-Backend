@@ -1,7 +1,10 @@
 package com.uade.tpo.grupo11.gallery.services;
 
+import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
+import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.MensajeNotFoundException;
+import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MensajeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
