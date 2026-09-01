@@ -1,9 +1,13 @@
 package com.uade.tpo.grupo11.gallery.services.encargo;
 
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
+import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
+import com.uade.tpo.grupo11.gallery.exceptions.ArtistaNoAceptaEncargosException;
+import com.uade.tpo.grupo11.gallery.exceptions.ArtistaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
+import com.uade.tpo.grupo11.gallery.repositories.ArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +47,10 @@ public class EncargoServiceImpl implements EncargoService {
 
     @Override
     public Encargo crearEncargo(EncargoRequest request) {
-        Artista artista = artistaRepository.findById(request.getArtistaId())
+        PerfilArtista artista = artistaRepository.findById(request.getArtistaId())
                 .orElseThrow(() -> new ArtistaNotFoundException(request.getArtistaId()));
 
-        if (!artista.getAceptaEncargos()) {
+        if (!artista.isAceptaEncargos()) {
             throw new ArtistaNoAceptaEncargosException(artista.getId());
         }
 

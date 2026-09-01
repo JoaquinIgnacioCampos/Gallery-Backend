@@ -23,7 +23,7 @@ public class UsuarioController {
     @PostMapping
     public ResponseEntity<Usuario> createUsuario(@RequestBody UsuarioRequest usuario_request)
         throws DuplicateUsernameException, DuplicateUserMailException {
-        Usuario result =
+        
     }
 
     @GetMapping("/{usuario_id}")
@@ -48,8 +48,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{usuario_id}/perfil-artista")
-    public ResponseEntity<Perfil_Artista> getPerfilArtista(@PathVariable("usuario_id") Long usuarioId) {
-
+    public ResponseEntity<PerfilArtista> getPerfilArtista(@PathVariable("usuario_id") Integer usuarioId) {
     }
 
     @GetMapping("/{usuario_id}/compras")

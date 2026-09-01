@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/mensajes")
 public class MensajeController {
 
+    // Inyecta las dependencias necesarias del servicio
     @Autowired
     private MensajeService mensajeService;
 
