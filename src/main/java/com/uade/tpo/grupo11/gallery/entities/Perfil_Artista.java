@@ -4,8 +4,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 
 @Entity
-public class Compra {
+public class Perfil_Artista {
     @Id
     private Long id;
-
 }

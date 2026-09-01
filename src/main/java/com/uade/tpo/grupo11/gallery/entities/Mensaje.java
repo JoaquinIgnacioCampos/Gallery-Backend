@@ -21,8 +21,6 @@ public class Mensaje {
     @JoinColumn(name = "encargo_id", nullable = false)
     private Encargo encargo;
 
-
-
     // Relacion usuario mensaje
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_emisor", nullable = false)
