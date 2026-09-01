@@ -54,7 +54,6 @@ public class CarritoController {
         );
     }
 
-
     // DELETE - Eliminar carrito
     @DeleteMapping("/{carritoId}")
     public void deleteCarrito(

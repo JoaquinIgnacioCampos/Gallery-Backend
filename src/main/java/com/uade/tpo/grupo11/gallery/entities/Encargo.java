@@ -20,7 +20,7 @@ public class Encargo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artista_id", nullable = false)
-    private Artista artista;
+    private Perfil_Artista artista;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)

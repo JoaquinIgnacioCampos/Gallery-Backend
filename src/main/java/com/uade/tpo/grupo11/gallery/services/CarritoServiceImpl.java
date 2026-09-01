@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.services;
 
 
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

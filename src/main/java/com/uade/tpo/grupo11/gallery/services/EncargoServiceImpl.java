@@ -1,10 +1,11 @@
 package com.uade.tpo.grupo11.gallery.services;
 
-import com.uade.tpo.grupo11.gallery.controllers.Encargo.EncargoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
 import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
+import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
