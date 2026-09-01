@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.controllers.Encargo;
+package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
 import com.uade.tpo.grupo11.gallery.entities.enums.TipoLienzo;
 import com.uade.tpo.grupo11.gallery.entities.enums.TipoPintura;

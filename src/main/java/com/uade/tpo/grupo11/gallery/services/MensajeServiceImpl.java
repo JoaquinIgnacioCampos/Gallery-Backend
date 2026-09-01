@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.MensajeNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MensajeRepository;
+import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
