@@ -1,11 +1,34 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Table(name = "compra")
 public class Compra {
-    @Id
-    private Long id;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "compra_id")
+    private Long compraId;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario usuario;
+
+    @Column(name = "fecha_compra", nullable = false)
+    private LocalDateTime fechaCompra;
+
+    @Column(name = "total_compra", nullable = false)
+    private BigDecimal totalCompra;
 }
