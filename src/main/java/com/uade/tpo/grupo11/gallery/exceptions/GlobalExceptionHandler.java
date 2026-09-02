@@ -34,4 +34,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+    @ExceptionHandler(ItemFacturaNotFoundException.class)
+    public ResponseEntity<String> handleItemFacturaNotFound(ItemFacturaNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(StockInsuficienteException.class)
+    public ResponseEntity<String> handleStockInsuficiente(StockInsuficienteException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409, no 404
+    }
+
 }
