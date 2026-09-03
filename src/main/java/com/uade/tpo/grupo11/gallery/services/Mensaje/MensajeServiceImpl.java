@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
 import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.MensajeNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MensajeRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
@@ -35,6 +36,12 @@ public class MensajeServiceImpl implements MensajeService {
     @Override
     public List<Mensaje> obtenerPorEncargo(Long encargoId) {
         return mensajeRepository.findByEncargoId(encargoId);
+    }
+
+    @Override
+    public List<Mensaje> obtenerPorUsuario(Long usuarioId) throws UsuarioNotFoundException {
+        usuarioRepository.findById(usuarioId).orElseThrow(UsuarioNotFoundException::new);
+        return mensajeRepository.findByUsuarioEmisorId(usuarioId);
     }
 
     @Override
