@@ -14,15 +14,30 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+
+    @ExceptionHandler(VarianteNotFoundException.class)
+    public ResponseEntity<String> handleVarianteNotFound(VarianteNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+
     @ExceptionHandler(MensajeNotFoundException.class)
     public ResponseEntity<String> handleMensajeNotFound(MensajeNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+
     @ExceptionHandler(EncargoNotFoundException.class)
     public ResponseEntity<String> handleEncargoNotFound(EncargoNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
+
+
+  @ExceptionHandler(ImagenNotFoundException.class)
+    public ResponseEntity<String> handleImagenNotFound(ImagenNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+  }
+  
 
     @ExceptionHandler(ArtistaNotFoundException.class)
     public ResponseEntity<String> handleArtistaNotFound(ArtistaNotFoundException e) {
@@ -34,6 +49,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+
     @ExceptionHandler(ItemFacturaNotFoundException.class)
     public ResponseEntity<String> handleItemFacturaNotFound(ItemFacturaNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -43,5 +59,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleStockInsuficiente(StockInsuficienteException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409, no 404
     }
+
 
 }
