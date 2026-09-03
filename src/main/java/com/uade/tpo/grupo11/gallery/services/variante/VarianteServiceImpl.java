@@ -36,7 +36,17 @@ public class VarianteServiceImpl implements VarianteService {
 
     @Override
     public Variante modificarVariante(Long varianteId, Variante variante) {
-        return null;
+
+        Variante varianteExistente = getVarianteById(varianteId);
+
+        varianteExistente.setObra(variante.getObra());
+        varianteExistente.setTamanioLienzo(variante.getTamanioLienzo());
+        varianteExistente.setPrecioVariante(variante.getPrecioVariante());
+        varianteExistente.setStockVariante(variante.getStockVariante());
+        varianteExistente.setPorcentajeDescuento(variante.getPorcentajeDescuento());
+        varianteExistente.setDescuentoHasta(variante.getDescuentoHasta());
+
+        return repoVariante.save(varianteExistente);
     }
 
     @Override
