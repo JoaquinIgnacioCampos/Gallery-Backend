@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.uade.tpo.grupo11.gallery.controllers.Carrito.CarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
+import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 
 public interface CarritoService {
 
@@ -16,4 +17,6 @@ public interface CarritoService {
     Carrito updateCarrito(Long carritoId, CarritoRequest request);
 
     void deleteCarrito(Long carritoId);
+
+    Carrito getOrCreateCarritoByUsuario(Long usuarioId) throws UsuarioNotFoundException;
 }
