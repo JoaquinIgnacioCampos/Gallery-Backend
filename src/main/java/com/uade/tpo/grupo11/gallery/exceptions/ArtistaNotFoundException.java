@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class UsuarioNotFoundException extends RuntimeException {
+public class ArtistaNotFoundException extends RuntimeException {
 
-    public UsuarioNotFoundException(Long usuarioId) {
-        super("No existe un usuario con id " + usuarioId);
+    public ArtistaNotFoundException(Long artistaId) {
+        super("No existe un artista con id " + artistaId);
     }
 }

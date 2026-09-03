@@ -63,15 +63,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/{usuario_id}/perfil-artista")
-    public ResponseEntity<PerfilArtista> getPerfilArtista(@PathVariable("usuario_id") Long usuario_id) throws PerfilArtistaNotFoundException {
-        return ResponseEntity.ok(perfilArtistaService.getPerfilArtistaByUsuario(usuario_id));
-    }
-
-    @PostMapping("/{usuario_id}/perfil-artista")
-    public ResponseEntity<PerfilArtista> createerfilArtista(@PathVariable("usuario_id") Long usuario_id, @RequestBody PerfilArtistaRequest perfil_artista_request)
-            throws UsuarioNotFoundException, DuplicatePerfilArtistaException {
-        PerfilArtista result = perfilArtistaService.createPerfilArtista(usuario_id, perfil_artista_request);
-        return ResponseEntity.created(URI.create("/api/usuarios/" + usuario_id + "/perfil-artista")).body(result);
+    public ResponseEntity<PerfilArtista> getPerfilArtista(@PathVariable("usuario_id") Integer usuarioId) {
     }
 
     @GetMapping("/{usuario_id}/compras")
