@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.services.carrito;
 
 
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -9,8 +10,6 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.grupo11.gallery.controllers.Carrito.CarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
-// falta el import...UsuarioRepository;
-// import el import...Usuario;
 
 import java.util.List;
 
@@ -89,5 +88,22 @@ public class CarritoServiceImpl implements CarritoService {
                         new RuntimeException("Carrito no encontrado"));
 
         carritoRepository.delete(carrito);
+    }
+
+
+    @Override
+    public Carrito getOrCreateCarritoByUsuario(Long usuarioId) throws UsuarioNotFoundException {
+
+        Usuario usuario = usuarioRepository
+                .findById(usuarioId)
+                .orElseThrow(UsuarioNotFoundException::new);
+
+        return carritoRepository
+                .findByUsuarioId(usuarioId)
+                .orElseGet(() -> carritoRepository.save(
+                        Carrito.builder()
+                                .usuario(usuario)
+                                .build()
+                ));
     }
 }

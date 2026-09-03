@@ -15,5 +15,4 @@ public class UsuarioRequest {
     private String appelido_persona;
     private String email_usuario;
     private String telefono_usuario;
-    private String direccion_usuario;
 }
