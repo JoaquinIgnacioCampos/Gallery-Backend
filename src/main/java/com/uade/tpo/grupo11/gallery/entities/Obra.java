@@ -16,7 +16,7 @@ public class Obra {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;                        // Long y no int: null = todavía no está en la base
+    private Long id;
 
     @Column(nullable = false, length = 150)
     private String nombreObra;              // camelCase en Java → columna nombre_obra

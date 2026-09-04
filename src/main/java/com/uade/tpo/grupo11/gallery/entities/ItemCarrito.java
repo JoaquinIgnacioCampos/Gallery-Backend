@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Entity
 @Table(name = "item_carrito")
-public class Item_Carrito {
+public class ItemCarrito {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
