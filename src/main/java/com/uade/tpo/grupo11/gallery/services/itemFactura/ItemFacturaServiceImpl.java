@@ -8,6 +8,7 @@ import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.exceptions.ItemFacturaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
+import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;

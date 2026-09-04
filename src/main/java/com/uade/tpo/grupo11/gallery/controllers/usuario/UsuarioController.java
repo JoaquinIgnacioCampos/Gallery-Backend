@@ -7,7 +7,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUsernameException;
 import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
-import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
+import com.uade.tpo.grupo11.gallery.services.Compra.CompraService;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
 import com.uade.tpo.grupo11.gallery.services.Mensaje.MensajeService;
