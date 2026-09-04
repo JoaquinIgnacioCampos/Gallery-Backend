@@ -30,7 +30,7 @@ public class UsuarioController {
     @Autowired
     private PerfilArtistaService perfilArtistaService;
     @Autowired
-    private CompraService compraService;
+    private CompraService servicioCompra;
     @Autowired
     private MensajeService mensajeService;
 

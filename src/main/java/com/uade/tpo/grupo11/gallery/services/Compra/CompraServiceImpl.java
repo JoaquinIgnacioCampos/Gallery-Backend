@@ -2,8 +2,13 @@ package com.uade.tpo.grupo11.gallery.services.Compra;
 
 import com.uade.tpo.grupo11.gallery.controllers.Compra.CompraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
+import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.ImagenNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,27 +20,24 @@ import java.util.List;
 public class CompraServiceImpl implements CompraService {
 
     @Autowired
-    private CompraRepository compraRepository;
+    private CompraRepository repoCompra;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
 
     @Override
-    public List<Compra> getCompras() {
-
-        return compraRepository.findAll();
+    public List<Compra> getListCompras() {
+        return repoCompra.findAll();
     }
-
 
     @Override
     public Compra getCompraById(Long compraId) {
-
-        return compraRepository
-                .findById(compraId)
+        return repoCompra.findById(compraId)
                 .orElseThrow(() ->
-                        new RuntimeException("Compra no encontrada"));
+                        new CompraNotFoundException(compraId));
     }
+
 
 
     @Override
@@ -52,41 +54,37 @@ public class CompraServiceImpl implements CompraService {
                 .totalCompra(request.getTotalCompra())
                 .build();
 
-        return compraRepository.save(compra);
+        return repoCompra.save(compra);
     }
 
 
     @Override
-    public Compra updateCompra(
-            Long compraId,
-            CompraRequest request) {
+    public Compra modificarCompra (Long compraId, Compra compra) {
 
-        Compra compra = compraRepository
+        Compra compra = repoCompra
                 .findById(compraId)
                 .orElseThrow(() ->
-                        new RuntimeException("Compra no encontrada"));
+                        new CompraNotFoundException(compraId));
 
         Usuario usuario = usuarioRepository
                 .findById(request.getUsuarioId())
                 .orElseThrow(() ->
-                        new RuntimeException("Usuario no encontrado"));
-
+                        new UsuarioNotFoundException(UserId));
         compra.setUsuario(usuario);
         compra.setFechaCompra(request.getFechaCompra());
         compra.setTotalCompra(request.getTotalCompra());
 
-        return compraRepository.save(compra);
+        return repoCompra.save(compra);
     }
 
 
     @Override
-    public void deleteCompra(Long compraId) {
+    public void eliminarCompra(Long compraId) {
 
-        Compra compra = compraRepository
-                .findById(compraId)
-                .orElseThrow(() ->
-                        new RuntimeException("Compra no encontrada"));
+        Compra compra = repoCompra
+                .findById(compraId);
 
-        compraRepository.delete(compra);
-    }
-}
+        repoCompra.delete(compra);
+    }}
+
+
