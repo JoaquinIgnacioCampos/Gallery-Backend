@@ -24,7 +24,7 @@ public class Factura {
 
     @ManyToOne
     @JoinColumn(name = "artista_id", nullable = false)
-    private Artista artista;
+    private PerfilArtista artista;
 
     @OneToOne
     @JoinColumn(name = "compra_id", nullable = false)
