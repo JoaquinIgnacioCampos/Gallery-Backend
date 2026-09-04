@@ -96,7 +96,7 @@ public class CarritoServiceImpl implements CarritoService {
 
         Usuario usuario = usuarioRepository
                 .findById(usuarioId)
-                .orElseThrow(UsuarioNotFoundException::new);
+                .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
 
         return carritoRepository
                 .findByUsuarioId(usuarioId)

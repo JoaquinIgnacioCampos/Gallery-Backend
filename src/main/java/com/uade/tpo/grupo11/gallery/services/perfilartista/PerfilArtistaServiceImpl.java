@@ -32,7 +32,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     public PerfilArtista createPerfilArtista(Long usuarioId, PerfilArtistaRequest request)
             throws UsuarioNotFoundException, DuplicatePerfilArtistaException {
         Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(UsuarioNotFoundException::new);
+                .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
 
         if (perfilArtistaRepository.findByUsuarioId(usuarioId).isPresent()) {
             throw new DuplicatePerfilArtistaException();

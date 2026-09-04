@@ -44,7 +44,7 @@ public class UsuarioSeriviceImpl implements UsuarioService {
             return result.get();
         }
 
-        throw new UsuarioNotFoundException();
+        throw new UsuarioNotFoundException(usuario_id);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class UsuarioSeriviceImpl implements UsuarioService {
 
         result = usuarioRepository.findById(usuarioId);
         if (!result.isPresent()) {
-            throw new UsuarioNotFoundException();
+            throw new UsuarioNotFoundException(usuarioId);
         }
 
         result.get().setEmail_usuario(usuarioRequest.getEmail_usuario());

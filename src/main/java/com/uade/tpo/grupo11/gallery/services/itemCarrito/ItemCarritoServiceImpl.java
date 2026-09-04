@@ -3,12 +3,12 @@ package com.uade.tpo.grupo11.gallery.services.itemCarrito;
 import com.uade.tpo.grupo11.gallery.controllers.ItemCarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
-// Agregar import com.uade.tpo.grupo11.gallery.entities.Marco;
-// Agregar import com.uade.tpo.grupo11.gallery.entities.Variante;
+import com.uade.tpo.grupo11.gallery.entities.Marco;
+import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
-// Agregar import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
-// Agregar import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
+import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
+import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
