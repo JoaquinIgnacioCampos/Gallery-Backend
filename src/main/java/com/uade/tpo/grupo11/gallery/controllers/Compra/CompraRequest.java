@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.controllers.Compra;
+package com.uade.tpo.grupo11.gallery.controllers.compra;
 
 import lombok.Data;
 
@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 @Data
 public class CompraRequest {
 
-    private Long usuarioId;
-    private LocalDateTime fechaCompra;
-    private BigDecimal totalCompra;
+    private Long usuario_id;
+    private LocalDateTime fecha_compra;
+    private BigDecimal total_compra;
 }

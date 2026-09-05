@@ -12,7 +12,7 @@ public class UsuarioRequest {
     private String nombre_usuario;
     private String contrasenia_usuario;
     private String nombre_persona;
-    private String appelido_persona;
+    private String apellido_persona;
     private String email_usuario;
     private String telefono_usuario;
 }

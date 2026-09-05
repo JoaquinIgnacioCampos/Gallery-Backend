@@ -1,7 +1,7 @@
-package com.uade.tpo.grupo11.gallery.controllers.Factura;
+package com.uade.tpo.grupo11.gallery.controllers.factura;
 
 import com.uade.tpo.grupo11.gallery.entities.Factura;
-import com.uade.tpo.grupo11.gallery.services.Factura.FacturaService;
+import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

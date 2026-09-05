@@ -1,7 +1,7 @@
-package com.uade.tpo.grupo11.gallery.controllers.Marco;
+package com.uade.tpo.grupo11.gallery.controllers.marco;
 
 import com.uade.tpo.grupo11.gallery.entities.Marco;
-import com.uade.tpo.grupo11.gallery.services.Marco.MarcoService;
+import com.uade.tpo.grupo11.gallery.services.marco.MarcoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

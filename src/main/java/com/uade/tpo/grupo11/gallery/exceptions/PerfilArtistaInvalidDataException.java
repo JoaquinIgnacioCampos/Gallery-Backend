@@ -4,9 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class ArtistaInvalidDataException extends RuntimeException {
+public class PerfilArtistaInvalidDataException extends RuntimeException {
 
-    public ArtistaInvalidDataException(String message) {
+    public PerfilArtistaInvalidDataException(String message) {
         super(message);
     }
 }

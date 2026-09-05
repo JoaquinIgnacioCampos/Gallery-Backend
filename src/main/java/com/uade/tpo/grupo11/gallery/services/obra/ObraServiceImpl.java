@@ -15,7 +15,7 @@ public class ObraServiceImpl implements ObraService {
     private ObraRepository repoObra;
 
     @Override
-    public List<Obra> getListObras() {
+    public List<Obra> getObras() {
         return repoObra.findAll();
     }
 
@@ -31,17 +31,17 @@ public class ObraServiceImpl implements ObraService {
     }
 
     @Override
-    public Obra modificarObra(Long obraId, Obra obra) {
+    public Obra updateObra(Long obraId, Obra obra) {
         Obra obraExistente = getObraById(obraId);
-        obraExistente.setNombreObra(obra.getNombreObra());
-        obraExistente.setDescripcionObra(obra.getDescripcionObra());
-        obraExistente.setEnVenta(obra.isEnVenta());
+        obraExistente.setNombre_obra(obra.getNombre_obra());
+        obraExistente.setDescripcion_obra(obra.getDescripcion_obra());
+        obraExistente.setEn_venta(obra.isEn_venta());
         obraExistente.setArtista(obra.getArtista());
         return repoObra.save(obraExistente);
     }
 
     @Override
-    public void eliminarObra(Long obraId) {
+    public void deleteObra(Long obraId) {
         Obra obra = getObraById(obraId);
         repoObra.delete(obra);
     }

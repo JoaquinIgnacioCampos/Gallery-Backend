@@ -17,7 +17,7 @@ public class ImagenServiceImpl implements ImagenService {
     private ImagenRepository repoImagen;
 
     @Override
-    public List<Imagen> getListImagenes() {
+    public List<Imagen> getImagenes() {
         return repoImagen.findAll();
     }
 
@@ -33,19 +33,19 @@ public class ImagenServiceImpl implements ImagenService {
     }
 
     @Override
-    public Imagen modificarImagen(Long imagenId, Imagen imagen) {
+    public Imagen updateImagen(Long imagenId, Imagen imagen) {
 
         Imagen imagenExistente = getImagenById(imagenId);
 
         imagenExistente.setObra(imagen.getObra());
-        imagenExistente.setOrdenImagen(imagen.getOrdenImagen());
-        imagenExistente.setContenidoImagen(imagen.getContenidoImagen());
+        imagenExistente.setOrden_imagen(imagen.getOrden_imagen());
+        imagenExistente.setContenido_imagen(imagen.getContenido_imagen());
 
         return repoImagen.save(imagenExistente);
     }
 
     @Override
-    public void eliminarImagen(Long imagenId) {
+    public void deleteImagen(Long imagenId) {
         Imagen imagen = getImagenById(imagenId);
         //Se comprueba existencia de Obra
         repoImagen.delete(imagen);

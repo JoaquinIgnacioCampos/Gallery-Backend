@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.controllers.Carrito;
+package com.uade.tpo.grupo11.gallery.controllers.carrito;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

@@ -17,12 +17,12 @@ public class Carrito {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "carrito_id")
-    private Long carritoId;
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     @Column(name = "direccion_cliente")
-    private String direccionCliente;
+    private String direccion_cliente;
 }

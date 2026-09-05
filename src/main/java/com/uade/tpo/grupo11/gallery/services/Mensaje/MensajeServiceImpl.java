@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.services.Mensaje;
+package com.uade.tpo.grupo11.gallery.services.mensaje;
 
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
@@ -29,24 +29,24 @@ public class MensajeServiceImpl implements MensajeService {
 
 
     @Override
-    public Mensaje obtenerPorId(Long id) {
+    public Mensaje getMensajeById(Long id) {
         return mensajeRepository.findById(id)
                 .orElseThrow(() -> new MensajeNotFoundException(id));
     }
 
     @Override
-    public List<Mensaje> obtenerPorEncargo(Long encargoId) {
+    public List<Mensaje> getMensajesByEncargo(Long encargoId) {
         return mensajeRepository.findByEncargoId(encargoId);
     }
 
     @Override
-    public List<Mensaje> obtenerPorUsuario(Long usuarioId) throws UsuarioNotFoundException {
+    public List<Mensaje> getMensajesByUsuario(Long usuarioId) {
         usuarioRepository.findById(usuarioId).orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
-        return mensajeRepository.findByUsuarioEmisorId(usuarioId);
+        return mensajeRepository.findByEmisorId(usuarioId);
     }
 
     @Override
-    public Mensaje enviarMensaje(Long encargoId, Long usuarioEmisorId, String contenido) {
+    public Mensaje createMensaje(Long encargoId, Long usuarioEmisorId, String contenido) {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
         Usuario emisor = usuarioRepository.findById(usuarioEmisorId)
@@ -54,8 +54,8 @@ public class MensajeServiceImpl implements MensajeService {
 
         Mensaje mensaje = new Mensaje();
         mensaje.setEncargo(encargo);
-        mensaje.setUsuarioEmisor(emisor);
-        mensaje.setContenidoMensaje(contenido);
+        mensaje.setEmisor(emisor);
+        mensaje.setContenido_mensaje(contenido);
 
         return mensajeRepository.save(mensaje);
     }

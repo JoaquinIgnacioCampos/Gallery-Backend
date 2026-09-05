@@ -1,12 +1,12 @@
-package com.uade.tpo.grupo11.gallery.controllers.ItemCarrito;
+package com.uade.tpo.grupo11.gallery.controllers.itemcarrito;
 
 import lombok.Data;
 
 @Data
 public class ItemCarritoRequest {
 
-    private Long marcoId;
-    private Long varianteId;
-    private Long carritoId;
+    private Long marco_id;
+    private Long variante_id;
+    private Long carrito_id;
     private Integer cantidad;
 }

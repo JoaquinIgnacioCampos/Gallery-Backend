@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Data
 @EqualsAndHashCode(of = "id")
-@ToString(exclude = {"obra", "tamanioLienzo"})
+@ToString(exclude = {"obra", "tamanio"})
 @Entity
 @Table(name = "variante")
 public class Variante {
@@ -28,19 +28,19 @@ public class Variante {
     // Muchas variantes pueden usar el mismo tamaño de lienzo
     @ManyToOne
     @JoinColumn(name = "id_tamanio", nullable = false)
-    private TamanioLienzo tamanioLienzo;
+    private TamanioLienzo tamanio;
 
     @Column(name = "precio_variante", nullable = false)
-    private BigDecimal precioVariante;
+    private BigDecimal precio_variante;
 
     @Column(name = "stock_variante", nullable = false)
-    private int stockVariante;
+    private int stock_variante;
 
     // Integer y no int porque puede no haber descuento
     @Column(name = "porcentaje_descuento")
-    private Integer porcentajeDescuento;
+    private Integer porcentaje_descuento;
 
     // Puede ser null si no hay un descuento vigente
     @Column(name = "descuento_hasta")
-    private LocalDate descuentoHasta;
+    private LocalDate descuento_hasta;
 }

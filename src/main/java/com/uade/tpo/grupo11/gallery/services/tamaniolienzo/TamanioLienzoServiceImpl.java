@@ -1,6 +1,6 @@
-package com.uade.tpo.grupo11.gallery.services;
+package com.uade.tpo.grupo11.gallery.services.tamaniolienzo;
 
-import com.uade.tpo.grupo11.gallery.controllers.Tamanio_Lienzo.TamanioLienzoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.tamaniolienzo.TamanioLienzoRequest;
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
@@ -16,22 +16,22 @@ public class TamanioLienzoServiceImpl implements TamanioLienzoService {
     private TamanioLienzoRepository tamanioLienzoRepository;
 
     @Override
-    public TamanioLienzo obtenerPorId(Long id) {
+    public TamanioLienzo getTamanioLienzoById(Long id) {
         return tamanioLienzoRepository.findById(id)
                 .orElseThrow(() -> new TamanioLienzoNotFoundException(id));
     }
 
     @Override
-    public List<TamanioLienzo> obtenerTodos() {
+    public List<TamanioLienzo> getTamanioLienzos() {
         return tamanioLienzoRepository.findAll();
     }
 
     @Override
-    public TamanioLienzo crearTamanio(TamanioLienzoRequest request) {
+    public TamanioLienzo createTamanioLienzo(TamanioLienzoRequest request) {
         TamanioLienzo tamanio = new TamanioLienzo();
-        tamanio.setNombreTamanio(request.getNombreTamanio());
-        tamanio.setAnchoLienzo(request.getAnchoLienzo());
-        tamanio.setLargoLienzo(request.getLargoLienzo());
+        tamanio.setNombre_tamanio(request.getNombre_tamanio());
+        tamanio.setAncho_lienzo(request.getAncho_lienzo());
+        tamanio.setLargo_lienzo(request.getLargo_lienzo());
 
         return tamanioLienzoRepository.save(tamanio);
     }

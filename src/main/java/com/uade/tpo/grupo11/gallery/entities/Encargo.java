@@ -28,7 +28,7 @@ public class Encargo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tamanio_id", nullable = false)
-    private TamanioLienzo tamanioLienzo;
+    private TamanioLienzo tamanio;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "marco_id", nullable = false)
@@ -36,24 +36,24 @@ public class Encargo {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_pintura", nullable = false)
-    private TipoPintura tipoPintura;
+    private TipoPintura tipo_pintura;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_lienzo", nullable = false)
-    private TipoLienzo tipoLienzo;
+    private TipoLienzo tipo_lienzo;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "estado_encargo", nullable = false)
-    private EstadoEncargo estadoEncargo;
+    private EstadoEncargo estado_encargo;
 
     @Column(name = "descripcion_encargo")
-    private String descripcionEncargo;
+    private String descripcion_encargo;
 
     @Column(name = "fecha_creacion_encargo", nullable = false, updatable = false)
-    private LocalDateTime fechaCreacionEncargo;
+    private LocalDateTime fecha_creacion_encargo;
 
     @PrePersist
     public void prePersist() {
-        this.fechaCreacionEncargo = LocalDateTime.now();
+        this.fecha_creacion_encargo = LocalDateTime.now();
     }
 }

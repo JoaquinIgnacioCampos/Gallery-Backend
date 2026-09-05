@@ -7,10 +7,10 @@ import java.util.List;
 
 public interface VarianteService {
 
-  List<Variante> getListVariante();
+  List<Variante> getVariantes();
   Variante  getVarianteById(Long varianteId);
   Variante createVariante(Variante variante);
-  Variante modificarVariante(Long varianteId, Variante variante);
-  void eliminarVariante(Long varianteId);
+  Variante updateVariante(Long varianteId, Variante variante);
+  void deleteVariante(Long varianteId);
 
 }

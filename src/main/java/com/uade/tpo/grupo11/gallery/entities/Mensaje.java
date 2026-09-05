@@ -24,8 +24,8 @@ public class Mensaje {
     // Relacion usuario mensaje
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_emisor", nullable = false)
-    private Usuario usuarioEmisor;
+    private Usuario emisor;
 
     @Column(name = "contenido_mensaje", nullable = false)
-    private String contenidoMensaje;
+    private String contenido_mensaje;
 }

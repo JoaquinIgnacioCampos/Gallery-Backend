@@ -7,12 +7,13 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
-import com.uade.tpo.grupo11.gallery.exceptions.ArtistaNoAceptaEncargosException;
-import com.uade.tpo.grupo11.gallery.exceptions.ArtistaNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNoAceptaEncargosException;
+import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
-import com.uade.tpo.grupo11.gallery.repositories.ArtistaRepository;
+import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
@@ -28,7 +29,7 @@ public class EncargoServiceImpl implements EncargoService {
     @Autowired
     private EncargoRepository encargoRepository;
     @Autowired
-    private ArtistaRepository artistaRepository;
+    private PerfilArtistaRepository artistaRepository;
     @Autowired
     private UsuarioRepository usuarioRepository;
     @Autowired
@@ -37,46 +38,46 @@ public class EncargoServiceImpl implements EncargoService {
     private MarcoRepository marcoRepository;
 
     @Override
-    public Encargo obtenerPorId(Long id) {
+    public Encargo getEncargoById(Long id) {
         return encargoRepository.findById(id)
                 .orElseThrow(() -> new EncargoNotFoundException(id));
     }
 
     @Override
-    public List<Encargo> obtenerPorArtista(Long artistaId) {
+    public List<Encargo> getEncargosByArtista(Long artistaId) {
         return encargoRepository.findByArtistaId(artistaId);
     }
 
     @Override
-    public List<Encargo> obtenerPorUsuario(Long usuarioId) {
+    public List<Encargo> getEncargosByUsuario(Long usuarioId) {
         return encargoRepository.findByUsuarioId(usuarioId);
     }
 
     @Override
-    public Encargo crearEncargo(EncargoRequest request) {
-        PerfilArtista artista = artistaRepository.findById(request.getArtistaId())
-                .orElseThrow(() -> new ArtistaNotFoundException(request.getArtistaId()));
+    public Encargo createEncargo(EncargoRequest request) {
+        PerfilArtista artista = artistaRepository.findById(request.getArtista_id())
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(request.getArtista_id()));
 
-        if (!artista.isAceptaEncargos()) {
-            throw new ArtistaNoAceptaEncargosException(artista.getId());
+        if (!artista.isAcepta_encargos()) {
+            throw new PerfilArtistaNoAceptaEncargosException(artista.getId());
         }
 
-        Usuario usuario = usuarioRepository.findById(request.getUsuarioId())
-                .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuarioId()));
-        TamanioLienzo tamanio = tamanioLienzoRepository.findById(request.getTamanioId())
-                .orElseThrow(() -> new TamanioLienzoNotFoundException(request.getTamanioId()));
-        Marco marco = marcoRepository.findById(request.getMarcoId())
-                .orElseThrow(() -> new MarcoNotFoundException(request.getMarcoId()));
+        Usuario usuario = usuarioRepository.findById(request.getUsuario_id())
+                .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuario_id()));
+        TamanioLienzo tamanio = tamanioLienzoRepository.findById(request.getTamanio_id())
+                .orElseThrow(() -> new TamanioLienzoNotFoundException(request.getTamanio_id()));
+        Marco marco = marcoRepository.findById(request.getMarco_id())
+                .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
 
         Encargo encargo = new Encargo();
         encargo.setArtista(artista);
         encargo.setUsuario(usuario);
-        encargo.setTamanioLienzo(tamanio);
+        encargo.setTamanio(tamanio);
         encargo.setMarco(marco);
-        encargo.setTipoPintura(request.getTipoPintura());
-        encargo.setTipoLienzo(request.getTipoLienzo());
-        encargo.setEstadoEncargo(EstadoEncargo.PENDIENTE);
-        encargo.setDescripcionEncargo(request.getDescripcionEncargo());
+        encargo.setTipo_pintura(request.getTipo_pintura());
+        encargo.setTipo_lienzo(request.getTipo_lienzo());
+        encargo.setEstado_encargo(EstadoEncargo.PENDIENTE);
+        encargo.setDescripcion_encargo(request.getDescripcion_encargo());
 
         return encargoRepository.save(encargo);
     }

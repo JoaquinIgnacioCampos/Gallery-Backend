@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class MensajeRequest {
-    private Long encargoId;
-    private Long usuarioEmisorId;
+    private Long encargo_id;
+    private Long usuario_emisor_id;
     private String contenido;
 }
