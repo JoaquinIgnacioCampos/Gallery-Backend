@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Data
 @EqualsAndHashCode(of = "id")               // identidad = id, evita recursión con relaciones
-@ToString(exclude = {"variantes", "imagenes"})
+@ToString(exclude = {"variantes", "imagenes", "estilos"})
 @Entity
 @Table(name = "obra")
 public class Obra {
@@ -49,8 +49,6 @@ public class Obra {
             joinColumns = @JoinColumn(name = "obra_id"),
             inverseJoinColumns = @JoinColumn(name = "estilo_id")
     )
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
     private Set<Estilo> estilos = new HashSet<>();
 
 }
