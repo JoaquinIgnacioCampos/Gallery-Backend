@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @EqualsAndHashCode(of = "id")               // identidad = id, evita recursión con relaciones
@@ -38,4 +40,17 @@ public class Obra {
 
     @OneToMany(mappedBy = "obra")
     private List<Imagen> imagenes;
+
+
+    // La coneccion donde varias obras pueden tener varios estilos
+    @ManyToMany
+    @JoinTable(
+            name = "estilo_obra",
+            joinColumns = @JoinColumn(name = "obra_id"),
+            inverseJoinColumns = @JoinColumn(name = "estilo_id")
+    )
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private Set<Estilo> estilos = new HashSet<>();
+
 }
