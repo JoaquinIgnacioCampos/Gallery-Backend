@@ -60,5 +60,15 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409, no 404
     }
 
+    @ExceptionHandler(EstiloNotFoundException.class)
+    public ResponseEntity<String> handleEstiloNotFound(EstiloNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(EstiloDuplicadoException.class)
+    public ResponseEntity<String> handleEstiloDuplicado(EstiloDuplicadoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
 
 }
