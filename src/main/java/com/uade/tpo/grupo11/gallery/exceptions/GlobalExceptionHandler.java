@@ -39,13 +39,13 @@ public class GlobalExceptionHandler {
   }
   
 
-    @ExceptionHandler(ArtistaNotFoundException.class)
-    public ResponseEntity<String> handleArtistaNotFound(ArtistaNotFoundException e) {
+    @ExceptionHandler(PerfilArtistaNotFoundException.class)
+    public ResponseEntity<String> handlePerfilArtistaNotFound(PerfilArtistaNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
-    @ExceptionHandler(ArtistaNoAceptaEncargosException.class)
-    public ResponseEntity<String> handleArtistaNoAceptaEncargos(ArtistaNoAceptaEncargosException e) {
+    @ExceptionHandler(PerfilArtistaNoAceptaEncargosException.class)
+    public ResponseEntity<String> handlePerfilArtistaNoAceptaEncargos(PerfilArtistaNoAceptaEncargosException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 

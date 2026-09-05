@@ -1,6 +1,6 @@
-package com.uade.tpo.grupo11.gallery.services.Marco;
+package com.uade.tpo.grupo11.gallery.services.marco;
 
-import com.uade.tpo.grupo11.gallery.controllers.Marco.MarcoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.marco.MarcoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 
 import java.util.List;

@@ -18,14 +18,14 @@ public class Obra {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, length = 150)
-    private String nombreObra;              // camelCase en Java → columna nombre_obra
+    @Column(name = "nombre_obra", nullable = false, length = 150)
+    private String nombre_obra;
 
-    @Column(length = 1000)
-    private String descripcionObra;
+    @Column(name = "descripcion_obra", length = 1000)
+    private String descripcion_obra;
 
-    @Column(nullable = false)
-    private boolean enVenta;
+    @Column(name = "en_venta", nullable = false)
+    private boolean en_venta;
 
     // Muchas obras pertenecen a un artista. La FK vive en esta tabla.
     @ManyToOne

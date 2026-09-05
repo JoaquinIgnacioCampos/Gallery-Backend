@@ -1,6 +1,6 @@
-package com.uade.tpo.grupo11.gallery.services.itemCarrito;
+package com.uade.tpo.grupo11.gallery.services.itemcarrito;
 
-import com.uade.tpo.grupo11.gallery.controllers.ItemCarrito.ItemCarritoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 
 import java.util.List;

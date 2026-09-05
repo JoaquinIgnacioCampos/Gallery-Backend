@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UsuarioSeriviceImpl implements UsuarioService {
+public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
@@ -23,7 +23,7 @@ public class UsuarioSeriviceImpl implements UsuarioService {
     }
 
     @Override
-    public Usuario createUsuario(UsuarioRequest usuarioRequest) throws DuplicateUserMailException, DuplicateUsernameException {
+    public Usuario createUsuario(UsuarioRequest usuarioRequest) {
         Optional<Usuario> result;
         result = usuarioRepository.findByEmail(usuarioRequest.getEmail_usuario());
         if (result.isPresent()) {
@@ -38,7 +38,7 @@ public class UsuarioSeriviceImpl implements UsuarioService {
     }
 
     @Override
-    public Usuario getUsuario(Long usuario_id) throws UsuarioNotFoundException {
+    public Usuario getUsuario(Long usuario_id) {
         Optional<Usuario> result = usuarioRepository.findById(usuario_id);
         if (result.isPresent()) {
             return result.get();
@@ -48,7 +48,7 @@ public class UsuarioSeriviceImpl implements UsuarioService {
     }
 
     @Override
-    public Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest) throws DuplicateUserMailException, DuplicateUsernameException, UsuarioNotFoundException {
+    public Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest) {
         Optional<Usuario> result, duplicate_mail, duplicate_username;
         duplicate_mail = usuarioRepository.findByEmail(usuarioRequest.getEmail_usuario());
         if (duplicate_mail.isPresent()) {
@@ -65,7 +65,7 @@ public class UsuarioSeriviceImpl implements UsuarioService {
             throw new UsuarioNotFoundException(usuarioId);
         }
 
-        result.get().setEmail_usuario(usuarioRequest.getEmail_usuario());
+        result.get().patchFrom(usuarioRequest);
         return usuarioRepository.save(result.get());
     }
 }

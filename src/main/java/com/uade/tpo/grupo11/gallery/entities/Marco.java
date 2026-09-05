@@ -19,18 +19,18 @@ public class Marco {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_marco")
-    private Long idMarco;
+    private Long id;
 
     @Column(name = "nombre_marco", nullable = false)
-    private String nombreMarco;
+    private String nombre_marco;
 
     @Column(name = "color_marco", nullable = false)
-    private String colorMarco;
+    private String color_marco;
 
     @Lob
     @Column(name = "imagen_marco")
-    private byte[] imagenMarco;
+    private byte[] imagen_marco;
 
     @Column(name = "precio_marco", nullable = false)
-    private BigDecimal precioMarco;
+    private BigDecimal precio_marco;
 }

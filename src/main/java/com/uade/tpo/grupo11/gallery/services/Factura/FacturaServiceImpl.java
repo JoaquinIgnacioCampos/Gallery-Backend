@@ -1,10 +1,13 @@
-package com.uade.tpo.grupo11.gallery.services.Factura;
+package com.uade.tpo.grupo11.gallery.services.factura;
 
-import com.uade.tpo.grupo11.gallery.controllers.Factura.FacturaRequest;
-import com.uade.tpo.grupo11.gallery.entities.Artista;
+import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaRequest;
+import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
-import com.uade.tpo.grupo11.gallery.repositories.ArtistaRepository;
+import com.uade.tpo.grupo11.gallery.exceptions.FacturaNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
+import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 
@@ -20,7 +23,7 @@ public class FacturaServiceImpl implements FacturaService {
     private FacturaRepository facturaRepository;
 
     @Autowired
-    private ArtistaRepository artistaRepository;
+    private PerfilArtistaRepository artistaRepository;
 
     @Autowired
     private CompraRepository compraRepository;
@@ -38,30 +41,27 @@ public class FacturaServiceImpl implements FacturaService {
 
         return facturaRepository
                 .findById(facturaId)
-                .orElseThrow(() ->
-                        new RuntimeException("Factura no encontrada"));
+                .orElseThrow(() -> new FacturaNotFoundException(facturaId));
     }
 
 
     @Override
     public Factura createFactura(FacturaRequest request) {
 
-        Artista artista = artistaRepository
-                .findById(request.getArtistaId())
-                .orElseThrow(() ->
-                        new RuntimeException("Artista no encontrado"));
+        PerfilArtista artista = artistaRepository
+                .findById(request.getArtista_id())
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(request.getArtista_id()));
 
         Compra compra = compraRepository
-                .findById(request.getCompraId())
-                .orElseThrow(() ->
-                        new RuntimeException("Compra no encontrada"));
+                .findById(request.getCompra_id())
+                .orElseThrow(() -> new CompraNotFoundException(request.getCompra_id()));
 
         Factura factura = Factura.builder()
                 .artista(artista)
                 .compra(compra)
-                .detalleFactura(request.getDetalleFactura())
-                .precioTotalFactura(request.getPrecioTotalFactura())
-                .fechaCreacionFactura(request.getFechaCreacionFactura())
+                .detalle_factura(request.getDetalle_factura())
+                .precio_total_factura(request.getPrecio_total_factura())
+                .fecha_creacion_factura(request.getFecha_creacion_factura())
                 .build();
 
         return facturaRepository.save(factura);
@@ -75,24 +75,21 @@ public class FacturaServiceImpl implements FacturaService {
 
         Factura factura = facturaRepository
                 .findById(facturaId)
-                .orElseThrow(() ->
-                        new RuntimeException("Factura no encontrada"));
+                .orElseThrow(() -> new FacturaNotFoundException(facturaId));
 
-        Artista artista = artistaRepository
-                .findById(request.getArtistaId())
-                .orElseThrow(() ->
-                        new RuntimeException("Artista no encontrado"));
+        PerfilArtista artista = artistaRepository
+                .findById(request.getArtista_id())
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(request.getArtista_id()));
 
         Compra compra = compraRepository
-                .findById(request.getCompraId())
-                .orElseThrow(() ->
-                        new RuntimeException("Compra no encontrada"));
+                .findById(request.getCompra_id())
+                .orElseThrow(() -> new CompraNotFoundException(request.getCompra_id()));
 
         factura.setArtista(artista);
         factura.setCompra(compra);
-        factura.setDetalleFactura(request.getDetalleFactura());
-        factura.setPrecioTotalFactura(request.getPrecioTotalFactura());
-        factura.setFechaCreacionFactura(request.getFechaCreacionFactura());
+        factura.setDetalle_factura(request.getDetalle_factura());
+        factura.setPrecio_total_factura(request.getPrecio_total_factura());
+        factura.setFecha_creacion_factura(request.getFecha_creacion_factura());
 
         return facturaRepository.save(factura);
     }
@@ -103,8 +100,7 @@ public class FacturaServiceImpl implements FacturaService {
 
         Factura factura = facturaRepository
                 .findById(facturaId)
-                .orElseThrow(() ->
-                        new RuntimeException("Factura no encontrada"));
+                .orElseThrow(() -> new FacturaNotFoundException(facturaId));
 
         facturaRepository.delete(factura);
     }

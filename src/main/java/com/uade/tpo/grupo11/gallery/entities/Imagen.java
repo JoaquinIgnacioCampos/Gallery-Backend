@@ -23,10 +23,10 @@ public class Imagen {
     private Obra obra;
 
     @Column(name = "orden_imagen")
-    private int ordenImagen;
+    private int orden_imagen;
 
     // El DER define contenido_imagen como BLOB
     @Lob
     @Column(name = "contenido_imagen")
-    private byte[] contenidoImagen;
+    private byte[] contenido_imagen;
 }

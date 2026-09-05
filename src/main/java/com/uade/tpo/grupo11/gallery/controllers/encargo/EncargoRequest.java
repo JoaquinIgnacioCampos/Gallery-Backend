@@ -7,11 +7,11 @@ import lombok.Data;
 
 @Data
 public class EncargoRequest {
-    private Long artistaId;
-    private Long usuarioId;
-    private Long tamanioId;
-    private Long marcoId;
-    private TipoPintura tipoPintura;
-    private TipoLienzo tipoLienzo;
-    private String descripcionEncargo;
+    private Long artista_id;
+    private Long usuario_id;
+    private Long tamanio_id;
+    private Long marco_id;
+    private TipoPintura tipo_pintura;
+    private TipoLienzo tipo_lienzo;
+    private String descripcion_encargo;
 }

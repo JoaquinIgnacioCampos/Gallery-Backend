@@ -1,4 +1,4 @@
-package com.uade.tpo.grupo11.gallery.controllers.Factura;
+package com.uade.tpo.grupo11.gallery.controllers.factura;
 
 import lombok.Data;
 
@@ -8,9 +8,9 @@ import java.time.LocalDateTime;
 @Data
 public class FacturaRequest {
 
-    private Long artistaId;
-    private Long compraId;
-    private String detalleFactura;
-    private BigDecimal precioTotalFactura;
-    private LocalDateTime fechaCreacionFactura;
+    private Long artista_id;
+    private Long compra_id;
+    private String detalle_factura;
+    private BigDecimal precio_total_factura;
+    private LocalDateTime fecha_creacion_factura;
 }

@@ -1,10 +1,14 @@
-package com.uade.tpo.grupo11.gallery.services.itemCarrito;
+package com.uade.tpo.grupo11.gallery.services.itemcarrito;
 
-import com.uade.tpo.grupo11.gallery.controllers.ItemCarrito.ItemCarritoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
+import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.ItemCarritoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
@@ -43,8 +47,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
         return itemCarritoRepository
                 .findById(itemId)
-                .orElseThrow(() ->
-                        new RuntimeException("Item del carrito no encontrado"));
+                .orElseThrow(() -> new ItemCarritoNotFoundException(itemId));
     }
 
 
@@ -52,19 +55,16 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     public ItemCarrito createItemCarrito(ItemCarritoRequest request) {
 
         Carrito carrito = carritoRepository
-                .findById(request.getCarritoId())
-                .orElseThrow(() ->
-                        new RuntimeException("Carrito no encontrado"));
+                .findById(request.getCarrito_id())
+                .orElseThrow(() -> new CarritoNotFoundException(request.getCarrito_id()));
 
         Marco marco = marcoRepository
-                .findById(request.getMarcoId())
-                .orElseThrow(() ->
-                        new RuntimeException("Marco no encontrado"));
+                .findById(request.getMarco_id())
+                .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
 
         Variante variante = varianteRepository
-                .findById(request.getVarianteId())
-                .orElseThrow(() ->
-                        new RuntimeException("Variante no encontrada"));
+                .findById(request.getVariante_id())
+                .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
 
         ItemCarrito itemCarrito = ItemCarrito.builder()
                 .carrito(carrito)
@@ -84,23 +84,19 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
         ItemCarrito itemCarrito = itemCarritoRepository
                 .findById(itemId)
-                .orElseThrow(() ->
-                        new RuntimeException("Item del carrito no encontrado"));
+                .orElseThrow(() -> new ItemCarritoNotFoundException(itemId));
 
         Carrito carrito = carritoRepository
-                .findById(request.getCarritoId())
-                .orElseThrow(() ->
-                        new RuntimeException("Carrito no encontrado"));
+                .findById(request.getCarrito_id())
+                .orElseThrow(() -> new CarritoNotFoundException(request.getCarrito_id()));
 
         Marco marco = marcoRepository
-                .findById(request.getMarcoId())
-                .orElseThrow(() ->
-                        new RuntimeException("Marco no encontrado"));
+                .findById(request.getMarco_id())
+                .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
 
         Variante variante = varianteRepository
-                .findById(request.getVarianteId())
-                .orElseThrow(() ->
-                        new RuntimeException("Variante no encontrada"));
+                .findById(request.getVariante_id())
+                .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
 
         itemCarrito.setCarrito(carrito);
         itemCarrito.setMarco(marco);
@@ -116,8 +112,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
         ItemCarrito itemCarrito = itemCarritoRepository
                 .findById(itemId)
-                .orElseThrow(() ->
-                        new RuntimeException("Item del carrito no encontrado"));
+                .orElseThrow(() -> new ItemCarritoNotFoundException(itemId));
 
         itemCarritoRepository.delete(itemCarrito);
     }

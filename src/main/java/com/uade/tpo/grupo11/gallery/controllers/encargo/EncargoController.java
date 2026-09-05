@@ -3,7 +3,7 @@ package com.uade.tpo.grupo11.gallery.controllers.encargo;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
 import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
-import com.uade.tpo.grupo11.gallery.services.Mensaje.MensajeService;
+import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,26 +21,26 @@ public class EncargoController {
     private MensajeService mensajeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Encargo> getEncargoPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(encargoService.obtenerPorId(id));
+    public ResponseEntity<Encargo> getEncargoById(@PathVariable Long id) {
+        return ResponseEntity.ok(encargoService.getEncargoById(id));
     }
 
     @GetMapping("/artista/{artistaId}")
-    public ResponseEntity<List<Encargo>> getEncargosPorArtista(@PathVariable Long artistaId) {
-        return ResponseEntity.ok(encargoService.obtenerPorArtista(artistaId));
+    public ResponseEntity<List<Encargo>> getEncargosByArtista(@PathVariable Long artistaId) {
+        return ResponseEntity.ok(encargoService.getEncargosByArtista(artistaId));
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Encargo>> getEncargosPorUsuario(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(encargoService.obtenerPorUsuario(usuarioId));
+    public ResponseEntity<List<Encargo>> getEncargosByUsuario(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(encargoService.getEncargosByUsuario(usuarioId));
     }
 
     @PostMapping
-    public ResponseEntity<Encargo> crearEncargo(@RequestBody EncargoRequest request) {
-        return ResponseEntity.ok(encargoService.crearEncargo(request));
+    public ResponseEntity<Encargo> createEncargo(@RequestBody EncargoRequest request) {
+        return ResponseEntity.ok(encargoService.createEncargo(request));
     }
     @GetMapping("/{encargoId}/mensajes")
-    public ResponseEntity<List<Mensaje>> getMensajesPorEncargo(@PathVariable Long encargoId) {
-        return ResponseEntity.ok(mensajeService.obtenerPorEncargo(encargoId));
+    public ResponseEntity<List<Mensaje>> getMensajesByEncargo(@PathVariable Long encargoId) {
+        return ResponseEntity.ok(mensajeService.getMensajesByEncargo(encargoId));
     }
 }

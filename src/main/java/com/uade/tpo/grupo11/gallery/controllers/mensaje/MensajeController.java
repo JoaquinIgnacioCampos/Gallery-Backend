@@ -1,7 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.mensaje;
 
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
-import com.uade.tpo.grupo11.gallery.services.Mensaje.MensajeService;
+import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,15 +16,15 @@ public class MensajeController {
     private MensajeService mensajeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Mensaje> getMensajePorId(@PathVariable Long id) {
-        return ResponseEntity.ok(mensajeService.obtenerPorId(id));
+    public ResponseEntity<Mensaje> getMensajeById(@PathVariable Long id) {
+        return ResponseEntity.ok(mensajeService.getMensajeById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Mensaje> enviarMensaje(@RequestBody MensajeRequest request) {
-        Mensaje mensaje = mensajeService.enviarMensaje(
-                request.getEncargoId(),
-                request.getUsuarioEmisorId(),
+    public ResponseEntity<Mensaje> createMensaje(@RequestBody MensajeRequest request) {
+        Mensaje mensaje = mensajeService.createMensaje(
+                request.getEncargo_id(),
+                request.getUsuario_emisor_id(),
                 request.getContenido());
         return ResponseEntity.ok(mensaje);
     }

@@ -2,9 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.imagen;
 
 
 import com.uade.tpo.grupo11.gallery.entities.Imagen;
-import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.services.imagen.ImagenService;
-import com.uade.tpo.grupo11.gallery.services.variante.VarianteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +23,8 @@ public class ImagenController {
 
     // GET - todas las imágenes
     @GetMapping
-    public ResponseEntity<List<Imagen>> getListImagenes() {
-        return ResponseEntity.ok(servicioImagen.getListImagenes());
+    public ResponseEntity<List<Imagen>> getImagenes() {
+        return ResponseEntity.ok(servicioImagen.getImagenes());
     }
 
     // GET - una imagen por id
@@ -41,7 +39,7 @@ public class ImagenController {
 
     // POST - crear imagen
     @PostMapping
-    public ResponseEntity<Imagen> crearImagen(
+    public ResponseEntity<Imagen> createImagen(
             @RequestBody Imagen imagen) {
 
         return ResponseEntity.ok(
@@ -51,30 +49,22 @@ public class ImagenController {
 
     // PUT - modificar imagen
     @PutMapping("/{imagenId}")
-    public ResponseEntity<Imagen> modificarImagen(
+    public ResponseEntity<Imagen> updateImagen(
             @PathVariable Long imagenId,
             @RequestBody Imagen imagen) {
 
         return ResponseEntity.ok(
-                servicioImagen.modificarImagen(imagenId, imagen)
+                servicioImagen.updateImagen(imagenId, imagen)
         );
     }
 
     // DELETE - eliminar imagen
     @DeleteMapping("/{imagenId}")
-    public ResponseEntity<Void> eliminarImagen(
+    public ResponseEntity<Void> deleteImagen(
             @PathVariable Long imagenId) {
 
-        servicioImagen.eliminarImagen(imagenId);
+        servicioImagen.deleteImagen(imagenId);
 
         return ResponseEntity.noContent().build();
     }
-
-
-
-
-
-
-
-
 }

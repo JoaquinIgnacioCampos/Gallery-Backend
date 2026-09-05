@@ -1,9 +1,8 @@
-package com.uade.tpo.grupo11.gallery.controllers.Tamanio_Lienzo;
+package com.uade.tpo.grupo11.gallery.controllers.tamaniolienzo;
 
 
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
-import com.uade.tpo.grupo11.gallery.services.MensajeService;
-import com.uade.tpo.grupo11.gallery.services.TamanioLienzoService;
+import com.uade.tpo.grupo11.gallery.services.tamaniolienzo.TamanioLienzoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,21 +18,20 @@ public class TamanioLienzoController {
     private TamanioLienzoService tamanioLienzoService;
 
     @GetMapping
-    public ResponseEntity<List<TamanioLienzo>> obtenerTodos() {
-        return ResponseEntity.ok(tamanioLienzoService.obtenerTodos());
+    public ResponseEntity<List<TamanioLienzo>> getTamanioLienzos() {
+        return ResponseEntity.ok(tamanioLienzoService.getTamanioLienzos());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TamanioLienzo> obtenerPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(tamanioLienzoService.obtenerPorId(id));
+    public ResponseEntity<TamanioLienzo> getTamanioLienzoById(@PathVariable Long id) {
+        return ResponseEntity.ok(tamanioLienzoService.getTamanioLienzoById(id));
     }
 
     @PostMapping
-    public ResponseEntity<TamanioLienzo> crearTamanio(@RequestBody TamanioLienzoRequest request) {
-        TamanioLienzo nuevoTamanio = tamanioLienzoService.crearTamanio(request);
+    public ResponseEntity<TamanioLienzo> createTamanioLienzo(@RequestBody TamanioLienzoRequest request) {
+        TamanioLienzo nuevoTamanio = tamanioLienzoService.createTamanioLienzo(request);
         return ResponseEntity
                 .created(URI.create("/api/tamanios-lienzo/" + nuevoTamanio.getId()))
                 .body(nuevoTamanio);
     }
 }
-

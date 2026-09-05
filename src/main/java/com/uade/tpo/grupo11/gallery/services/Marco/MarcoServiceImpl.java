@@ -1,7 +1,8 @@
-package com.uade.tpo.grupo11.gallery.services.Marco;
+package com.uade.tpo.grupo11.gallery.services.marco;
 
-import com.uade.tpo.grupo11.gallery.controllers.Marco.MarcoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.marco.MarcoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
+import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,7 @@ public class MarcoServiceImpl implements MarcoService {
 
         return marcoRepository
                 .findById(marcoId)
-                .orElseThrow(() ->
-                        new RuntimeException("Marco no encontrado"));
+                .orElseThrow(() -> new MarcoNotFoundException(marcoId));
     }
 
 
@@ -37,10 +37,10 @@ public class MarcoServiceImpl implements MarcoService {
     public Marco createMarco(MarcoRequest request) {
 
         Marco marco = Marco.builder()
-                .nombreMarco(request.getNombreMarco())
-                .colorMarco(request.getColorMarco())
-                .imagenMarco(request.getImagenMarco())
-                .precioMarco(request.getPrecioMarco())
+                .nombre_marco(request.getNombre_marco())
+                .color_marco(request.getColor_marco())
+                .imagen_marco(request.getImagen_marco())
+                .precio_marco(request.getPrecio_marco())
                 .build();
 
         return marcoRepository.save(marco);
@@ -54,13 +54,12 @@ public class MarcoServiceImpl implements MarcoService {
 
         Marco marco = marcoRepository
                 .findById(marcoId)
-                .orElseThrow(() ->
-                        new RuntimeException("Marco no encontrado"));
+                .orElseThrow(() -> new MarcoNotFoundException(marcoId));
 
-        marco.setNombreMarco(request.getNombreMarco());
-        marco.setColorMarco(request.getColorMarco());
-        marco.setImagenMarco(request.getImagenMarco());
-        marco.setPrecioMarco(request.getPrecioMarco());
+        marco.setNombre_marco(request.getNombre_marco());
+        marco.setColor_marco(request.getColor_marco());
+        marco.setImagen_marco(request.getImagen_marco());
+        marco.setPrecio_marco(request.getPrecio_marco());
 
         return marcoRepository.save(marco);
     }
@@ -71,8 +70,7 @@ public class MarcoServiceImpl implements MarcoService {
 
         Marco marco = marcoRepository
                 .findById(marcoId)
-                .orElseThrow(() ->
-                        new RuntimeException("Marco no encontrado"));
+                .orElseThrow(() -> new MarcoNotFoundException(marcoId));
 
         marcoRepository.delete(marco);
     }

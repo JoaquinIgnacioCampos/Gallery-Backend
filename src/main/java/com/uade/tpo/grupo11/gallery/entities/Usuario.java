@@ -31,10 +31,10 @@ public class Usuario {
             this.contrasenia_usuario = usuario_request.getContrasenia_usuario();
         }
         if (usuario_request.getNombre_persona() != null){
-            this.nombre_usuario = usuario_request.getNombre_persona();
+            this.nombre_persona = usuario_request.getNombre_persona();
         }
-        if (usuario_request.getAppelido_persona() != null){
-            this.nombre_usuario = usuario_request.getAppelido_persona();
+        if (usuario_request.getApellido_persona() != null){
+            this.apellido_persona = usuario_request.getApellido_persona();
         }
         if (usuario_request.getTelefono_usuario() != null){
             this.telefono_usuario = usuario_request.getTelefono_usuario();
@@ -43,7 +43,8 @@ public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long usuario_id;
+    @Column(name = "usuario_id")
+    private Long id;
 
     @Column(unique = true, nullable = false)
     private String nombre_usuario;
@@ -55,7 +56,7 @@ public class Usuario {
     private String nombre_persona;
 
     @Column
-    private String appelido_persona;
+    private String apellido_persona;
 
     @Column
     private String email_usuario;
@@ -72,11 +73,11 @@ public class Usuario {
     @OneToOne(mappedBy = "usuario")
     private PerfilArtista perfil_artista;
 
-    @OneToMany(mappedBy = "usuario_id")
+    @OneToMany(mappedBy = "usuario")
     private List<Compra> compras_usuario;
 
-    @OneToMany(mappedBy = "usuarioEmisor")
-    private List<Mensaje> mensagens_usuario;
+    @OneToMany(mappedBy = "emisor")
+    private List<Mensaje> mensajes_usuario;
 
     @OneToOne(mappedBy = "usuario")
     private Carrito carrito_usuario;

@@ -28,10 +28,10 @@ public class ItemFactura {
     private Variante variante;
 
     @Column(name = "cantidad_items", nullable = false)
-    private Integer cantidadItems;
+    private Integer cantidad_items;
 
     @Column(name = "total_item", nullable = false)
-    private BigDecimal totalItem;
+    private BigDecimal total_item;
 
     @Column(name = "descuento", nullable = false)
     private BigDecimal descuento = BigDecimal.ZERO;

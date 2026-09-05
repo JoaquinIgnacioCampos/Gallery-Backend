@@ -1,11 +1,13 @@
-package com.uade.tpo.grupo11.gallery.services.itemFactura;
+package com.uade.tpo.grupo11.gallery.services.itemfactura;
 
-import com.uade.tpo.grupo11.gallery.controllers.ItemFactura.ItemFacturaRequest;
+import com.uade.tpo.grupo11.gallery.controllers.itemfactura.ItemFacturaRequest;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
+import com.uade.tpo.grupo11.gallery.exceptions.FacturaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ItemFacturaNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
@@ -33,62 +35,62 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
     private VarianteRepository varianteRepository;
 
     @Override
-    public ItemFactura obtenerPorId(Long id) {
+    public ItemFactura getItemFacturaById(Long id) {
         return itemFacturaRepository.findById(id)
                 .orElseThrow(() -> new ItemFacturaNotFoundException(id));
     }
 
     @Override
-    public List<ItemFactura> obtenerPorFactura(Long facturaId) {
+    public List<ItemFactura> getItemFacturasByFactura(Long facturaId) {
         return itemFacturaRepository.findByFacturaId(facturaId);
     }
 
     @Override
     @Transactional
-    public ItemFactura crearItemFactura(ItemFacturaRequest request) {
+    public ItemFactura createItemFactura(ItemFacturaRequest request) {
 
-        Factura factura = facturaRepository.findById(request.getFacturaId())
-                .orElseThrow(() -> new FacturaNotFoundException(request.getFacturaId()));
+        Factura factura = facturaRepository.findById(request.getFactura_id())
+                .orElseThrow(() -> new FacturaNotFoundException(request.getFactura_id()));
 
-        Marco marco = marcoRepository.findById(request.getMarcoId())
-                .orElseThrow(() -> new MarcoNotFoundException(request.getMarcoId()));
+        Marco marco = marcoRepository.findById(request.getMarco_id())
+                .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
 
-        Variante variante = varianteRepository.findById(request.getVarianteId())
-                .orElseThrow(() -> new VarianteNotFoundException(request.getVarianteId()));
+        Variante variante = varianteRepository.findById(request.getVariante_id())
+                .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
 
-        int cantidad = request.getCantidadItems();
+        int cantidad = request.getCantidad_items();
 
         //No se puede vender más de lo que hay en stock
-        if (variante.getStockVariante() < cantidad) {
+        if (variante.getStock_variante() < cantidad) {
             throw new StockInsuficienteException(
-                    variante.getId(), cantidad, variante.getStockVariante());
+                    variante.getId(), cantidad, variante.getStock_variante());
         }
 
         //calcular el descuento si se necesita
         BigDecimal porcentajeDescuento = BigDecimal.ZERO;
-        if (variante.getPorcentajeDescuento() != null
-                && variante.getDescuentoHasta() != null
-                && !LocalDate.now().isAfter(variante.getDescuentoHasta())) {
-            porcentajeDescuento = BigDecimal.valueOf(variante.getPorcentajeDescuento())
+        if (variante.getPorcentaje_descuento() != null
+                && variante.getDescuento_hasta() != null
+                && !LocalDate.now().isAfter(variante.getDescuento_hasta())) {
+            porcentajeDescuento = BigDecimal.valueOf(variante.getPorcentaje_descuento())
                     .divide(BigDecimal.valueOf(100));
         }
 
         //Precio final variante + marco elegido
-        BigDecimal precioUnitario = variante.getPrecioVariante().add(marco.getPrecioMarco());
+        BigDecimal precioUnitario = variante.getPrecio_variante().add(marco.getPrecio_marco());
         BigDecimal subtotal = precioUnitario.multiply(BigDecimal.valueOf(cantidad));
         BigDecimal montoDescuento = subtotal.multiply(porcentajeDescuento);
         BigDecimal total = subtotal.subtract(montoDescuento);
 
         //descontar el stock recién cuando la venta se confirma
-        variante.setStockVariante(variante.getStockVariante() - cantidad);
+        variante.setStock_variante(variante.getStock_variante() - cantidad);
         varianteRepository.save(variante);
 
         ItemFactura item = new ItemFactura();
         item.setFactura(factura);
         item.setMarco(marco);
         item.setVariante(variante);
-        item.setCantidadItems(cantidad);
-        item.setTotalItem(total);
+        item.setCantidad_items(cantidad);
+        item.setTotal_item(total);
         item.setDescuento(montoDescuento);
 
         return itemFacturaRepository.save(item);

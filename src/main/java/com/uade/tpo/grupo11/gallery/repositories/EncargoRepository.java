@@ -8,6 +8,8 @@ import java.util.List;
 
 @Repository
 public interface EncargoRepository extends JpaRepository<Encargo, Long> {
+
     List<Encargo> findByArtistaId(Long artistaId);
+
     List<Encargo> findByUsuarioId(Long usuarioId);
 }

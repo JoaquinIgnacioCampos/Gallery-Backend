@@ -5,9 +5,9 @@ import com.uade.tpo.grupo11.gallery.entities.Obra;
 import java.util.List;
 
 public interface ObraService {
-    List<Obra> getListObras();
+    List<Obra> getObras();
     Obra getObraById(Long obraId);
     Obra createObra(Obra obra);
-    Obra modificarObra(Long obraId, Obra obra);
-    void eliminarObra(Long obraId);
+    Obra updateObra(Long obraId, Obra obra);
+    void deleteObra(Long obraId);
 }

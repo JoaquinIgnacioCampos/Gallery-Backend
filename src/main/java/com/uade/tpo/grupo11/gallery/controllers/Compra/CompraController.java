@@ -1,7 +1,7 @@
-package com.uade.tpo.grupo11.gallery.controllers.Compra;
+package com.uade.tpo.grupo11.gallery.controllers.compra;
 
 import com.uade.tpo.grupo11.gallery.entities.Compra;
-import com.uade.tpo.grupo11.gallery.services.Compra.CompraService;
+import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

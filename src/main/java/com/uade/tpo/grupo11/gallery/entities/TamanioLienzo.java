@@ -14,12 +14,11 @@ public class TamanioLienzo {
     private Long id;
 
     @Column(name = "nombre_tamanio", nullable = false)
-    private String nombreTamanio;
+    private String nombre_tamanio;
 
     @Column(name = "ancho_lienzo", nullable = false)
-    private Double anchoLienzo;
+    private Double ancho_lienzo;
 
     @Column(name = "largo_lienzo", nullable = false)
-    private Double largoLienzo;
+    private Double largo_lienzo;
 }
-

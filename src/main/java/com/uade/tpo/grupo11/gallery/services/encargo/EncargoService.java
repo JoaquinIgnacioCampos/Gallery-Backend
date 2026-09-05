@@ -6,8 +6,8 @@ import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import java.util.List;
 
 public interface EncargoService {
-    Encargo obtenerPorId(Long id);
-    List<Encargo> obtenerPorArtista(Long artistaId);
-    List<Encargo> obtenerPorUsuario(Long usuarioId);
-    Encargo crearEncargo(EncargoRequest request);
+    Encargo getEncargoById(Long id);
+    List<Encargo> getEncargosByArtista(Long artistaId);
+    List<Encargo> getEncargosByUsuario(Long usuarioId);
+    Encargo createEncargo(EncargoRequest request);
 }

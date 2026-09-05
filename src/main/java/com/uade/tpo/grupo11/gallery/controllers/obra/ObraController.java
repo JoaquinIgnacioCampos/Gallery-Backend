@@ -23,8 +23,8 @@ public class ObraController {
 
 
     @GetMapping()
-    public ResponseEntity<List<Obra>> getListObras() {
-        return ResponseEntity.ok(servicioObra.getListObras());
+    public ResponseEntity<List<Obra>> getObras() {
+        return ResponseEntity.ok(servicioObra.getObras());
     }
 
     @GetMapping("/{obraId}")
@@ -33,23 +33,23 @@ public class ObraController {
     }
 
     @PostMapping
-    public ResponseEntity<Obra> crearObra(@RequestBody Obra obra) {
+    public ResponseEntity<Obra> createObra(@RequestBody Obra obra) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(servicioObra.createObra(obra));
     }
 
     @PutMapping("/{obraId}")
-    public ResponseEntity<Obra> actualizarObra(
+    public ResponseEntity<Obra> updateObra(
             @PathVariable Long obraId,
             @RequestBody Obra obra
     ) {
-        return ResponseEntity.ok(servicioObra.modificarObra(obraId, obra));
+        return ResponseEntity.ok(servicioObra.updateObra(obraId, obra));
     }
 
     @DeleteMapping("/{obraId}")
-    public ResponseEntity<Void> eliminarObra(@PathVariable Long obraId) {
-        servicioObra.eliminarObra(obraId);
+    public ResponseEntity<Void> deleteObra(@PathVariable Long obraId) {
+        servicioObra.deleteObra(obraId);
         return ResponseEntity.noContent().build();
     }
 }

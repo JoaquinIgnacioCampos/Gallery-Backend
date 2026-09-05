@@ -2,12 +2,13 @@ package com.uade.tpo.grupo11.gallery.services.carrito;
 
 
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.uade.tpo.grupo11.gallery.controllers.Carrito.CarritoRequest;
+import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 
@@ -35,8 +36,7 @@ public class CarritoServiceImpl implements CarritoService {
 
         return carritoRepository
                 .findById(carritoId)
-                .orElseThrow(() ->
-                        new RuntimeException("Carrito no encontrado"));
+                .orElseThrow(() -> new CarritoNotFoundException(carritoId));
     }
 
 
@@ -44,13 +44,12 @@ public class CarritoServiceImpl implements CarritoService {
     public Carrito createCarrito(CarritoRequest request) {
 
         Usuario usuario = usuarioRepository
-                .findById(request.getUsuarioId())
-                .orElseThrow(() ->
-                        new RuntimeException("Usuario no encontrado"));
+                .findById(request.getUsuario_id())
+                .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuario_id()));
 
         Carrito carrito = Carrito.builder()
                 .usuario(usuario)
-                .direccionCliente(request.getDireccionCliente())
+                .direccion_cliente(request.getDireccion_cliente())
                 .build();
 
         return carritoRepository.save(carrito);
@@ -64,16 +63,14 @@ public class CarritoServiceImpl implements CarritoService {
 
         Carrito carrito = carritoRepository
                 .findById(carritoId)
-                .orElseThrow(() ->
-                        new RuntimeException("Carrito no encontrado"));
+                .orElseThrow(() -> new CarritoNotFoundException(carritoId));
 
         Usuario usuario = usuarioRepository
-                .findById(request.getUsuarioId())
-                .orElseThrow(() ->
-                        new RuntimeException("Usuario no encontrado"));
+                .findById(request.getUsuario_id())
+                .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuario_id()));
 
         carrito.setUsuario(usuario);
-        carrito.setDireccionCliente(request.getDireccionCliente());
+        carrito.setDireccion_cliente(request.getDireccion_cliente());
 
         return carritoRepository.save(carrito);
     }
@@ -84,15 +81,14 @@ public class CarritoServiceImpl implements CarritoService {
 
         Carrito carrito = carritoRepository
                 .findById(carritoId)
-                .orElseThrow(() ->
-                        new RuntimeException("Carrito no encontrado"));
+                .orElseThrow(() -> new CarritoNotFoundException(carritoId));
 
         carritoRepository.delete(carrito);
     }
 
 
     @Override
-    public Carrito getOrCreateCarritoByUsuario(Long usuarioId) throws UsuarioNotFoundException {
+    public Carrito getOrCreateCarritoByUsuario(Long usuarioId) {
 
         Usuario usuario = usuarioRepository
                 .findById(usuarioId)
