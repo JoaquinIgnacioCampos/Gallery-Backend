@@ -18,6 +18,9 @@ public class Usuario {
         this.nombre_usuario = usuario_request.getNombre_usuario();
         this.email_usuario = usuario_request.getEmail_usuario();
         this.contrasenia_usuario = usuario_request.getContrasenia_usuario();
+        this.nombre_persona = usuario_request.getNombre_persona();
+        this.apellido_persona = usuario_request.getApellido_persona();
+        this.telefono_usuario = usuario_request.getTelefono_usuario();
     }
 
     public void patchFrom (UsuarioRequest usuario_request) {
@@ -81,4 +84,14 @@ public class Usuario {
 
     @OneToOne(mappedBy = "usuario")
     private Carrito carrito_usuario;
+
+    @PrePersist
+    private void onCreate() {
+        if (this.fecha_creacion == null) {
+            this.fecha_creacion = new Date();
+        }
+        if (this.rol_usuario == null) {
+            this.rol_usuario = Rol.CLIENTE;
+        }
+    }
 }

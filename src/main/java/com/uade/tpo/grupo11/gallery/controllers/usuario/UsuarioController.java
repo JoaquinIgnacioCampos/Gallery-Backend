@@ -1,7 +1,11 @@
 package com.uade.tpo.grupo11.gallery.controllers.usuario;
 
 import com.uade.tpo.grupo11.gallery.entities.*;
+import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoResponse;
+import com.uade.tpo.grupo11.gallery.controllers.compra.CompraResponse;
+import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
+import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaResponse;
 import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
@@ -29,56 +33,71 @@ public class UsuarioController {
     private MensajeService mensajeService;
 
     @GetMapping
-    public ResponseEntity<List<Usuario>> getUsuarios() {
-        return ResponseEntity.ok(usuarioService.getUsuarios());
+    public ResponseEntity<List<UsuarioResponse>> getUsuarios() {
+        List<UsuarioResponse> result = usuarioService.getUsuarios().stream()
+                .map(UsuarioResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> createUsuario(@RequestBody UsuarioRequest usuario_request) {
+    public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody UsuarioRequest usuario_request) {
         Usuario result = usuarioService.createUsuario(usuario_request);
-        return ResponseEntity.created(URI.create("/api/usuarios/" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create("/api/usuarios/" + result.getId()))
+                .body(UsuarioResponse.fromEntity(result));
     }
 
     @GetMapping("/{usuario_id}")
-    public ResponseEntity<Usuario> getUsuario(@PathVariable("usuario_id") Long usuario_id) {
-        return ResponseEntity.ok(usuarioService.getUsuario(usuario_id));
+    public ResponseEntity<UsuarioResponse> getUsuario(@PathVariable("usuario_id") Long usuario_id) {
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.getUsuario(usuario_id)));
     }
 
     @PatchMapping("/{usuario_id}")
-    public ResponseEntity<Usuario> updateUsuario(@PathVariable("usuario_id") Long usuario_id, @RequestBody UsuarioRequest usuario_request) {
-        return ResponseEntity.ok(usuarioService.updateUsuario(usuario_id, usuario_request));
+    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable("usuario_id") Long usuario_id, @RequestBody UsuarioRequest usuario_request) {
+        Usuario result = usuarioService.updateUsuario(usuario_id, usuario_request);
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
 
     @GetMapping("/{usuario_id}/carrito")
-    public ResponseEntity<Carrito> getCarrito(@PathVariable("usuario_id") Long usuario_id) {
-        return ResponseEntity.ok(carritoService.getOrCreateCarritoByUsuario(usuario_id));
+    public ResponseEntity<CarritoResponse> getCarrito(@PathVariable("usuario_id") Long usuario_id) {
+        Carrito result = carritoService.getOrCreateCarritoByUsuario(usuario_id);
+        return ResponseEntity.ok(CarritoResponse.fromEntity(result));
     }
 
     @GetMapping("/{usuario_id}/perfil-artista")
-    public ResponseEntity<PerfilArtista> getPerfilArtista(@PathVariable("usuario_id") Long usuario_id) {
-        return ResponseEntity.ok(perfilArtistaService.getPerfilArtistaByUsuario(usuario_id));
+    public ResponseEntity<PerfilArtistaResponse> getPerfilArtista(@PathVariable("usuario_id") Long usuario_id) {
+        PerfilArtista result = perfilArtistaService.getPerfilArtistaByUsuario(usuario_id);
+        return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(result));
     }
 
     @PostMapping("/{usuario_id}/perfil-artista")
-    public ResponseEntity<PerfilArtista> createPerfilArtista(
+    public ResponseEntity<PerfilArtistaResponse> createPerfilArtista(
             @PathVariable("usuario_id") Long usuario_id,
             @RequestBody PerfilArtistaRequest perfil_artista_request) {
         PerfilArtista result = perfilArtistaService.createPerfilArtista(usuario_id, perfil_artista_request);
-        return ResponseEntity.created(URI.create("/api/usuarios/" + usuario_id + "/perfil-artista")).body(result);
+        return ResponseEntity.created(URI.create("/api/usuarios/" + usuario_id + "/perfil-artista"))
+                .body(PerfilArtistaResponse.fromEntity(result));
     }
 
     @GetMapping("/{usuario_id}/compras")
-    public ResponseEntity<List<Compra>> getCompras(@PathVariable("usuario_id") Long usuario_id) {
-        return ResponseEntity.ok(compraService.getComprasByUsuario(usuario_id));
+    public ResponseEntity<List<CompraResponse>> getCompras(@PathVariable("usuario_id") Long usuario_id) {
+        List<CompraResponse> result = compraService.getComprasByUsuario(usuario_id).stream()
+                .map(CompraResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping("/{usuario_id}/compras")
-    public ResponseEntity<Compra> addCompra(@PathVariable("usuario_id") Long usuario_id) {
-        return ResponseEntity.ok(compraService.createCompraForUsuario(usuario_id));
+    public ResponseEntity<CompraResponse> addCompra(@PathVariable("usuario_id") Long usuario_id) {
+        Compra result = compraService.createCompraForUsuario(usuario_id);
+        return ResponseEntity.ok(CompraResponse.fromEntity(result));
     }
 
     @GetMapping("/{usuario_id}/mensajes")
-    public ResponseEntity<List<Mensaje>> getMensajes(@PathVariable("usuario_id") Long usuario_id) {
-        return ResponseEntity.ok(mensajeService.getMensajesByUsuario(usuario_id));
+    public ResponseEntity<List<MensajeResponse>> getMensajes(@PathVariable("usuario_id") Long usuario_id) {
+        List<MensajeResponse> result = mensajeService.getMensajesByUsuario(usuario_id).stream()
+                .map(MensajeResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 }
