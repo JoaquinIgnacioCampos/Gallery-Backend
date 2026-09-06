@@ -3,7 +3,7 @@ package com.uade.tpo.grupo11.gallery.controllers.carrito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import com.uade.tpo.grupo11.gallery.entities.Carrito;
+import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoResponse;
 import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 
 import java.util.List;
@@ -18,47 +18,59 @@ public class CarritoController {
 
     // GET - Obtener todos los carritos
     @GetMapping
-    public List<Carrito> getCarritos() {
+    public List<CarritoResponse> getCarritos() {
 
-        return carritoService.getCarritos();
+        return carritoService.getCarritos().stream()
+                .map(CarritoResponse::fromEntity)
+                .toList();
     }
 
 
     // GET - Obtener carrito por ID
     @GetMapping("/{carritoId}")
-    public Carrito getCarritoById(
+    public CarritoResponse getCarritoById(
             @PathVariable Long carritoId) {
 
-        return carritoService.getCarritoById(carritoId);
+        return CarritoResponse.fromEntity(carritoService.getCarritoById(carritoId));
     }
 
 
     // POST - Crear carrito
     @PostMapping
-    public Carrito createCarrito(
+    public CarritoResponse createCarrito(
             @RequestBody CarritoRequest request) {
 
-        return carritoService.createCarrito(request);
+        return CarritoResponse.fromEntity(carritoService.createCarrito(request));
     }
 
 
     // PUT - Modificar carrito
     @PutMapping("/{carritoId}")
-    public Carrito updateCarrito(
+    public CarritoResponse updateCarrito(
             @PathVariable Long carritoId,
             @RequestBody CarritoRequest request) {
 
-        return carritoService.updateCarrito(
+        return CarritoResponse.fromEntity(carritoService.updateCarrito(
                 carritoId,
                 request
-        );
+        ));
     }
 
-    // DELETE - Eliminar carrito
-    @DeleteMapping("/{carritoId}")
-    public void deleteCarrito(
+
+    @GetMapping("/{carritoId}/items")
+    public List<ItemCarritoResponse> getItemsByCarrito(
             @PathVariable Long carritoId) {
 
-        carritoService.deleteCarrito(carritoId);
+        return carritoService.getItemsByCarrito(carritoId).stream()
+                .map(ItemCarritoResponse::fromEntity)
+                .toList();
+    }
+
+
+    @DeleteMapping("/{carritoId}/items")
+    public void vaciarCarrito(
+            @PathVariable Long carritoId) {
+
+        carritoService.vaciarCarrito(carritoId);
     }
 }
