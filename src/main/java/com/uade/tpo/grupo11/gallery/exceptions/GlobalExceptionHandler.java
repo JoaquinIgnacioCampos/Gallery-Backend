@@ -76,6 +76,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensajes);  // 400
     }
 
+    @ExceptionHandler(CarritoVacioException.class)
+    public ResponseEntity<String> handleCarritoVacio(CarritoVacioException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409
+    }
+
     @ExceptionHandler(ObraEnUsoException.class)
     public ResponseEntity<String> handleObraEnUso(ObraEnUsoException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409: choca con el estado actual
