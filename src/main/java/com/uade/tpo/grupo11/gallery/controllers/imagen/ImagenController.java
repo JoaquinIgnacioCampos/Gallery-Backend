@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.imagen;
 
 import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import com.uade.tpo.grupo11.gallery.services.imagen.ImagenService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class ImagenController {
 
     // 201 CREATED, como en Obra y Variante.
     @PostMapping
-    public ResponseEntity<Imagen> createImagen(@RequestBody ImagenRequest request) {
+    public ResponseEntity<Imagen> createImagen(@Valid @RequestBody ImagenRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(servicioImagen.createImagen(request));
@@ -51,7 +52,7 @@ public class ImagenController {
     @PutMapping("/{imagenId}")
     public ResponseEntity<Imagen> updateImagen(
             @PathVariable Long imagenId,
-            @RequestBody ImagenRequest request) {
+            @Valid @RequestBody ImagenRequest request) {
 
         return ResponseEntity.ok(servicioImagen.updateImagen(imagenId, request));
     }
