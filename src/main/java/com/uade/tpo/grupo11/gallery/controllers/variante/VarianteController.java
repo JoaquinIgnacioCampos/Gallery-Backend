@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.variante;
 
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.services.variante.VarianteService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class VarianteController {
 
 
     @PostMapping
-    public ResponseEntity<Variante> createVariante(@RequestBody VarianteRequest request) {
+    public ResponseEntity<Variante> createVariante(@Valid @RequestBody VarianteRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(servicioVariante.createVariante(request));
@@ -51,7 +52,7 @@ public class VarianteController {
     @PutMapping("/{varianteId}")
     public ResponseEntity<Variante> updateVariante(
             @PathVariable Long varianteId,
-            @RequestBody VarianteRequest request) {
+            @Valid @RequestBody VarianteRequest request) {
 
         return ResponseEntity.ok(servicioVariante.updateVariante(varianteId, request));
     }

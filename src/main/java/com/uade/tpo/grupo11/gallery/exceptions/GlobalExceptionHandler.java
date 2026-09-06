@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.exceptions;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -63,6 +65,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EstiloNotFoundException.class)
     public ResponseEntity<String> handleEstiloNotFound(EstiloNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    // Se dispara cuando un @Valid falla: junta todos los mensajes de los campos que faltan.
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<String> handleValidacion(MethodArgumentNotValidException e) {
+        String mensajes = e.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getDefaultMessage())
+                .collect(Collectors.joining("; "));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(mensajes);  // 400
     }
 
     @ExceptionHandler(ObraEnUsoException.class)

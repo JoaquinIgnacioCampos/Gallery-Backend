@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.obra;
 
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.services.obra.ObraService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class ObraController {
 
 
     @PostMapping
-    public ResponseEntity<Obra> createObra(@RequestBody ObraRequest request) {
+    public ResponseEntity<Obra> createObra(@Valid @RequestBody ObraRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(servicioObra.createObra(request));
@@ -51,7 +52,7 @@ public class ObraController {
     @PutMapping("/{obraId}")
     public ResponseEntity<Obra> updateObra(
             @PathVariable Long obraId,
-            @RequestBody ObraRequest request) {
+            @Valid @RequestBody ObraRequest request) {
 
         return ResponseEntity.ok(servicioObra.updateObra(obraId, request));
     }
