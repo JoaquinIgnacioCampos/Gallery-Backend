@@ -9,7 +9,7 @@ import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/carritos")
+@RequestMapping("/api/carritos")
 public class CarritoController {
 
     @Autowired

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/items-carrito")
+@RequestMapping("/api/items-carrito")
 public class ItemCarritoController {
 
     @Autowired
