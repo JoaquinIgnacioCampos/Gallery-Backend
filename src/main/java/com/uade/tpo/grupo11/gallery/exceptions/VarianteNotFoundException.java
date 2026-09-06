@@ -4,6 +4,6 @@ public class VarianteNotFoundException extends RuntimeException {
 
     public VarianteNotFoundException(Long varianteId) {
 
-        super("No existe variante con id" + varianteId);
+        super("No existe variante con id " + varianteId);
     }
 }
