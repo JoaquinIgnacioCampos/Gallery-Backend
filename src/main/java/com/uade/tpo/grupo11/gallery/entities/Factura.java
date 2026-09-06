@@ -26,7 +26,8 @@ public class Factura {
     @JoinColumn(name = "artista_id", nullable = false)
     private PerfilArtista artista;
 
-    @OneToOne
+    // ManyToOne y no OneToOne: una Compra agrupa VARIAS facturas, una por artista.
+    @ManyToOne
     @JoinColumn(name = "compra_id", nullable = false)
     private Compra compra;
 
