@@ -65,6 +65,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    @ExceptionHandler(ObraEnUsoException.class)
+    public ResponseEntity<String> handleObraEnUso(ObraEnUsoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409: choca con el estado actual
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<String> handleDatosInvalidos(IllegalArgumentException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  // 400: el cliente mando datos invalidos
+    }
+
     @ExceptionHandler(EstiloDuplicadoException.class)
     public ResponseEntity<String> handleEstiloDuplicado(EstiloDuplicadoException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
