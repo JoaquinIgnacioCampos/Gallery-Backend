@@ -101,5 +101,59 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+    @ExceptionHandler(CarritoNotFoundException.class)
+    public ResponseEntity<String> handleCarritoNotFound(CarritoNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(CompraNotFoundException.class)
+    public ResponseEntity<String> handleCompraNotFound(CompraNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(FacturaNotFoundException.class)
+    public ResponseEntity<String> handleFacturaNotFound(FacturaNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(ItemCarritoNotFoundException.class)
+    public ResponseEntity<String> handleItemCarritoNotFound(ItemCarritoNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(MarcoNotFoundException.class)
+    public ResponseEntity<String> handleMarcoNotFound(MarcoNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(TamanioLienzoNotFoundException.class)
+    public ResponseEntity<String> handleTamanioLienzoNotFound(TamanioLienzoNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(UsuarioNotFoundException.class)
+    public ResponseEntity<String> handleUsuarioNotFound(UsuarioNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicatePerfilArtistaException.class)
+    public ResponseEntity<String> handleDuplicatePerfilArtista(DuplicatePerfilArtistaException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateUserMailException.class)
+    public ResponseEntity<String> handleDuplicateUserMail(DuplicateUserMailException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(DuplicateUsernameException.class)
+    public ResponseEntity<String> handleDuplicateUsername(DuplicateUsernameException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(PerfilArtistaInvalidDataException.class)
+    public ResponseEntity<String> handlePerfilArtistaInvalidData(PerfilArtistaInvalidDataException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
 
 }
