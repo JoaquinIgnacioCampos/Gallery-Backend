@@ -80,5 +80,10 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+    @ExceptionHandler(TransicionEstadoInvalidaException.class)
+    public ResponseEntity<String> handleTransicionInvalida(TransicionEstadoInvalidaException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
 
 }
