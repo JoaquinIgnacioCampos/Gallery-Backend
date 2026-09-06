@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.compra;
 
-import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,40 +17,42 @@ public class CompraController {
 
     // GET - Obtener todas las compras
     @GetMapping
-    public List<Compra> getCompras() {
+    public List<CompraResponse> getCompras() {
 
-        return compraService.getCompras();
+        return compraService.getCompras().stream()
+                .map(CompraResponse::fromEntity)
+                .toList();
     }
 
 
     // GET - Obtener una compra por ID
     @GetMapping("/{compraId}")
-    public Compra getCompraById(
+    public CompraResponse getCompraById(
             @PathVariable Long compraId) {
 
-        return compraService.getCompraById(compraId);
+        return CompraResponse.fromEntity(compraService.getCompraById(compraId));
     }
 
 
     // POST - Crear compra
     @PostMapping
-    public Compra createCompra(
+    public CompraResponse createCompra(
             @RequestBody CompraRequest request) {
 
-        return compraService.createCompra(request);
+        return CompraResponse.fromEntity(compraService.createCompra(request));
     }
 
 
     // PUT - Modificar compra
     @PutMapping("/{compraId}")
-    public Compra updateCompra(
+    public CompraResponse updateCompra(
             @PathVariable Long compraId,
             @RequestBody CompraRequest request) {
 
-        return compraService.updateCompra(
+        return CompraResponse.fromEntity(compraService.updateCompra(
                 compraId,
                 request
-        );
+        ));
     }
 
 
