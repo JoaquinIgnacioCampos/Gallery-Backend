@@ -49,23 +49,22 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest) {
-        Optional<Usuario> result, duplicate_mail, duplicate_username;
-        duplicate_mail = usuarioRepository.findByEmail(usuarioRequest.getEmail_usuario());
-        if (duplicate_mail.isPresent()) {
-            throw new DuplicateUserMailException();
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
+
+        if (usuarioRequest.getEmail_usuario() != null) {
+            usuarioRepository.findByEmail(usuarioRequest.getEmail_usuario())
+                    .filter(existing -> !existing.getId().equals(usuarioId))
+                    .ifPresent(existing -> { throw new DuplicateUserMailException(); });
         }
 
-        duplicate_username = usuarioRepository.findByNombre(usuarioRequest.getNombre_usuario());
-        if (duplicate_username.isPresent()) {
-            throw new DuplicateUsernameException();
+        if (usuarioRequest.getNombre_usuario() != null) {
+            usuarioRepository.findByNombre(usuarioRequest.getNombre_usuario())
+                    .filter(existing -> !existing.getId().equals(usuarioId))
+                    .ifPresent(existing -> { throw new DuplicateUsernameException(); });
         }
 
-        result = usuarioRepository.findById(usuarioId);
-        if (!result.isPresent()) {
-            throw new UsuarioNotFoundException(usuarioId);
-        }
-
-        result.get().patchFrom(usuarioRequest);
-        return usuarioRepository.save(result.get());
+        usuario.patchFrom(usuarioRequest);
+        return usuarioRepository.save(usuario);
     }
 }
