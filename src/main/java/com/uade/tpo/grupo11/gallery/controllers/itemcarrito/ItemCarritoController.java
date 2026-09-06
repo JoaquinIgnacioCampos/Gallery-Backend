@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.itemcarrito;
 
-import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.services.itemcarrito.ItemCarritoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,40 +17,42 @@ public class ItemCarritoController {
 
     // GET - Obtener todos los items
     @GetMapping
-    public List<ItemCarrito> getItemsCarrito() {
+    public List<ItemCarritoResponse> getItemsCarrito() {
 
-        return itemCarritoService.getItemsCarrito();
+        return itemCarritoService.getItemsCarrito().stream()
+                .map(ItemCarritoResponse::fromEntity)
+                .toList();
     }
 
 
     // GET - Obtener un item por ID
     @GetMapping("/{itemId}")
-    public ItemCarrito getItemCarritoById(
+    public ItemCarritoResponse getItemCarritoById(
             @PathVariable Long itemId) {
 
-        return itemCarritoService.getItemCarritoById(itemId);
+        return ItemCarritoResponse.fromEntity(itemCarritoService.getItemCarritoById(itemId));
     }
 
 
     // POST - Crear item
     @PostMapping
-    public ItemCarrito createItemCarrito(
+    public ItemCarritoResponse createItemCarrito(
             @RequestBody ItemCarritoRequest request) {
 
-        return itemCarritoService.createItemCarrito(request);
+        return ItemCarritoResponse.fromEntity(itemCarritoService.createItemCarrito(request));
     }
 
 
     // PUT - Modificar item
     @PutMapping("/{itemId}")
-    public ItemCarrito updateItemCarrito(
+    public ItemCarritoResponse updateItemCarrito(
             @PathVariable Long itemId,
             @RequestBody ItemCarritoRequest request) {
 
-        return itemCarritoService.updateItemCarrito(
+        return ItemCarritoResponse.fromEntity(itemCarritoService.updateItemCarrito(
                 itemId,
                 request
-        );
+        ));
     }
 
 

@@ -4,12 +4,15 @@ package com.uade.tpo.grupo11.gallery.services.carrito;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
+import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
+import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 
 import java.util.List;
@@ -22,6 +25,9 @@ public class CarritoServiceImpl implements CarritoService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private ItemCarritoRepository itemCarritoRepository;
 
 
     @Override
@@ -77,13 +83,25 @@ public class CarritoServiceImpl implements CarritoService {
 
 
     @Override
-    public void deleteCarrito(Long carritoId) {
+    public List<ItemCarrito> getItemsByCarrito(Long carritoId) {
 
-        Carrito carrito = carritoRepository
+        carritoRepository
                 .findById(carritoId)
                 .orElseThrow(() -> new CarritoNotFoundException(carritoId));
 
-        carritoRepository.delete(carrito);
+        return itemCarritoRepository.findByCarritoId(carritoId);
+    }
+
+
+    @Override
+    @Transactional
+    public void vaciarCarrito(Long carritoId) {
+
+        carritoRepository
+                .findById(carritoId)
+                .orElseThrow(() -> new CarritoNotFoundException(carritoId));
+
+        itemCarritoRepository.deleteByCarritoId(carritoId);
     }
 
 
