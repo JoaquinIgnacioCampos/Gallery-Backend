@@ -14,6 +14,7 @@ import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -60,7 +61,7 @@ public class FacturaServiceImpl implements FacturaService {
                 .artista(artista)
                 .compra(compra)
                 .detalle_factura(request.getDetalle_factura())
-                .precio_total_factura(request.getPrecio_total_factura())
+                .precio_total_factura(BigDecimal.ZERO)
                 .fecha_creacion_factura(request.getFecha_creacion_factura())
                 .build();
 
@@ -88,7 +89,6 @@ public class FacturaServiceImpl implements FacturaService {
         factura.setArtista(artista);
         factura.setCompra(compra);
         factura.setDetalle_factura(request.getDetalle_factura());
-        factura.setPrecio_total_factura(request.getPrecio_total_factura());
         factura.setFecha_creacion_factura(request.getFecha_creacion_factura());
 
         return facturaRepository.save(factura);

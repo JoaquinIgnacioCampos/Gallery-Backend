@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.itemfactura;
 
 import com.uade.tpo.grupo11.gallery.controllers.itemfactura.ItemFacturaRequest;
+import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
@@ -10,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.ItemFacturaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
+import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
@@ -29,6 +31,8 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
     private ItemFacturaRepository itemFacturaRepository;
     @Autowired
     private FacturaRepository facturaRepository;
+    @Autowired
+    private CompraRepository compraRepository;
     @Autowired
     private MarcoRepository marcoRepository;
     @Autowired
@@ -92,7 +96,15 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
         item.setCantidad_items(cantidad);
         item.setTotal_item(total);
         item.setDescuento(montoDescuento);
+        item = itemFacturaRepository.save(item);
 
-        return itemFacturaRepository.save(item);
+        factura.setPrecio_total_factura(factura.getPrecio_total_factura().add(total));
+        facturaRepository.save(factura);
+
+        Compra compra = factura.getCompra();
+        compra.setTotal_compra(compra.getTotal_compra().add(total));
+        compraRepository.save(compra);
+
+        return item;
     }
 }

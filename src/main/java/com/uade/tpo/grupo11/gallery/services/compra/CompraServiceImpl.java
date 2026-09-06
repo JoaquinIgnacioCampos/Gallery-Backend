@@ -51,7 +51,7 @@ public class CompraServiceImpl implements CompraService {
         Compra compra = Compra.builder()
                 .usuario(usuario)
                 .fecha_compra(request.getFecha_compra())
-                .total_compra(request.getTotal_compra())
+                .total_compra(BigDecimal.ZERO)
                 .build();
 
         return compraRepository.save(compra);
@@ -73,7 +73,6 @@ public class CompraServiceImpl implements CompraService {
 
         compra.setUsuario(usuario);
         compra.setFecha_compra(request.getFecha_compra());
-        compra.setTotal_compra(request.getTotal_compra());
 
         return compraRepository.save(compra);
     }

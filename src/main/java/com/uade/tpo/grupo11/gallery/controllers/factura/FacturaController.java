@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.factura;
 
-import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,40 +17,42 @@ public class FacturaController {
 
     // GET - Obtener todas las facturas
     @GetMapping
-    public List<Factura> getFacturas() {
+    public List<FacturaResponse> getFacturas() {
 
-        return facturaService.getFacturas();
+        return facturaService.getFacturas().stream()
+                .map(FacturaResponse::fromEntity)
+                .toList();
     }
 
 
     // GET - Obtener factura por ID
     @GetMapping("/{facturaId}")
-    public Factura getFacturaById(
+    public FacturaResponse getFacturaById(
             @PathVariable Long facturaId) {
 
-        return facturaService.getFacturaById(facturaId);
+        return FacturaResponse.fromEntity(facturaService.getFacturaById(facturaId));
     }
 
 
     // POST - Crear factura
     @PostMapping
-    public Factura createFactura(
+    public FacturaResponse createFactura(
             @RequestBody FacturaRequest request) {
 
-        return facturaService.createFactura(request);
+        return FacturaResponse.fromEntity(facturaService.createFactura(request));
     }
 
 
     // PUT - Modificar factura
     @PutMapping("/{facturaId}")
-    public Factura updateFactura(
+    public FacturaResponse updateFactura(
             @PathVariable Long facturaId,
             @RequestBody FacturaRequest request) {
 
-        return facturaService.updateFactura(
+        return FacturaResponse.fromEntity(facturaService.updateFactura(
                 facturaId,
                 request
-        );
+        ));
     }
 
 
