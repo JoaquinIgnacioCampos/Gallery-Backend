@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/variantes")
+@RequestMapping("/api/variantes")
 public class VarianteController {
 
     private final VarianteService servicioVariante;
