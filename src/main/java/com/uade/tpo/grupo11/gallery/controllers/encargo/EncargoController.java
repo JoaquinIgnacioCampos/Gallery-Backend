@@ -43,4 +43,12 @@ public class EncargoController {
     public ResponseEntity<List<Mensaje>> getMensajesByEncargo(@PathVariable Long encargoId) {
         return ResponseEntity.ok(mensajeService.getMensajesByEncargo(encargoId));
     }
+
+    @PatchMapping("/{id}/estado")
+    public ResponseEntity<Encargo> cambiarEstado(
+            @PathVariable Long id,
+            @RequestBody CambiarEstadoRequest request) {
+        return ResponseEntity.ok(encargoService.cambiarEstado(id, request.getNuevoEstado()));
+    }
+
 }

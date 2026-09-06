@@ -7,12 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
-import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNoAceptaEncargosException;
-import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
@@ -81,4 +76,27 @@ public class EncargoServiceImpl implements EncargoService {
 
         return encargoRepository.save(encargo);
     }
+    @Override
+    public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado) {
+        Encargo encargo = encargoRepository.findById(encargoId)
+                .orElseThrow(() -> new EncargoNotFoundException(encargoId));
+
+        EstadoEncargo estadoActual = encargo.getEstado_encargo();
+
+        if (!transicionesValidas(estadoActual).contains(nuevoEstado)) {
+            throw new TransicionEstadoInvalidaException(estadoActual, nuevoEstado);
+        }
+
+        encargo.setEstado_encargo(nuevoEstado);
+        return encargoRepository.save(encargo);
+    }
+
+    private List<EstadoEncargo> transicionesValidas(EstadoEncargo estadoActual) {
+        return switch (estadoActual) {
+            case PENDIENTE -> List.of(EstadoEncargo.EN_PROCESO, EstadoEncargo.CANCELADO);
+            case EN_PROCESO -> List.of(EstadoEncargo.TERMINADO, EstadoEncargo.CANCELADO);
+            case TERMINADO, CANCELADO -> List.of(); // estados finales, no admiten cambios
+        };
+    }
+
 }
