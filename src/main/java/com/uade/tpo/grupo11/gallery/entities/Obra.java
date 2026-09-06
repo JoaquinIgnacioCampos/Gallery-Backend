@@ -1,16 +1,23 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Data
-@EqualsAndHashCode(of = "id")               // identidad = id, evita recursión con relaciones
+@Builder                                    // permite construir la obra desde el Service con Obra.builder()
+@NoArgsConstructor                          // JPA necesita un constructor vacio
+@AllArgsConstructor                         // lo necesita @Builder
+@EqualsAndHashCode(of = "id")               // identidad = id, evita recursion con relaciones
 @ToString(exclude = {"variantes", "imagenes", "estilos"})
 @Entity
 @Table(name = "obra")
@@ -36,11 +43,12 @@ public class Obra {
 
     // Una obra tiene muchas variantes. La FK vive en Variante, en su campo "obra".
     @OneToMany(mappedBy = "obra")
-    private List<Variante> variantes;
+    @Builder.Default
+    private List<Variante> variantes = new ArrayList<>();
 
     @OneToMany(mappedBy = "obra")
-    private List<Imagen> imagenes;
-
+    @Builder.Default
+    private List<Imagen> imagenes = new ArrayList<>();
 
     // La coneccion donde varias obras pueden tener varios estilos
     @ManyToMany
@@ -49,6 +57,7 @@ public class Obra {
             joinColumns = @JoinColumn(name = "obra_id"),
             inverseJoinColumns = @JoinColumn(name = "estilo_id")
     )
+    @Builder.Default
     private Set<Estilo> estilos = new HashSet<>();
 
 }
