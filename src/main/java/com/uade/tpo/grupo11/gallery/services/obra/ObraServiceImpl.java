@@ -14,6 +14,7 @@ import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,9 +104,11 @@ public class ObraServiceImpl implements ObraService {
 
 
     @Override
-    public Obra updateObra(Long obraId, ObraRequest request) {
+    public Obra updateObra(Long obraId, ObraRequest request, Usuario usuarioLogueado) {
 
         Obra obraExistente = getObraById(obraId);
+
+        OwnershipGuard.verificar(usuarioLogueado, obraExistente.getArtista().getUsuario().getId());
 
         obraExistente.setNombre_obra(request.getNombre_obra());
         obraExistente.setDescripcion_obra(request.getDescripcion_obra());
@@ -122,9 +125,11 @@ public class ObraServiceImpl implements ObraService {
 
 
     @Override
-    public void deleteObra(Long obraId) {
+    public void deleteObra(Long obraId, Usuario usuarioLogueado) {
 
         Obra obra = getObraById(obraId);
+
+        OwnershipGuard.verificar(usuarioLogueado, obra.getArtista().getUsuario().getId());
 
         // Si la obra todavia tiene variantes o imagenes, la base rechazaria el borrado
         // por la clave foranea. Avisamos con un 409 y un mensaje claro.

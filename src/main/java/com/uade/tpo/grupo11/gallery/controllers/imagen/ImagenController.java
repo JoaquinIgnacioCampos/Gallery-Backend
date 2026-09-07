@@ -1,9 +1,11 @@
 package com.uade.tpo.grupo11.gallery.controllers.imagen;
 
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.imagen.ImagenService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -51,26 +53,31 @@ public class ImagenController {
     // adjunto, que es la forma estandar de subir binarios en una API REST.
     // Por eso el Request va sin @RequestBody: Spring arma el objeto desde los campos del formulario.
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<ImagenResponse> createImagen(@Valid ImagenRequest request) throws IOException {
+    public ResponseEntity<ImagenResponse> createImagen(
+            @Valid ImagenRequest request,
+            @AuthenticationPrincipal Usuario usuarioActual) throws IOException {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ImagenResponse.fromEntity(servicioImagen.createImagen(request)));
+                .body(ImagenResponse.fromEntity(servicioImagen.createImagen(request, usuarioActual)));
     }
 
 
     @PutMapping(value = "/{imagenId}", consumes = "multipart/form-data")
     public ResponseEntity<ImagenResponse> updateImagen(
             @PathVariable Long imagenId,
-            @Valid ImagenRequest request) throws IOException {
+            @Valid ImagenRequest request,
+            @AuthenticationPrincipal Usuario usuarioActual) throws IOException {
 
-        return ResponseEntity.ok(ImagenResponse.fromEntity(servicioImagen.updateImagen(imagenId, request)));
+        return ResponseEntity.ok(ImagenResponse.fromEntity(servicioImagen.updateImagen(imagenId, request, usuarioActual)));
     }
 
 
     // DELETE devuelve 204 NO CONTENT: salio bien y no hay cuerpo que devolver.
     @DeleteMapping("/{imagenId}")
-    public ResponseEntity<Void> deleteImagen(@PathVariable Long imagenId) {
-        servicioImagen.deleteImagen(imagenId);
+    public ResponseEntity<Void> deleteImagen(
+            @PathVariable Long imagenId,
+            @AuthenticationPrincipal Usuario usuarioActual) {
+        servicioImagen.deleteImagen(imagenId, usuarioActual);
         return ResponseEntity.noContent().build();
     }
 }

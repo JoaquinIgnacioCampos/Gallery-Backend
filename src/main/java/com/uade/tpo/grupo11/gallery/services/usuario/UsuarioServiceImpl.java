@@ -5,9 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUserMailException;
 import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUsernameException;
-import com.uade.tpo.grupo11.gallery.exceptions.UsuarioEnUsoException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
-import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,10 +21,6 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
-
-    // Lo usamos solo para saber si el usuario tiene compras antes de darlo de baja.
-    @Autowired
-    private CompraRepository compraRepository;
 
     @Override
     public List<Usuario> getUsuarios() {
@@ -112,21 +106,5 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setRol_usuario(nuevoRol);
 
         return usuarioRepository.save(usuario);
-    }
-
-
-    // BAJA DE CUENTA. Si el usuario ya compro no se borra: la compra es un documento
-    // historico y quedaria huerfana. Avisamos con 409 en lugar de romper por clave foranea.
-    @Override
-    public void eliminarUsuario(Long usuarioId) {
-
-        Usuario usuario = usuarioRepository.findById(usuarioId)
-                .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
-
-        if (!compraRepository.findByUsuarioId(usuarioId).isEmpty()) {
-            throw new UsuarioEnUsoException(usuarioId);
-        }
-
-        usuarioRepository.delete(usuario);
     }
 }

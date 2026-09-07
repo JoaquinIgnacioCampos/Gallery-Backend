@@ -1,9 +1,11 @@
 package com.uade.tpo.grupo11.gallery.controllers.variante;
 
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.variante.VarianteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,19 +50,22 @@ public class VarianteController {
 
     // POST crea: 201 CREATED. @Valid revisa el Request antes de entrar al metodo.
     @PostMapping
-    public ResponseEntity<VarianteResponse> createVariante(@Valid @RequestBody VarianteRequest request) {
+    public ResponseEntity<VarianteResponse> createVariante(
+            @Valid @RequestBody VarianteRequest request,
+            @AuthenticationPrincipal Usuario usuarioActual) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(VarianteResponse.fromEntity(servicioVariante.createVariante(request)));
+                .body(VarianteResponse.fromEntity(servicioVariante.createVariante(request, usuarioActual)));
     }
 
 
     @PutMapping("/{varianteId}")
     public ResponseEntity<VarianteResponse> updateVariante(
             @PathVariable Long varianteId,
-            @Valid @RequestBody VarianteRequest request) {
+            @Valid @RequestBody VarianteRequest request,
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return ResponseEntity.ok(VarianteResponse.fromEntity(servicioVariante.updateVariante(varianteId, request)));
+        return ResponseEntity.ok(VarianteResponse.fromEntity(servicioVariante.updateVariante(varianteId, request, usuarioActual)));
     }
 
 
@@ -68,16 +73,19 @@ public class VarianteController {
     @PatchMapping("/{varianteId}/stock")
     public ResponseEntity<VarianteResponse> actualizarStock(
             @PathVariable Long varianteId,
-            @RequestBody Integer nuevoStock) {
+            @RequestBody Integer nuevoStock,
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return ResponseEntity.ok(VarianteResponse.fromEntity(servicioVariante.actualizarStock(varianteId, nuevoStock)));
+        return ResponseEntity.ok(VarianteResponse.fromEntity(servicioVariante.actualizarStock(varianteId, nuevoStock, usuarioActual)));
     }
 
 
     // DELETE devuelve 204 NO CONTENT: salio bien y no hay cuerpo que devolver.
     @DeleteMapping("/{varianteId}")
-    public ResponseEntity<Void> deleteVariante(@PathVariable Long varianteId) {
-        servicioVariante.deleteVariante(varianteId);
+    public ResponseEntity<Void> deleteVariante(
+            @PathVariable Long varianteId,
+            @AuthenticationPrincipal Usuario usuarioActual) {
+        servicioVariante.deleteVariante(varianteId, usuarioActual);
         return ResponseEntity.noContent().build();
     }
 }

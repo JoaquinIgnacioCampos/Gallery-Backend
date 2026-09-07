@@ -14,7 +14,6 @@ public interface UsuarioService {
     Usuario getUsuario(Long usuario_id);
     Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest);
 
-    // Administracion de cuentas (solo ADMIN): asignar permisos y dar de baja.
+    // Administracion de cuentas (solo ADMIN): asignar permisos.
     Usuario asignarRol(Long usuarioId, Rol nuevoRol);
-    void eliminarUsuario(Long usuarioId);
 }

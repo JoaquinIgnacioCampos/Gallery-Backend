@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ItemCarritoNotFoundException;
@@ -13,6 +14,7 @@ import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,27 +38,37 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
 
     @Override
-    public List<ItemCarrito> getItemsCarrito() {
+    public List<ItemCarrito> getItemsCarrito(Usuario usuarioActual) {
+
+        // Ver todos los items de todos los carritos es una vista administrativa.
+        OwnershipGuard.soloAdmin(usuarioActual);
 
         return itemCarritoRepository.findAll();
     }
 
 
     @Override
-    public ItemCarrito getItemCarritoById(Long itemId) {
+    public ItemCarrito getItemCarritoById(Long itemId, Usuario usuarioActual) {
 
-        return itemCarritoRepository
+        ItemCarrito itemCarrito = itemCarritoRepository
                 .findById(itemId)
                 .orElseThrow(() -> new ItemCarritoNotFoundException(itemId));
+
+        OwnershipGuard.verificar(usuarioActual, itemCarrito.getCarrito().getUsuario().getId());
+
+        return itemCarrito;
     }
 
 
     @Override
-    public ItemCarrito createItemCarrito(ItemCarritoRequest request) {
+    public ItemCarrito createItemCarrito(ItemCarritoRequest request, Usuario usuarioActual) {
 
         Carrito carrito = carritoRepository
                 .findById(request.getCarrito_id())
                 .orElseThrow(() -> new CarritoNotFoundException(request.getCarrito_id()));
+
+        // No se puede agregar un item al carrito de otro usuario.
+        OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
         Marco marco = marcoRepository
                 .findById(request.getMarco_id())
@@ -80,15 +92,21 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     @Override
     public ItemCarrito updateItemCarrito(
             Long itemId,
-            ItemCarritoRequest request) {
+            ItemCarritoRequest request,
+            Usuario usuarioActual) {
 
         ItemCarrito itemCarrito = itemCarritoRepository
                 .findById(itemId)
                 .orElseThrow(() -> new ItemCarritoNotFoundException(itemId));
 
+        OwnershipGuard.verificar(usuarioActual, itemCarrito.getCarrito().getUsuario().getId());
+
         Carrito carrito = carritoRepository
                 .findById(request.getCarrito_id())
                 .orElseThrow(() -> new CarritoNotFoundException(request.getCarrito_id()));
+
+        // El item tampoco puede pasarse al carrito de otro usuario.
+        OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
         Marco marco = marcoRepository
                 .findById(request.getMarco_id())
@@ -108,11 +126,13 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
 
     @Override
-    public void deleteItemCarrito(Long itemId) {
+    public void deleteItemCarrito(Long itemId, Usuario usuarioActual) {
 
         ItemCarrito itemCarrito = itemCarritoRepository
                 .findById(itemId)
                 .orElseThrow(() -> new ItemCarritoNotFoundException(itemId));
+
+        OwnershipGuard.verificar(usuarioActual, itemCarrito.getCarrito().getUsuario().getId());
 
         itemCarritoRepository.delete(itemCarrito);
     }

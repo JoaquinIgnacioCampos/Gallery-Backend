@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,27 +32,37 @@ public class CarritoServiceImpl implements CarritoService {
 
 
     @Override
-    public List<Carrito> getCarritos() {
+    public List<Carrito> getCarritos(Usuario usuarioActual) {
+
+        // Ver todos los carritos es una vista administrativa: no es de nadie en particular.
+        OwnershipGuard.soloAdmin(usuarioActual);
 
         return carritoRepository.findAll();
     }
 
 
     @Override
-    public Carrito getCarritoById(Long carritoId) {
+    public Carrito getCarritoById(Long carritoId, Usuario usuarioActual) {
 
-        return carritoRepository
+        Carrito carrito = carritoRepository
                 .findById(carritoId)
                 .orElseThrow(() -> new CarritoNotFoundException(carritoId));
+
+        OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
+
+        return carrito;
     }
 
 
     @Override
-    public Carrito createCarrito(CarritoRequest request) {
+    public Carrito createCarrito(CarritoRequest request, Usuario usuarioActual) {
 
         Usuario usuario = usuarioRepository
                 .findById(request.getUsuario_id())
                 .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuario_id()));
+
+        // No se puede crear un carrito a nombre de otro usuario.
+        OwnershipGuard.verificar(usuarioActual, usuario.getId());
 
         Carrito carrito = Carrito.builder()
                 .usuario(usuario)
@@ -65,11 +76,14 @@ public class CarritoServiceImpl implements CarritoService {
     @Override
     public Carrito updateCarrito(
             Long carritoId,
-            CarritoRequest request) {
+            CarritoRequest request,
+            Usuario usuarioActual) {
 
         Carrito carrito = carritoRepository
                 .findById(carritoId)
                 .orElseThrow(() -> new CarritoNotFoundException(carritoId));
+
+        OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
         Usuario usuario = usuarioRepository
                 .findById(request.getUsuario_id())
@@ -83,11 +97,13 @@ public class CarritoServiceImpl implements CarritoService {
 
 
     @Override
-    public List<ItemCarrito> getItemsByCarrito(Long carritoId) {
+    public List<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual) {
 
-        carritoRepository
+        Carrito carrito = carritoRepository
                 .findById(carritoId)
                 .orElseThrow(() -> new CarritoNotFoundException(carritoId));
+
+        OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
         return itemCarritoRepository.findByCarritoId(carritoId);
     }
@@ -95,11 +111,13 @@ public class CarritoServiceImpl implements CarritoService {
 
     @Override
     @Transactional
-    public void vaciarCarrito(Long carritoId) {
+    public void vaciarCarrito(Long carritoId, Usuario usuarioActual) {
 
-        carritoRepository
+        Carrito carrito = carritoRepository
                 .findById(carritoId)
                 .orElseThrow(() -> new CarritoNotFoundException(carritoId));
+
+        OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
         itemCarritoRepository.deleteByCarritoId(carritoId);
     }
