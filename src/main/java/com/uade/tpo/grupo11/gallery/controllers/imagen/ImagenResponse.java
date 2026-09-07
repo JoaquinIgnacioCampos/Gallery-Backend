@@ -2,6 +2,8 @@ package com.uade.tpo.grupo11.gallery.controllers.imagen;
 
 import com.uade.tpo.grupo11.gallery.entities.Imagen;
 
+// Lo que la API DEVUELVE de una imagen. El contenido binario sale serializado en base64,
+// asi el front lo puede mostrar directo con src="data:image/jpeg;base64,...".
 public record ImagenResponse(
         Long id,
         Long obra_id,

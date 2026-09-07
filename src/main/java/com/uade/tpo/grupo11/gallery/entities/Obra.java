@@ -13,7 +13,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Data
+// ENTITY: representa la tabla "obra". Cada atributo es una columna y cada objeto una fila.
+// Aca vive la informacion ARTISTICA de la obra (nombre, descripcion, autor, estilos).
+// El precio y el stock NO estan aca: viven en Variante, porque cambian segun el tamanio.
+@Data                                       // Lombok: getters, setters, equals, hashCode y toString
 @Builder                                    // permite construir la obra desde el Service con Obra.builder()
 @NoArgsConstructor                          // JPA necesita un constructor vacio
 @AllArgsConstructor                         // lo necesita @Builder
@@ -46,11 +49,14 @@ public class Obra {
     @Builder.Default
     private List<Variante> variantes = new ArrayList<>();
 
+    // Una obra tiene muchas imagenes. mappedBy dice que el dueno de la relacion es Imagen:
+    // la columna obra_id esta en la tabla imagen, no aca.
     @OneToMany(mappedBy = "obra")
     @Builder.Default
     private List<Imagen> imagenes = new ArrayList<>();
 
-    // La coneccion donde varias obras pueden tener varios estilos
+    // Muchos a muchos: una obra puede tener varios estilos y un estilo agrupa varias obras.
+    // Como ninguna de las dos tablas puede guardar una lista, JPA crea la tabla intermedia estilo_obra.
     @ManyToMany
     @JoinTable(
             name = "estilo_obra",

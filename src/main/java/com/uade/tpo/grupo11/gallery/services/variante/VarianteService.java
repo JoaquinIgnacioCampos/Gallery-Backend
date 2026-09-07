@@ -5,6 +5,9 @@ import com.uade.tpo.grupo11.gallery.entities.Variante;
 
 import java.util.List;
 
+// Contrato: que sabe hacer el servicio de variantes. La logica vive en VarianteServiceImpl.
+// El controller depende de esta interfaz y nunca de la implementacion: por eso se puede
+// reemplazar el como sin tocar a quien lo usa.
 public interface VarianteService {
 
     List<Variante> getVariantes();

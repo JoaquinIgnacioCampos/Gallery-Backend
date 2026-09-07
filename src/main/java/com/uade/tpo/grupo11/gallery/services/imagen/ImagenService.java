@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import java.io.IOException;
 import java.util.List;
 
+// Contrato: que sabe hacer el servicio de imagenes. La logica vive en ImagenServiceImpl.
 public interface ImagenService {
     List<Imagen> getImagenes();
     List<Imagen> getImagenesByObra(Long obraId);

@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+// SERVICE: la logica de negocio de las variantes. Verifica que la obra y el tamanio existan
+// antes de guardar, y valida stock y descuento. Esas reglas no van en el Controller (que solo
+// traduce HTTP) ni en el Repository (que solo lee y escribe): van aca.
 @Service
 public class VarianteServiceImpl implements VarianteService {
 
