@@ -77,9 +77,20 @@ public class EncargoServiceImpl implements EncargoService {
         return encargoRepository.save(encargo);
     }
     @Override
-    public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado) {
+    public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado) {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
+
+        // CHEQUEO DE PERTENENCIA. El rol ya se valido en el SecurityConfig ("sos artista"),
+        // pero eso no alcanza: falta comprobar que seas EL artista de ESTE encargo.
+        // Sin esto, cualquier artista podria cancelar los encargos de otro.
+        PerfilArtista artistaLogueado = artistaRepository.findByUsuarioId(usuarioLogueado.getId())
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioLogueado.getId()));
+
+        if (!encargo.getArtista().getId().equals(artistaLogueado.getId())) {
+            throw new AccesoDenegadoException(
+                    "El encargo con id " + encargoId + " no te pertenece");
+        }
 
         EstadoEncargo estadoActual = encargo.getEstado_encargo();
 

@@ -1,7 +1,9 @@
 package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,11 +55,16 @@ public class EncargoController {
         return ResponseEntity.ok(result);
     }
 
+    // Solo el artista DUENIO del encargo puede moverle el estado.
+    // El rol lo filtra el SecurityConfig; la pertenencia la verifica el service.
     @PatchMapping("/{id}/estado")
     public ResponseEntity<EncargoResponse> cambiarEstado(
             @PathVariable Long id,
-            @Valid @RequestBody CambiarEstadoRequest request) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.cambiarEstado(id, request.getNuevoEstado())));
+            @Valid @RequestBody CambiarEstadoRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+
+        return ResponseEntity.ok(EncargoResponse.fromEntity(
+                encargoService.cambiarEstado(id, request.getNuevoEstado(), usuarioLogueado)));
     }
 
 }

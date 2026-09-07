@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.controllers.obra;
 
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.obra.ObraService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,10 +51,13 @@ public class ObraController {
 
 
     @PostMapping
-    public ResponseEntity<ObraResponse> createObra(@Valid @RequestBody ObraRequest request) {
+    public ResponseEntity<ObraResponse> createObra(
+            @Valid @RequestBody ObraRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(ObraResponse.fromEntity(servicioObra.createObra(request)));
+                .body(ObraResponse.fromEntity(servicioObra.createObra(request, usuarioLogueado)));
     }
 
 
