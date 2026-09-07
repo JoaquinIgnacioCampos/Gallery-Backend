@@ -173,4 +173,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No se pudo procesar el archivo enviado");
     }
 
+
+    @ExceptionHandler(UsuarioEnUsoException.class)
+    public ResponseEntity<String> handleUsuarioEnUso(UsuarioEnUsoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    // Se dispara cuando un parametro no se puede convertir al tipo esperado,
+    // por ejemplo un rol que no existe en el enum. Es culpa de lo que mandaron: 400.
+    @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<String> handleTypeMismatch(
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("El valor '" + e.getValue() + "' no es valido para el parametro '" + e.getName() + "'");
+    }
 }

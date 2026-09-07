@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.services.usuario;
 
 import com.uade.tpo.grupo11.gallery.controllers.usuario.UsuarioRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,4 +13,8 @@ public interface UsuarioService {
     Usuario createUsuario(UsuarioRequest usuarioRequest);
     Usuario getUsuario(Long usuario_id);
     Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest);
+
+    // Administracion de cuentas (solo ADMIN): asignar permisos y dar de baja.
+    Usuario asignarRol(Long usuarioId, Rol nuevoRol);
+    void eliminarUsuario(Long usuarioId);
 }

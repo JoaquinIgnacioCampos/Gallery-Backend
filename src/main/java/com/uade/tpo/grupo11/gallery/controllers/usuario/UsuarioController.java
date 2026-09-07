@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.usuario;
 
 import com.uade.tpo.grupo11.gallery.entities.*;
+import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoResponse;
 import com.uade.tpo.grupo11.gallery.controllers.compra.CompraResponse;
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
@@ -14,6 +15,7 @@ import com.uade.tpo.grupo11.gallery.services.usuario.UsuarioService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -100,5 +102,28 @@ public class UsuarioController {
                 .map(MensajeResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(result);
+    }
+
+
+    // ADMINISTRACION DE CUENTAS - solo ADMIN (la restriccion esta en SecurityConfig).
+
+    // Asignacion de permisos: el administrador cambia el rol de una cuenta.
+    // PATCH y no PUT porque se modifica un solo campo del usuario.
+    // El rol llega como parametro de consulta y Spring lo convierte al enum solo:
+    // si mandan un valor que no existe, responde 400.
+    @PatchMapping("/{usuario_id}/rol")
+    public ResponseEntity<UsuarioResponse> asignarRol(
+            @PathVariable("usuario_id") Long usuario_id,
+            @RequestParam Rol rol) {
+
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.asignarRol(usuario_id, rol)));
+    }
+
+
+    // Baja de cuenta. 204 NO CONTENT: salio bien y no hay nada que devolver.
+    @DeleteMapping("/{usuario_id}")
+    public ResponseEntity<Void> eliminarUsuario(@PathVariable("usuario_id") Long usuario_id) {
+        usuarioService.eliminarUsuario(usuario_id);
+        return ResponseEntity.noContent().build();
     }
 }
