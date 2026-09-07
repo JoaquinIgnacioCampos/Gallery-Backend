@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+// Lo que el cliente manda para crear o modificar los perfiles de artista. Las relaciones viajan como ids.
 @Data
 public class PerfilArtistaRequest {
 

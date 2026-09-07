@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Recibe las peticiones HTTP de las variantes y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/variantes")
 public class VarianteController {
@@ -43,6 +44,7 @@ public class VarianteController {
     }
 
 
+    // Crea la variante con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<VarianteResponse> createVariante(@Valid @RequestBody VarianteRequest request) {
         return ResponseEntity
@@ -51,6 +53,7 @@ public class VarianteController {
     }
 
 
+    // Actualiza la variante: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PutMapping("/{varianteId}")
     public ResponseEntity<VarianteResponse> updateVariante(
             @PathVariable Long varianteId,
@@ -70,6 +73,7 @@ public class VarianteController {
     }
 
 
+    // Elimina la variante de la base.
     @DeleteMapping("/{varianteId}")
     public ResponseEntity<Void> deleteVariante(@PathVariable Long varianteId) {
         servicioVariante.deleteVariante(varianteId);

@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+// Logica de negocio de los items de la factura: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class ItemFacturaServiceImpl implements ItemFacturaService {
 
@@ -38,17 +39,20 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
     @Autowired
     private VarianteRepository varianteRepository;
 
+    // Busca el item de la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public ItemFactura getItemFacturaById(Long id) {
         return itemFacturaRepository.findById(id)
                 .orElseThrow(() -> new ItemFacturaNotFoundException(id));
     }
 
+    // Devuelve los items de la factura de la factura.
     @Override
     public List<ItemFactura> getItemFacturasByFactura(Long facturaId) {
         return itemFacturaRepository.findByFacturaId(facturaId);
     }
 
+    // Crea el item de la factura con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     @Transactional
     public ItemFactura createItemFactura(ItemFacturaRequest request) {

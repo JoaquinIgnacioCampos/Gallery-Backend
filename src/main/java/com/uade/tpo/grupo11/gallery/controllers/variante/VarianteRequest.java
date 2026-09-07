@@ -6,6 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+// Lo que el cliente manda para crear o modificar las variantes. Las relaciones viajan como ids.
 @Data
 public class VarianteRequest {
 

@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+// Lo que el cliente manda para crear o modificar los mensajes. Las relaciones viajan como ids.
 @Data
 public class MensajeRequest {
 

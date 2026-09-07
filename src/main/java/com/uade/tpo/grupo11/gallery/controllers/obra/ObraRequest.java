@@ -6,10 +6,8 @@ import lombok.Data;
 
 import java.util.Set;
 
-// Lo que el cliente manda para crear o modificar una obra.
-// Las relaciones viajan como ids, no como objetos anidados.
-// Las anotaciones controlan que los datos OBLIGATORIOS esten presentes;
-// las reglas de negocio (rangos, permisos) siguen viviendo en el Service.
+// Lo que el cliente manda para crear o modificar una obra; las relaciones viajan como ids.
+// Las anotaciones controlan que los campos obligatorios esten; las reglas de negocio van en el Service.
 @Data
 public class ObraRequest {
 

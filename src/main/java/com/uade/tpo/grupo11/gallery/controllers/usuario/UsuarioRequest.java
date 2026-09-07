@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.validation.constraints.Email;
 import lombok.Data;
 
+// Lo que el cliente manda para crear o modificar los usuarios. Las relaciones viajan como ids.
 @Data
 public class UsuarioRequest {
     private Long usuario_id;

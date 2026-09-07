@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Recibe las peticiones HTTP de los items de la factura y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/items-factura")
 public class ItemFacturaController {
@@ -15,11 +16,13 @@ public class ItemFacturaController {
     @Autowired
     private ItemFacturaService itemFacturaService;
 
+    // Busca el item de la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{id}")
     public ResponseEntity<ItemFacturaResponse> getItemFacturaById(@PathVariable Long id) {
         return ResponseEntity.ok(ItemFacturaResponse.fromEntity(itemFacturaService.getItemFacturaById(id)));
     }
 
+    // Devuelve los items de la factura de la factura.
     @GetMapping("/factura/{facturaId}")
     public ResponseEntity<List<ItemFacturaResponse>> getItemFacturasByFactura(@PathVariable Long facturaId) {
         List<ItemFacturaResponse> result = itemFacturaService.getItemFacturasByFactura(facturaId).stream()
@@ -28,6 +31,7 @@ public class ItemFacturaController {
         return ResponseEntity.ok(result);
     }
 
+    // Crea el item de la factura con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<ItemFacturaResponse> createItemFactura(@Valid @RequestBody ItemFacturaRequest request) {
         return ResponseEntity.ok(ItemFacturaResponse.fromEntity(itemFacturaService.createItemFactura(request)));

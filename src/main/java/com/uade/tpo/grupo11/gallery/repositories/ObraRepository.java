@@ -8,9 +8,11 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
+// Habla con la base. Al extender JpaRepository, el CRUD basico ya viene hecho.
 @Repository
 public interface ObraRepository extends JpaRepository<Obra, Long> {
 
+    // Busca por el id del artista. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Obra> findByArtistaId(Long artistaId);
 
     // Ambos limites deben cumplirse en la misma variante. DISTINCT evita obras repetidas.

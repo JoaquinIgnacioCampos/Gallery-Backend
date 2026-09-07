@@ -12,6 +12,7 @@ import java.util.List;
 import java.math.BigDecimal;
 import io.swagger.v3.oas.annotations.Parameter;
 
+// Recibe las peticiones HTTP de las obras y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/obras")
 public class ObraController {
@@ -44,12 +45,14 @@ public class ObraController {
     }
 
 
+    // Busca la obra por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{obraId}")
     public ResponseEntity<ObraResponse> getObraById(@PathVariable Long obraId) {
         return ResponseEntity.ok(ObraResponse.fromEntity(servicioObra.getObraById(obraId)));
     }
 
 
+    // Crea la obra con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<ObraResponse> createObra(
             @Valid @RequestBody ObraRequest request,
@@ -61,6 +64,7 @@ public class ObraController {
     }
 
 
+    // Actualiza la obra: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PutMapping("/{obraId}")
     public ResponseEntity<ObraResponse> updateObra(
             @PathVariable Long obraId,
@@ -70,6 +74,7 @@ public class ObraController {
     }
 
 
+    // Elimina la obra de la base.
     @DeleteMapping("/{obraId}")
     public ResponseEntity<Void> deleteObra(@PathVariable Long obraId) {
         servicioObra.deleteObra(obraId);

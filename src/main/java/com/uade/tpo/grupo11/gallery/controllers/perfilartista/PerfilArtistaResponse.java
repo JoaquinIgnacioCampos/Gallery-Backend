@@ -9,6 +9,7 @@ public record PerfilArtistaResponse(
         String nombre_artistico,
         boolean acepta_encargos
 ) {
+    // Traduce la entidad a lo que ve el cliente. Manda ids en vez de objetos anidados.
     public static PerfilArtistaResponse fromEntity(PerfilArtista perfilArtista) {
         return new PerfilArtistaResponse(
                 perfilArtista.getId(),
