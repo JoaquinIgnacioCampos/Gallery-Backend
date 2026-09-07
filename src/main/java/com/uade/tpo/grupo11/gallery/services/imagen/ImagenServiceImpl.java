@@ -11,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.List;
 
 @Service
@@ -48,7 +49,11 @@ public class ImagenServiceImpl implements ImagenService {
 
 
     @Override
-    public Imagen createImagen(ImagenRequest request) {
+    public Imagen createImagen(ImagenRequest request) throws IOException {
+
+        if (request.getArchivo() == null || request.getArchivo().isEmpty()) {
+            throw new IllegalArgumentException("El archivo de la imagen es obligatorio");
+        }
 
         Obra obra = obraRepository
                 .findById(request.getObra_id())
@@ -57,7 +62,7 @@ public class ImagenServiceImpl implements ImagenService {
         Imagen imagen = Imagen.builder()
                 .obra(obra)
                 .orden_imagen(calcularOrden(request, obra.getId()))
-                .contenido_imagen(request.getContenido_imagen())
+                .contenido_imagen(request.getArchivo().getBytes())
                 .build();
 
         return repoImagen.save(imagen);
@@ -65,7 +70,7 @@ public class ImagenServiceImpl implements ImagenService {
 
 
     @Override
-    public Imagen updateImagen(Long imagenId, ImagenRequest request) {
+    public Imagen updateImagen(Long imagenId, ImagenRequest request) throws IOException {
 
         Imagen imagenExistente = getImagenById(imagenId);
 
@@ -74,8 +79,8 @@ public class ImagenServiceImpl implements ImagenService {
             imagenExistente.setOrden_imagen(request.getOrden_imagen());
         }
 
-        if (request.getContenido_imagen() != null) {
-            imagenExistente.setContenido_imagen(request.getContenido_imagen());
+        if (request.getArchivo() != null && !request.getArchivo().isEmpty()) {
+            imagenExistente.setContenido_imagen(request.getArchivo().getBytes());
         }
 
         return repoImagen.save(imagenExistente);
