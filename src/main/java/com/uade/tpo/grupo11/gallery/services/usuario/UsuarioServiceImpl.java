@@ -48,7 +48,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = new Usuario(usuarioRequest);
         usuario.setContrasenia_usuario(passwordEncoder.encode(usuarioRequest.getContrasenia_usuario()));
 
-        return usuarioRepository.save(new Usuario(usuarioRequest));
+        return usuarioRepository.save(usuario);
     }
 
     @Override
