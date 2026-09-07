@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,10 +26,6 @@ public class Variante {
     @Column(name = "variante_id")
     private Long id;
 
-    // Muchas variantes pueden pertenecer a una misma obra.
-    // @JsonIgnore corta el ciclo Obra -> Variante -> Obra al armar el JSON.
-    // Las variantes de una obra se consultan con GET /variantes?obraId=...
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "obra_id", nullable = false)
     private Obra obra;
