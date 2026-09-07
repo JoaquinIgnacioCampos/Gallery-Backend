@@ -1,8 +1,6 @@
 package com.uade.tpo.grupo11.gallery.controllers.compra;
 
-import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
-import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +14,6 @@ public class CompraController {
 
     @Autowired
     private CompraService compraService;
-
-    @Autowired
-    private FacturaService facturaService;
 
 
     // GET - Obtener todas las compras
@@ -68,15 +63,5 @@ public class CompraController {
             @PathVariable Long compraId) {
 
         compraService.deleteCompra(compraId);
-    }
-
-
-    @GetMapping("/{compraId}/facturas")
-    public List<FacturaResponse> getFacturasByCompra(
-            @PathVariable Long compraId) {
-
-        return facturaService.getFacturasByCompra(compraId).stream()
-                .map(FacturaResponse::fromEntity)
-                .toList();
     }
 }

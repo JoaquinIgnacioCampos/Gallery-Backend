@@ -9,8 +9,6 @@ public interface FacturaService {
 
     List<Factura> getFacturas();
 
-    List<Factura> getFacturasByCompra(Long compraId);
-
     Factura getFacturaById(Long facturaId);
 
     Factura createFactura(FacturaRequest request);
