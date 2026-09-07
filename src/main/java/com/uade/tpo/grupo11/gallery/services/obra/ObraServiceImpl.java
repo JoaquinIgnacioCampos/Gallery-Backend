@@ -22,6 +22,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
+// SERVICE: aca vive la logica de negocio de las obras. Valida que el artista y los estilos
+// existan, controla los filtros y no deja borrar una obra que tiene hijos.
+// @Service va en la implementacion, no en la interfaz: es esta clase la que Spring instancia
+// como bean y le inyecta a quien la pida.
 @Service
 public class ObraServiceImpl implements ObraService {
 
@@ -131,6 +135,8 @@ public class ObraServiceImpl implements ObraService {
 
         repoObra.delete(obra);
     }
+
+
 
 
     // Convierte la lista de ids que manda el cliente en las entidades Estilo.

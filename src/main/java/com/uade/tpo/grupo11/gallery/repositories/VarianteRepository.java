@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+// REPOSITORY de Variante. Extiende JpaRepository, asi que el CRUD basico ya viene hecho.
 @Repository
 public interface VarianteRepository extends JpaRepository<Variante, Long> {
 

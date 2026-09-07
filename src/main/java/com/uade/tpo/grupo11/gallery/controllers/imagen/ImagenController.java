@@ -9,10 +9,13 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
+// CONTROLLER de Imagen. La diferencia con los otros dos es que aca entra un ARCHIVO,
+// asi que los endpoints de alta y modificacion consumen multipart/form-data en lugar de JSON.
 @RestController
 @RequestMapping("/api/imagenes")
 public class ImagenController {
 
+    // Inyeccion por constructor: el campo queda final y se puede testear sin Spring.
     private final ImagenService servicioImagen;
 
     public ImagenController(ImagenService servicioImagen) {
@@ -44,6 +47,9 @@ public class ImagenController {
 
 
     // 201 CREATED, como en Obra y Variante.
+    // consumes = multipart/form-data: el cuerpo no es JSON sino un formulario con el archivo
+    // adjunto, que es la forma estandar de subir binarios en una API REST.
+    // Por eso el Request va sin @RequestBody: Spring arma el objeto desde los campos del formulario.
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<ImagenResponse> createImagen(@Valid ImagenRequest request) throws IOException {
         return ResponseEntity
@@ -61,6 +67,7 @@ public class ImagenController {
     }
 
 
+    // DELETE devuelve 204 NO CONTENT: salio bien y no hay cuerpo que devolver.
     @DeleteMapping("/{imagenId}")
     public ResponseEntity<Void> deleteImagen(@PathVariable Long imagenId) {
         servicioImagen.deleteImagen(imagenId);

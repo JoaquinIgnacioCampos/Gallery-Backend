@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+// REPOSITORY de Imagen. Extiende JpaRepository, asi que el CRUD basico ya viene hecho.
 @Repository
 public interface ImagenRepository extends JpaRepository<Imagen, Long> {
 
