@@ -7,6 +7,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUsernameException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,6 +17,9 @@ import java.util.Optional;
 public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Override
     public List<Usuario> getUsuarios() {
@@ -40,6 +44,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (result.isPresent()) {
             throw new DuplicateUsernameException();
         }
+
+        Usuario usuario = new Usuario(usuarioRequest);
+        usuario.setContrasenia_usuario(passwordEncoder.encode(usuarioRequest.getContrasenia_usuario()));
 
         return usuarioRepository.save(new Usuario(usuarioRequest));
     }
@@ -72,6 +79,11 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         usuario.patchFrom(usuarioRequest);
+
+        if (usuarioRequest.getContrasenia_usuario() != null) {
+            usuario.setContrasenia_usuario(passwordEncoder.encode(usuarioRequest.getContrasenia_usuario()));
+        }
+
         return usuarioRepository.save(usuario);
     }
 }
