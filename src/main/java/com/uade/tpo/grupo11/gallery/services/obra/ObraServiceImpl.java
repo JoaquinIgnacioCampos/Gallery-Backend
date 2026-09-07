@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +45,20 @@ public class ObraServiceImpl implements ObraService {
     @Override
     public List<Obra> getObras() {
         return repoObra.findAll();
+    }
+
+    @Override
+    public List<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax) {
+        if (precioMin != null && precioMin.signum() < 0) {
+            throw new IllegalArgumentException("El precio minimo no puede ser negativo.");
+        }
+        if (precioMax != null && precioMax.signum() < 0) {
+            throw new IllegalArgumentException("El precio maximo no puede ser negativo.");
+        }
+        if (precioMin != null && precioMax != null && precioMin.compareTo(precioMax) > 0) {
+            throw new IllegalArgumentException("El precio minimo no puede superar al maximo.");
+        }
+        return repoObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax);
     }
 
 

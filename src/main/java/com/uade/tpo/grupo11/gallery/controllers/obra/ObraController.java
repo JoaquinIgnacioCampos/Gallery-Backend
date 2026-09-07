@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.math.BigDecimal;
+import io.swagger.v3.oas.annotations.Parameter;
 
 @RestController
 @RequestMapping("/api/obras")
@@ -20,15 +22,18 @@ public class ObraController {
     }
 
 
-    // GET /obras           -> todas
-    // GET /obras?artistaId=1 -> las de un artista
+    // GET /api/obras: filtros opcionales y combinables, con limites inclusivos.
     @GetMapping
     public ResponseEntity<List<ObraResponse>> getObras(
-            @RequestParam(required = false) Long artistaId) {
+            @RequestParam(required = false) Long artistaId,
+            @Parameter(description = "Categoria de la obra: ID del estilo. Opcional.")
+            @RequestParam(required = false) Long estiloId,
+            @Parameter(description = "Precio base minimo de una variante, inclusive; sin marco ni descuentos.")
+            @RequestParam(required = false) BigDecimal precioMin,
+            @Parameter(description = "Precio base maximo de la misma variante, inclusive; sin marco ni descuentos.")
+            @RequestParam(required = false) BigDecimal precioMax) {
 
-        List<ObraResponse> result = (artistaId != null
-                ? servicioObra.getObrasByArtista(artistaId)
-                : servicioObra.getObras())
+        List<ObraResponse> result = servicioObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax)
                 .stream()
                 .map(ObraResponse::fromEntity)
                 .toList();
