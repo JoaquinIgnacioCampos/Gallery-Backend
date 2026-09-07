@@ -10,6 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
+// Verifica las credenciales y, si son correctas, entrega un token.
 @Service
 public class AuthenticationService {
 
@@ -23,6 +24,10 @@ public class AuthenticationService {
     private AuthenticationManager authenticationManager;
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+
+        // Aca se comprueba la contrasenia: el AuthenticationManager busca al usuario
+        // y compara el hash. Si no coincide lanza BadCredentialsException, que el
+        // handler global traduce a 401 "Mail o contrasenia incorrectos".
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail_usuario(), request.getContrasenia_usuario()));
@@ -30,6 +35,7 @@ public class AuthenticationService {
         Usuario usuario = usuarioRepository.findByEmail(request.getEmail_usuario())
                 .orElseThrow();
 
+        // Recien con las credenciales validadas se genera el token.
         var jwtToken = jwtService.generateToken(usuario);
         return new AuthenticationResponse(jwtToken);
     }

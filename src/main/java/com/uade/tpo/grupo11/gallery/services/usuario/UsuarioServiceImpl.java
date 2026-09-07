@@ -96,8 +96,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
 
     // ASIGNACION DE PERMISOS. Es lo que pide el enunciado: un administrador decide
-    // que puede hacer cada cuenta. El rol viaja despues adentro del token, asi que
-    // el usuario tiene que volver a loguearse para que el cambio tenga efecto.
+    // que puede hacer cada cuenta. El cambio tiene efecto en la peticion siguiente,
+    // sin volver a loguearse: el token solo guarda el email, y los permisos se leen
+    // de la base cada vez que pasa por el filtro.
     @Override
     public Usuario asignarRol(Long usuarioId, Rol nuevoRol) {
 

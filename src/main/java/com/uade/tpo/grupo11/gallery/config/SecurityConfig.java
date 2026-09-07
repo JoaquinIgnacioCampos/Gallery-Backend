@@ -14,6 +14,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+// El portero de la API: define que rutas son publicas, cuales exigen estar logueado
+// y cuales exigen un rol determinado. Se evalua de arriba hacia abajo y gana la
+// primera regla que coincide, por eso el orden importa.
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -27,6 +30,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // CSRF se apaga porque no usamos cookies de sesion: cada peticion
+                // se autentica con su token, asi que ese ataque no aplica.
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/v1/auth/**").permitAll()
@@ -64,8 +69,12 @@ public class SecurityConfig {
 
                         // Todo lo demas exige estar logueado, sin importar el rol.
                         .anyRequest().authenticated())
+                // STATELESS: el servidor no guarda sesiones. Cada peticion se identifica
+                // sola con su token, que es lo que permite escalar sin estado compartido.
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
+                // Nuestro filtro de JWT corre antes que el de usuario y contrasenia de Spring,
+                // porque en esta API la identidad llega en el token y no en un formulario.
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
