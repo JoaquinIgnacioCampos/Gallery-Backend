@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.factura;
 
 import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class FacturaController {
     // POST - Crear factura
     @PostMapping
     public FacturaResponse createFactura(
-            @RequestBody FacturaRequest request) {
+            @Valid @RequestBody FacturaRequest request) {
 
         return FacturaResponse.fromEntity(facturaService.createFactura(request));
     }
@@ -47,7 +48,7 @@ public class FacturaController {
     @PutMapping("/{facturaId}")
     public FacturaResponse updateFactura(
             @PathVariable Long facturaId,
-            @RequestBody FacturaRequest request) {
+            @Valid @RequestBody FacturaRequest request) {
 
         return FacturaResponse.fromEntity(facturaService.updateFactura(
                 facturaId,

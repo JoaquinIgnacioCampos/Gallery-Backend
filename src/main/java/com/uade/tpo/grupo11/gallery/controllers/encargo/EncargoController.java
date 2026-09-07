@@ -3,6 +3,7 @@ package com.uade.tpo.grupo11.gallery.controllers.encargo;
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
 import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class EncargoController {
     }
 
     @PostMapping
-    public ResponseEntity<EncargoResponse> createEncargo(@RequestBody EncargoRequest request) {
+    public ResponseEntity<EncargoResponse> createEncargo(@Valid @RequestBody EncargoRequest request) {
         return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.createEncargo(request)));
     }
     @GetMapping("/{encargoId}/mensajes")
@@ -55,7 +56,7 @@ public class EncargoController {
     @PatchMapping("/{id}/estado")
     public ResponseEntity<EncargoResponse> cambiarEstado(
             @PathVariable Long id,
-            @RequestBody CambiarEstadoRequest request) {
+            @Valid @RequestBody CambiarEstadoRequest request) {
         return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.cambiarEstado(id, request.getNuevoEstado())));
     }
 

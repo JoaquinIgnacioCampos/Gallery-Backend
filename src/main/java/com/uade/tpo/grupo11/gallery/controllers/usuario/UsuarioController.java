@@ -11,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
 import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
 import com.uade.tpo.grupo11.gallery.services.usuario.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,7 +42,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody UsuarioRequest usuario_request) {
+    public ResponseEntity<UsuarioResponse> createUsuario(@Valid @RequestBody UsuarioRequest usuario_request) {
         Usuario result = usuarioService.createUsuario(usuario_request);
         return ResponseEntity.created(URI.create("/api/usuarios/" + result.getId()))
                 .body(UsuarioResponse.fromEntity(result));
@@ -53,7 +54,7 @@ public class UsuarioController {
     }
 
     @PatchMapping("/{usuario_id}")
-    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable("usuario_id") Long usuario_id, @RequestBody UsuarioRequest usuario_request) {
+    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable("usuario_id") Long usuario_id, @Valid @RequestBody UsuarioRequest usuario_request) {
         Usuario result = usuarioService.updateUsuario(usuario_id, usuario_request);
         return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
@@ -73,7 +74,7 @@ public class UsuarioController {
     @PostMapping("/{usuario_id}/perfil-artista")
     public ResponseEntity<PerfilArtistaResponse> createPerfilArtista(
             @PathVariable("usuario_id") Long usuario_id,
-            @RequestBody PerfilArtistaRequest perfil_artista_request) {
+            @Valid @RequestBody PerfilArtistaRequest perfil_artista_request) {
         PerfilArtista result = perfilArtistaService.createPerfilArtista(usuario_id, perfil_artista_request);
         return ResponseEntity.created(URI.create("/api/usuarios/" + usuario_id + "/perfil-artista"))
                 .body(PerfilArtistaResponse.fromEntity(result));

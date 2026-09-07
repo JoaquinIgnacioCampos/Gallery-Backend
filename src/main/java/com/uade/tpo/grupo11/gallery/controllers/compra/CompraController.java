@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.compra;
 
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class CompraController {
     // POST - Crear compra
     @PostMapping
     public CompraResponse createCompra(
-            @RequestBody CompraRequest request) {
+            @Valid @RequestBody CompraRequest request) {
 
         return CompraResponse.fromEntity(compraService.createCompra(request));
     }
@@ -47,7 +48,7 @@ public class CompraController {
     @PutMapping("/{compraId}")
     public CompraResponse updateCompra(
             @PathVariable Long compraId,
-            @RequestBody CompraRequest request) {
+            @Valid @RequestBody CompraRequest request) {
 
         return CompraResponse.fromEntity(compraService.updateCompra(
                 compraId,

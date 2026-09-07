@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.estilo;
 
 import com.uade.tpo.grupo11.gallery.services.estilo.EstiloService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class EstiloController {
     }
 
     @PostMapping
-    public ResponseEntity<EstiloResponse> crearEstilo(@RequestBody EstiloRequest request) {
+    public ResponseEntity<EstiloResponse> crearEstilo(@Valid @RequestBody EstiloRequest request) {
         return ResponseEntity.ok(EstiloResponse.fromEntity(estiloService.crearEstilo(request)));
     }
 }
