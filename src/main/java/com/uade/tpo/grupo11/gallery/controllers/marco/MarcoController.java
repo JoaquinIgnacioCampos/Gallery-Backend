@@ -3,6 +3,7 @@ package com.uade.tpo.grupo11.gallery.controllers.marco;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.services.marco.MarcoService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class MarcoController {
     // POST - Crear marco
     @PostMapping(consumes = "multipart/form-data")
     public Marco createMarco(
-            MarcoRequest request) throws IOException {
+            @Valid MarcoRequest request) throws IOException {
 
         return marcoService.createMarco(request);
     }
@@ -47,7 +48,7 @@ public class MarcoController {
     @PutMapping(value = "/{marcoId}", consumes = "multipart/form-data")
     public Marco updateMarco(
             @PathVariable Long marcoId,
-            MarcoRequest request) throws IOException {
+            @Valid MarcoRequest request) throws IOException {
 
         return marcoService.updateMarco(
                 marcoId,

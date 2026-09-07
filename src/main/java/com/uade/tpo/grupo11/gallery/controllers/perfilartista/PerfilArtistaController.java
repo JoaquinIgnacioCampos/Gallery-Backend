@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.perfilartista;
 
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class PerfilArtistaController {
     @PatchMapping("/{perfilArtistaId}")
     public ResponseEntity<PerfilArtistaResponse> updatePerfilArtista(
             @PathVariable Long perfilArtistaId,
-            @RequestBody PerfilArtistaUpdateRequest request
+            @Valid @RequestBody PerfilArtistaUpdateRequest request
     ) {
         PerfilArtista perfilArtista = perfilArtistaService.updatePerfilArtista(perfilArtistaId, request);
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));

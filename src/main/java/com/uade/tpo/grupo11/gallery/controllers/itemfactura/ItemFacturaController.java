@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.itemfactura;
 
 import com.uade.tpo.grupo11.gallery.services.itemfactura.ItemFacturaService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class ItemFacturaController {
     }
 
     @PostMapping
-    public ResponseEntity<ItemFacturaResponse> createItemFactura(@RequestBody ItemFacturaRequest request) {
+    public ResponseEntity<ItemFacturaResponse> createItemFactura(@Valid @RequestBody ItemFacturaRequest request) {
         return ResponseEntity.ok(ItemFacturaResponse.fromEntity(itemFacturaService.createItemFactura(request)));
     }
 }
