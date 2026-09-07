@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +23,6 @@ public class Compra {
     private Long id;
 
     @ManyToOne
-    @JsonIgnore // corta el ciclo Usuario <-> esta entidad al armar el JSON
     @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 

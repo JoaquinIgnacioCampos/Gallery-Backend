@@ -16,17 +16,17 @@ public class MensajeController {
     private MensajeService mensajeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Mensaje> getMensajeById(@PathVariable Long id) {
-        return ResponseEntity.ok(mensajeService.getMensajeById(id));
+    public ResponseEntity<MensajeResponse> getMensajeById(@PathVariable Long id) {
+        return ResponseEntity.ok(MensajeResponse.fromEntity(mensajeService.getMensajeById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<Mensaje> createMensaje(@RequestBody MensajeRequest request) {
+    public ResponseEntity<MensajeResponse> createMensaje(@RequestBody MensajeRequest request) {
         Mensaje mensaje = mensajeService.createMensaje(
                 request.getEncargo_id(),
                 request.getUsuario_emisor_id(),
                 request.getContenido());
-        return ResponseEntity.ok(mensaje);
+        return ResponseEntity.ok(MensajeResponse.fromEntity(mensaje));
     }
 
 

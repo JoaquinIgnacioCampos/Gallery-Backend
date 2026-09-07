@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.obra;
 
-import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.services.obra.ObraService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -24,37 +23,40 @@ public class ObraController {
     // GET /obras           -> todas
     // GET /obras?artistaId=1 -> las de un artista
     @GetMapping
-    public ResponseEntity<List<Obra>> getObras(
+    public ResponseEntity<List<ObraResponse>> getObras(
             @RequestParam(required = false) Long artistaId) {
 
-        if (artistaId != null) {
-            return ResponseEntity.ok(servicioObra.getObrasByArtista(artistaId));
-        }
+        List<ObraResponse> result = (artistaId != null
+                ? servicioObra.getObrasByArtista(artistaId)
+                : servicioObra.getObras())
+                .stream()
+                .map(ObraResponse::fromEntity)
+                .toList();
 
-        return ResponseEntity.ok(servicioObra.getObras());
+        return ResponseEntity.ok(result);
     }
 
 
     @GetMapping("/{obraId}")
-    public ResponseEntity<Obra> getObraById(@PathVariable Long obraId) {
-        return ResponseEntity.ok(servicioObra.getObraById(obraId));
+    public ResponseEntity<ObraResponse> getObraById(@PathVariable Long obraId) {
+        return ResponseEntity.ok(ObraResponse.fromEntity(servicioObra.getObraById(obraId)));
     }
 
 
     @PostMapping
-    public ResponseEntity<Obra> createObra(@Valid @RequestBody ObraRequest request) {
+    public ResponseEntity<ObraResponse> createObra(@Valid @RequestBody ObraRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(servicioObra.createObra(request));
+                .body(ObraResponse.fromEntity(servicioObra.createObra(request)));
     }
 
 
     @PutMapping("/{obraId}")
-    public ResponseEntity<Obra> updateObra(
+    public ResponseEntity<ObraResponse> updateObra(
             @PathVariable Long obraId,
             @Valid @RequestBody ObraRequest request) {
 
-        return ResponseEntity.ok(servicioObra.updateObra(obraId, request));
+        return ResponseEntity.ok(ObraResponse.fromEntity(servicioObra.updateObra(obraId, request)));
     }
 
 

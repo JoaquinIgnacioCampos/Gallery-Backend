@@ -1,7 +1,6 @@
 package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
-import com.uade.tpo.grupo11.gallery.entities.Encargo;
-import com.uade.tpo.grupo11.gallery.entities.Mensaje;
+import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
 import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,34 +20,43 @@ public class EncargoController {
     private MensajeService mensajeService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Encargo> getEncargoById(@PathVariable Long id) {
-        return ResponseEntity.ok(encargoService.getEncargoById(id));
+    public ResponseEntity<EncargoResponse> getEncargoById(@PathVariable Long id) {
+        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.getEncargoById(id)));
     }
 
     @GetMapping("/artista/{artistaId}")
-    public ResponseEntity<List<Encargo>> getEncargosByArtista(@PathVariable Long artistaId) {
-        return ResponseEntity.ok(encargoService.getEncargosByArtista(artistaId));
+    public ResponseEntity<List<EncargoResponse>> getEncargosByArtista(@PathVariable Long artistaId) {
+        List<EncargoResponse> result = encargoService.getEncargosByArtista(artistaId).stream()
+                .map(EncargoResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<Encargo>> getEncargosByUsuario(@PathVariable Long usuarioId) {
-        return ResponseEntity.ok(encargoService.getEncargosByUsuario(usuarioId));
+    public ResponseEntity<List<EncargoResponse>> getEncargosByUsuario(@PathVariable Long usuarioId) {
+        List<EncargoResponse> result = encargoService.getEncargosByUsuario(usuarioId).stream()
+                .map(EncargoResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @PostMapping
-    public ResponseEntity<Encargo> createEncargo(@RequestBody EncargoRequest request) {
-        return ResponseEntity.ok(encargoService.createEncargo(request));
+    public ResponseEntity<EncargoResponse> createEncargo(@RequestBody EncargoRequest request) {
+        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.createEncargo(request)));
     }
     @GetMapping("/{encargoId}/mensajes")
-    public ResponseEntity<List<Mensaje>> getMensajesByEncargo(@PathVariable Long encargoId) {
-        return ResponseEntity.ok(mensajeService.getMensajesByEncargo(encargoId));
+    public ResponseEntity<List<MensajeResponse>> getMensajesByEncargo(@PathVariable Long encargoId) {
+        List<MensajeResponse> result = mensajeService.getMensajesByEncargo(encargoId).stream()
+                .map(MensajeResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @PatchMapping("/{id}/estado")
-    public ResponseEntity<Encargo> cambiarEstado(
+    public ResponseEntity<EncargoResponse> cambiarEstado(
             @PathVariable Long id,
             @RequestBody CambiarEstadoRequest request) {
-        return ResponseEntity.ok(encargoService.cambiarEstado(id, request.getNuevoEstado()));
+        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.cambiarEstado(id, request.getNuevoEstado())));
     }
 
 }

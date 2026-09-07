@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.variante;
 
-import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.services.variante.VarianteService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -23,48 +22,51 @@ public class VarianteController {
     // GET /variantes          -> todas
     // GET /variantes?obraId=1 -> las de una obra
     @GetMapping
-    public ResponseEntity<List<Variante>> getVariantes(
+    public ResponseEntity<List<VarianteResponse>> getVariantes(
             @RequestParam(required = false) Long obraId) {
 
-        if (obraId != null) {
-            return ResponseEntity.ok(servicioVariante.getVariantesByObra(obraId));
-        }
+        List<VarianteResponse> result = (obraId != null
+                ? servicioVariante.getVariantesByObra(obraId)
+                : servicioVariante.getVariantes())
+                .stream()
+                .map(VarianteResponse::fromEntity)
+                .toList();
 
-        return ResponseEntity.ok(servicioVariante.getVariantes());
+        return ResponseEntity.ok(result);
     }
 
 
     // El nombre entre llaves y el del parametro tienen que coincidir letra por letra.
     @GetMapping("/{varianteId}")
-    public ResponseEntity<Variante> getVarianteById(@PathVariable Long varianteId) {
-        return ResponseEntity.ok(servicioVariante.getVarianteById(varianteId));
+    public ResponseEntity<VarianteResponse> getVarianteById(@PathVariable Long varianteId) {
+        return ResponseEntity.ok(VarianteResponse.fromEntity(servicioVariante.getVarianteById(varianteId)));
     }
 
 
     @PostMapping
-    public ResponseEntity<Variante> createVariante(@Valid @RequestBody VarianteRequest request) {
+    public ResponseEntity<VarianteResponse> createVariante(@Valid @RequestBody VarianteRequest request) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(servicioVariante.createVariante(request));
+                .body(VarianteResponse.fromEntity(servicioVariante.createVariante(request)));
     }
 
 
     @PutMapping("/{varianteId}")
-    public ResponseEntity<Variante> updateVariante(
+    public ResponseEntity<VarianteResponse> updateVariante(
             @PathVariable Long varianteId,
             @Valid @RequestBody VarianteRequest request) {
 
-        return ResponseEntity.ok(servicioVariante.updateVariante(varianteId, request));
+        return ResponseEntity.ok(VarianteResponse.fromEntity(servicioVariante.updateVariante(varianteId, request)));
     }
 
 
     // PATCH y no PUT: se modifica un solo campo, no se reemplaza la variante entera.
     @PatchMapping("/{varianteId}/stock")
-    public ResponseEntity<Variante> actualizarStock(
+    public ResponseEntity<VarianteResponse> actualizarStock(
             @PathVariable Long varianteId,
             @RequestBody Integer nuevoStock) {
 
-        return ResponseEntity.ok(servicioVariante.actualizarStock(varianteId, nuevoStock));
+        return ResponseEntity.ok(VarianteResponse.fromEntity(servicioVariante.actualizarStock(varianteId, nuevoStock)));
     }
 
 

@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +23,6 @@ public class Imagen {
     @Column(name = "imagen_id")
     private Long id;
 
-    // Muchas imágenes pueden pertenecer a una misma obra.
-    // @JsonIgnore corta el ciclo Obra -> Imagen -> Obra al armar el JSON.
-    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "obra_id", nullable = false)
     private Obra obra;
