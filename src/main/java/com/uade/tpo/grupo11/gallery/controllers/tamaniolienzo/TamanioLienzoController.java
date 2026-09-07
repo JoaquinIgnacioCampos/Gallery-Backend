@@ -3,6 +3,7 @@ package com.uade.tpo.grupo11.gallery.controllers.tamaniolienzo;
 
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
 import com.uade.tpo.grupo11.gallery.services.tamaniolienzo.TamanioLienzoService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class TamanioLienzoController {
     }
 
     @PostMapping
-    public ResponseEntity<TamanioLienzo> createTamanioLienzo(@RequestBody TamanioLienzoRequest request) {
+    public ResponseEntity<TamanioLienzo> createTamanioLienzo(@Valid @RequestBody TamanioLienzoRequest request) {
         TamanioLienzo nuevoTamanio = tamanioLienzoService.createTamanioLienzo(request);
         return ResponseEntity
                 .created(URI.create("/api/tamanios-lienzo/" + nuevoTamanio.getId()))

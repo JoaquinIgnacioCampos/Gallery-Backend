@@ -28,6 +28,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public Usuario createUsuario(UsuarioRequest usuarioRequest) {
+        if (usuarioRequest.getNombre_usuario() == null || usuarioRequest.getNombre_usuario().isBlank()) {
+            throw new IllegalArgumentException("El nombre de usuario es obligatorio");
+        }
+        if (usuarioRequest.getContrasenia_usuario() == null || usuarioRequest.getContrasenia_usuario().isBlank()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria");
+        }
+
         Optional<Usuario> result;
         result = usuarioRepository.findByEmail(usuarioRequest.getEmail_usuario());
         if (result.isPresent()) {

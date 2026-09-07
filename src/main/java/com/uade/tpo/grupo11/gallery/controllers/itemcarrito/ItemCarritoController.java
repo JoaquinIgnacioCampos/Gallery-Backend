@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.itemcarrito;
 
 import com.uade.tpo.grupo11.gallery.services.itemcarrito.ItemCarritoService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,7 +38,7 @@ public class ItemCarritoController {
     // POST - Crear item
     @PostMapping
     public ItemCarritoResponse createItemCarrito(
-            @RequestBody ItemCarritoRequest request) {
+            @Valid @RequestBody ItemCarritoRequest request) {
 
         return ItemCarritoResponse.fromEntity(itemCarritoService.createItemCarrito(request));
     }
@@ -47,7 +48,7 @@ public class ItemCarritoController {
     @PutMapping("/{itemId}")
     public ItemCarritoResponse updateItemCarrito(
             @PathVariable Long itemId,
-            @RequestBody ItemCarritoRequest request) {
+            @Valid @RequestBody ItemCarritoRequest request) {
 
         return ItemCarritoResponse.fromEntity(itemCarritoService.updateItemCarrito(
                 itemId,

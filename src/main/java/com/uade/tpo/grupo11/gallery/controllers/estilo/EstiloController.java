@@ -1,7 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.estilo;
 
-import com.uade.tpo.grupo11.gallery.entities.Estilo;
 import com.uade.tpo.grupo11.gallery.services.estilo.EstiloService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,17 +16,20 @@ public class EstiloController {
     private EstiloService estiloService;
 
     @GetMapping
-    public ResponseEntity<List<Estilo>> getTodosLosEstilos() {
-        return ResponseEntity.ok(estiloService.obtenerTodos());
+    public ResponseEntity<List<EstiloResponse>> getTodosLosEstilos() {
+        List<EstiloResponse> result = estiloService.obtenerTodos().stream()
+                .map(EstiloResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Estilo> getEstiloPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(estiloService.obtenerPorId(id));
+    public ResponseEntity<EstiloResponse> getEstiloPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(EstiloResponse.fromEntity(estiloService.obtenerPorId(id)));
     }
 
     @PostMapping
-    public ResponseEntity<Estilo> crearEstilo(@RequestBody EstiloRequest request) {
-        return ResponseEntity.ok(estiloService.crearEstilo(request));
+    public ResponseEntity<EstiloResponse> crearEstilo(@Valid @RequestBody EstiloRequest request) {
+        return ResponseEntity.ok(EstiloResponse.fromEntity(estiloService.crearEstilo(request)));
     }
 }

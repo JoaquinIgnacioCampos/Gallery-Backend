@@ -3,9 +3,11 @@ package com.uade.tpo.grupo11.gallery.controllers.marco;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.services.marco.MarcoService;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -34,19 +36,19 @@ public class MarcoController {
 
 
     // POST - Crear marco
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     public Marco createMarco(
-            @RequestBody MarcoRequest request) {
+            @Valid MarcoRequest request) throws IOException {
 
         return marcoService.createMarco(request);
     }
 
 
     // PUT - Modificar marco
-    @PutMapping("/{marcoId}")
+    @PutMapping(value = "/{marcoId}", consumes = "multipart/form-data")
     public Marco updateMarco(
             @PathVariable Long marcoId,
-            @RequestBody MarcoRequest request) {
+            @Valid MarcoRequest request) throws IOException {
 
         return marcoService.updateMarco(
                 marcoId,

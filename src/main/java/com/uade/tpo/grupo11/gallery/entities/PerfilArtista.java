@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -24,7 +23,6 @@ public class PerfilArtista {
     private Long id;
 
 
-    @JsonIgnore // el Usuario tiene la contrasenia: no se serializa dentro del artista
     @OneToOne(fetch = FetchType.LAZY, optional = false) // Cada artista corresponde a un único usuario y la relación es obligatoria.
     @JoinColumn(
             name = "usuario_id",
@@ -39,7 +37,6 @@ public class PerfilArtista {
     @Column(name = "nombre_artistico", nullable = false, length = 150) // Define el nombre de columna, su obligatoriedad y longitud máxima.
     private String nombre_artistico;
 
-    @JsonIgnore // corta el ciclo Obra -> PerfilArtista -> Obra al armar el JSON
     @OneToMany(mappedBy = "artista") // Un artista puede tener muchas obras; la FK se administra desde Obra.artista.
     private List<Obra> obras = new ArrayList<>();
 

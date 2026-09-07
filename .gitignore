@@ -34,3 +34,4 @@ build/
 
 ### CONFIG ###
 /src/main/resources/application.properties
+/informes/Pruebas_API_Gallery.docx

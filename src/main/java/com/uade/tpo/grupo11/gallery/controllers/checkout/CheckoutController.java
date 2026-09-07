@@ -1,6 +1,6 @@
 package com.uade.tpo.grupo11.gallery.controllers.checkout;
 
-import com.uade.tpo.grupo11.gallery.entities.Compra;
+import com.uade.tpo.grupo11.gallery.controllers.compra.CompraResponse;
 import com.uade.tpo.grupo11.gallery.services.checkout.CheckoutService;
 
 import org.springframework.http.HttpStatus;
@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/checkout")
+@RequestMapping("/api/checkout")
 public class CheckoutController {
 
     private final CheckoutService checkoutService;
@@ -21,9 +21,9 @@ public class CheckoutController {
     // Convierte el carrito del usuario en una compra con sus facturas.
     // 201: se creo un recurso nuevo (la compra).
     @PostMapping
-    public ResponseEntity<Compra> checkout(@RequestParam Long usuarioId) {
+    public ResponseEntity<CompraResponse> checkout(@RequestParam Long usuarioId) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(checkoutService.checkout(usuarioId));
+                .body(CompraResponse.fromEntity(checkoutService.checkout(usuarioId)));
     }
 }

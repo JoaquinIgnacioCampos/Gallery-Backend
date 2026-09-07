@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -24,7 +23,6 @@ public class Mensaje {
 
     // Relacion usuario mensaje
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore // corta el ciclo Usuario <-> esta entidad al armar el JSON
     @JoinColumn(name = "usuario_emisor", nullable = false)
     private Usuario emisor;
 
