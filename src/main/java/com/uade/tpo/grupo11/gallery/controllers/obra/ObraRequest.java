@@ -21,8 +21,8 @@ public class ObraRequest {
     @NotNull(message = "Hay que indicar si la obra esta en venta")
     private Boolean en_venta;
 
-    @NotNull(message = "El artista es obligatorio")
-    private Long artista_id;
+    // El artista NO se pide: se toma del usuario logueado. Si viniera en el body,
+    // cualquier artista podria publicar una obra a nombre de otro cambiando el numero.
 
     private Set<Long> estilo_ids;
 }

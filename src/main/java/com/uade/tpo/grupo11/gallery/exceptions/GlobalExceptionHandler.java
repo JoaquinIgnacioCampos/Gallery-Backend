@@ -174,6 +174,11 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(AccesoDenegadoException.class)
+    public ResponseEntity<String> handleAccesoDenegado(AccesoDenegadoException e) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+    }
+
     @ExceptionHandler(UsuarioEnUsoException.class)
     public ResponseEntity<String> handleUsuarioEnUso(UsuarioEnUsoException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

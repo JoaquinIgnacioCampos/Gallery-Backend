@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.controllers.obra.ObraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Estilo;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.EstiloNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraEnUsoException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
@@ -80,13 +81,14 @@ public class ObraServiceImpl implements ObraService {
 
 
     @Override
-    public Obra createObra(ObraRequest request) {
+    public Obra createObra(ObraRequest request, Usuario usuarioLogueado) {
 
-        // Verificamos que el artista exista antes de guardar: asi devolvemos 404
-        // en lugar de un 500 por violacion de clave foranea.
+        // El artista sale del usuario logueado, NO de un id que mande el cliente.
+        // Si lo tomaramos del body, cualquier artista podria publicar a nombre de otro.
+        // 404 si el usuario todavia no creo su perfil de artista.
         PerfilArtista artista = perfilArtistaRepository
-                .findById(request.getArtista_id())
-                .orElseThrow(() -> new PerfilArtistaNotFoundException(request.getArtista_id()));
+                .findByUsuarioId(usuarioLogueado.getId())
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioLogueado.getId()));
 
         Obra obra = Obra.builder()
                 .nombre_obra(request.getNombre_obra())
