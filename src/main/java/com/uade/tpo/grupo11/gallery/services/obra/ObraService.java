@@ -4,10 +4,12 @@ import com.uade.tpo.grupo11.gallery.controllers.obra.ObraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 
 import java.util.List;
+import java.math.BigDecimal;
 
 // Contrato: que sabe hacer el servicio de obras. La logica vive en ObraServiceImpl.
 public interface ObraService {
     List<Obra> getObras();
+    List<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax);
     List<Obra> getObrasByArtista(Long artistaId);
     Obra getObraById(Long obraId);
     Obra createObra(ObraRequest request);
