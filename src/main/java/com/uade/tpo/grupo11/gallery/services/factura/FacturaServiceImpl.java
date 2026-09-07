@@ -38,6 +38,17 @@ public class FacturaServiceImpl implements FacturaService {
 
 
     @Override
+    public List<Factura> getFacturasByCompra(Long compraId) {
+
+        if (!compraRepository.existsById(compraId)) {
+            throw new CompraNotFoundException(compraId);
+        }
+
+        return facturaRepository.findByCompraId(compraId);
+    }
+
+
+    @Override
     public Factura getFacturaById(Long facturaId) {
 
         return facturaRepository
