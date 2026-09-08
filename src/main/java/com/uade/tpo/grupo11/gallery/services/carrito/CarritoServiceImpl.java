@@ -18,6 +18,7 @@ import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 
 import java.util.List;
 
+// Logica de negocio de los carritos: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class CarritoServiceImpl implements CarritoService {
 
@@ -31,6 +32,7 @@ public class CarritoServiceImpl implements CarritoService {
     private ItemCarritoRepository itemCarritoRepository;
 
 
+    // Devuelve los carritos.
     @Override
     public List<Carrito> getCarritos(Usuario usuarioActual) {
 
@@ -41,6 +43,7 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
+    // Busca el carrito por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Carrito getCarritoById(Long carritoId, Usuario usuarioActual) {
 
@@ -54,6 +57,7 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
+    // Crea el carrito con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Carrito createCarrito(CarritoRequest request, Usuario usuarioActual) {
 
@@ -73,6 +77,7 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
+    // Actualiza el carrito: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Carrito updateCarrito(
             Long carritoId,
@@ -96,6 +101,7 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
+    // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @Override
     public List<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual) {
 
@@ -109,6 +115,7 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
+    // Saca todos los items del carrito sin borrar el carrito.
     @Override
     @Transactional
     public void vaciarCarrito(Long carritoId, Usuario usuarioActual) {
@@ -123,6 +130,7 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
+    // Devuelve el carrito del usuario y, si todavia no tiene, se lo crea.
     @Override
     public Carrito getOrCreateCarritoByUsuario(Long usuarioId) {
 

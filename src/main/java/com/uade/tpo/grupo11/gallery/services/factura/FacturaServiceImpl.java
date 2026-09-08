@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+// Logica de negocio de las facturas: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class FacturaServiceImpl implements FacturaService {
 
@@ -30,6 +31,7 @@ public class FacturaServiceImpl implements FacturaService {
     private CompraRepository compraRepository;
 
 
+    // Devuelve las facturas.
     @Override
     public List<Factura> getFacturas() {
 
@@ -37,6 +39,7 @@ public class FacturaServiceImpl implements FacturaService {
     }
 
 
+    // Devuelve las facturas de la compra.
     @Override
     public List<Factura> getFacturasByCompra(Long compraId) {
 
@@ -48,6 +51,7 @@ public class FacturaServiceImpl implements FacturaService {
     }
 
 
+    // Busca la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Factura getFacturaById(Long facturaId) {
 
@@ -57,6 +61,7 @@ public class FacturaServiceImpl implements FacturaService {
     }
 
 
+    // Crea la factura con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Factura createFactura(FacturaRequest request) {
 
@@ -80,6 +85,7 @@ public class FacturaServiceImpl implements FacturaService {
     }
 
 
+    // Actualiza la factura: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Factura updateFactura(
             Long facturaId,
@@ -106,6 +112,7 @@ public class FacturaServiceImpl implements FacturaService {
     }
 
 
+    // Elimina la factura de la base.
     @Override
     public void deleteFactura(Long facturaId) {
 

@@ -5,6 +5,7 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+// Lo que el cliente manda para crear o modificar las compras. Las relaciones viajan como ids.
 @Data
 public class CompraRequest {
 

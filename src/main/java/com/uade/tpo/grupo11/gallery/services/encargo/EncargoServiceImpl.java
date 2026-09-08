@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+// Logica de negocio de los encargos: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class EncargoServiceImpl implements EncargoService {
 
@@ -32,22 +33,26 @@ public class EncargoServiceImpl implements EncargoService {
     @Autowired
     private MarcoRepository marcoRepository;
 
+    // Busca el encargo por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Encargo getEncargoById(Long id) {
         return encargoRepository.findById(id)
                 .orElseThrow(() -> new EncargoNotFoundException(id));
     }
 
+    // Devuelve los encargos del artista.
     @Override
     public List<Encargo> getEncargosByArtista(Long artistaId) {
         return encargoRepository.findByArtistaId(artistaId);
     }
 
+    // Devuelve los encargos del usuario.
     @Override
     public List<Encargo> getEncargosByUsuario(Long usuarioId) {
         return encargoRepository.findByUsuarioId(usuarioId);
     }
 
+    // Crea el encargo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Encargo createEncargo(EncargoRequest request) {
         PerfilArtista artista = artistaRepository.findById(request.getArtista_id())
@@ -76,13 +81,13 @@ public class EncargoServiceImpl implements EncargoService {
 
         return encargoRepository.save(encargo);
     }
+    // Mueve el encargo al estado siguiente si la transicion es valida.
     @Override
     public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado) {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
-        // CHEQUEO DE PERTENENCIA. El rol ya se valido en el SecurityConfig ("sos artista"),
-        // pero eso no alcanza: falta comprobar que seas EL artista de ESTE encargo.
+        // Chequeo de pertenencia: el rol ya se valido en el SecurityConfig, pero eso no alcanza.
         // Sin esto, cualquier artista podria cancelar los encargos de otro.
         PerfilArtista artistaLogueado = artistaRepository.findByUsuarioId(usuarioLogueado.getId())
                 .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioLogueado.getId()));
@@ -102,6 +107,7 @@ public class EncargoServiceImpl implements EncargoService {
         return encargoRepository.save(encargo);
     }
 
+    // Dice a que estados se puede pasar desde el actual. Terminado y cancelado son finales.
     private List<EstadoEncargo> transicionesValidas(EstadoEncargo estadoActual) {
         return switch (estadoActual) {
             case PENDIENTE -> List.of(EstadoEncargo.EN_PROCESO, EstadoEncargo.CANCELADO);

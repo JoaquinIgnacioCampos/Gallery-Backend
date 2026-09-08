@@ -7,6 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoPintura;
 
 import java.time.LocalDateTime;
 
+// Lo que la API devuelve de los encargos. No exponemos la entidad: evita recursion y datos de mas.
 public record EncargoResponse(
         Long id,
         Long artista_id,
@@ -19,6 +20,7 @@ public record EncargoResponse(
         String descripcion_encargo,
         LocalDateTime fecha_creacion_encargo
 ) {
+    // Traduce la entidad a lo que ve el cliente. Manda ids en vez de objetos anidados.
     public static EncargoResponse fromEntity(Encargo encargo) {
         return new EncargoResponse(
                 encargo.getId(),

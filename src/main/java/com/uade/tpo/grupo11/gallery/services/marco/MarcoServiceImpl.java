@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 
+// Logica de negocio de los marcos: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class MarcoServiceImpl implements MarcoService {
 
@@ -18,6 +19,7 @@ public class MarcoServiceImpl implements MarcoService {
     private MarcoRepository marcoRepository;
 
 
+    // Devuelve los marcos.
     @Override
     public List<Marco> getMarcos() {
 
@@ -25,6 +27,7 @@ public class MarcoServiceImpl implements MarcoService {
     }
 
 
+    // Busca el marco por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Marco getMarcoById(Long marcoId) {
 
@@ -34,6 +37,7 @@ public class MarcoServiceImpl implements MarcoService {
     }
 
 
+    // Crea el marco con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Marco createMarco(MarcoRequest request) throws IOException {
 
@@ -52,6 +56,7 @@ public class MarcoServiceImpl implements MarcoService {
     }
 
 
+    // Actualiza el marco: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Marco updateMarco(
             Long marcoId,
@@ -73,6 +78,7 @@ public class MarcoServiceImpl implements MarcoService {
     }
 
 
+    // Elimina el marco de la base.
     @Override
     public void deleteMarco(Long marcoId) {
 

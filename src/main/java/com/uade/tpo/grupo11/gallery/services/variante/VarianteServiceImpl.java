@@ -18,9 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-// SERVICE: la logica de negocio de las variantes. Verifica que la obra y el tamanio existan
-// antes de guardar, y valida stock y descuento. Esas reglas no van en el Controller (que solo
-// traduce HTTP) ni en el Repository (que solo lee y escribe): van aca.
+// Logica de negocio de las variantes: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class VarianteServiceImpl implements VarianteService {
 
@@ -34,12 +32,14 @@ public class VarianteServiceImpl implements VarianteService {
     private TamanioLienzoRepository tamanioLienzoRepository;
 
 
+    // Devuelve las variantes.
     @Override
     public List<Variante> getVariantes() {
         return repoVariante.findAll();
     }
 
 
+    // Devuelve las variantes de la obra.
     @Override
     public List<Variante> getVariantesByObra(Long obraId) {
 
@@ -53,6 +53,7 @@ public class VarianteServiceImpl implements VarianteService {
     }
 
 
+    // Busca la variante por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Variante getVarianteById(Long varianteId) {
         return repoVariante.findById(varianteId)
@@ -60,6 +61,7 @@ public class VarianteServiceImpl implements VarianteService {
     }
 
 
+    // Crea la variante con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Variante createVariante(VarianteRequest request, Usuario usuarioActual) {
 
@@ -89,6 +91,7 @@ public class VarianteServiceImpl implements VarianteService {
     }
 
 
+    // Actualiza la variante: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Variante updateVariante(Long varianteId, VarianteRequest request, Usuario usuarioActual) {
 
@@ -114,6 +117,7 @@ public class VarianteServiceImpl implements VarianteService {
     }
 
 
+    // Cambia solo el stock. Por eso es PATCH y no PUT.
     @Override
     public Variante actualizarStock(Long varianteId, Integer nuevoStock, Usuario usuarioActual) {
 
@@ -129,6 +133,7 @@ public class VarianteServiceImpl implements VarianteService {
     }
 
 
+    // Elimina la variante de la base.
     @Override
     public void deleteVariante(Long varianteId, Usuario usuarioActual) {
 
@@ -149,6 +154,7 @@ public class VarianteServiceImpl implements VarianteService {
     }
 
 
+    // Regla de negocio: el porcentaje tiene que estar entre 0 y 100.
     private void validarDescuento(Integer porcentaje) {
 
         if (porcentaje != null && (porcentaje < 0 || porcentaje > 100)) {

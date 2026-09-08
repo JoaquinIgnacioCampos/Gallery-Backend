@@ -21,9 +21,7 @@ public class ApplicationConfig {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
-    // COMO buscar un usuario. Spring Security trabaja con la interfaz UserDetails,
-    // y nuestra entity Usuario la implementa, asi que devolvemos la entity directamente.
-    // Nuestro "nombre de usuario" para loguearse es el email.
+    // Le dice a Spring Security como buscar un usuario. Nuestro "nombre de usuario" es el email.
     @Bean
     public UserDetailsService userDetailsService() {
         return email -> usuarioRepository.findByEmail(email)
@@ -46,9 +44,7 @@ public class ApplicationConfig {
     }
 
     // BCrypt: hashea la contrasenia al registrarse y la compara al loguearse.
-    // Es de una sola via: no existe forma de recuperar la contrasenia original desde el hash.
-    // Cada hash lleva su propia sal adentro, por eso dos usuarios con la misma
-    // contrasenia tienen hashes distintos.
+    // Es de una sola via: del hash no se puede volver a la contrasenia original.
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

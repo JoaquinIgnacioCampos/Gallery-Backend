@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.List;
 
+// Recibe las peticiones HTTP de los usuarios y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
@@ -35,6 +36,7 @@ public class UsuarioController {
     @Autowired
     private MensajeService mensajeService;
 
+    // Devuelve los usuarios.
     @GetMapping
     public ResponseEntity<List<UsuarioResponse>> getUsuarios() {
         List<UsuarioResponse> result = usuarioService.getUsuarios().stream()
@@ -43,6 +45,7 @@ public class UsuarioController {
         return ResponseEntity.ok(result);
     }
 
+    // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<UsuarioResponse> createUsuario(@Valid @RequestBody UsuarioRequest usuario_request) {
         Usuario result = usuarioService.createUsuario(usuario_request);
@@ -50,29 +53,34 @@ public class UsuarioController {
                 .body(UsuarioResponse.fromEntity(result));
     }
 
+    // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{usuario_id}")
     public ResponseEntity<UsuarioResponse> getUsuario(@PathVariable("usuario_id") Long usuario_id) {
         return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.getUsuario(usuario_id)));
     }
 
+    // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PatchMapping("/{usuario_id}")
     public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable("usuario_id") Long usuario_id, @Valid @RequestBody UsuarioRequest usuario_request) {
         Usuario result = usuarioService.updateUsuario(usuario_id, usuario_request);
         return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
 
+    // Devuelve los usuarios.
     @GetMapping("/{usuario_id}/carrito")
     public ResponseEntity<CarritoResponse> getCarrito(@PathVariable("usuario_id") Long usuario_id) {
         Carrito result = carritoService.getOrCreateCarritoByUsuario(usuario_id);
         return ResponseEntity.ok(CarritoResponse.fromEntity(result));
     }
 
+    // Devuelve los usuarios.
     @GetMapping("/{usuario_id}/perfil-artista")
     public ResponseEntity<PerfilArtistaResponse> getPerfilArtista(@PathVariable("usuario_id") Long usuario_id) {
         PerfilArtista result = perfilArtistaService.getPerfilArtistaByUsuario(usuario_id);
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(result));
     }
 
+    // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping("/{usuario_id}/perfil-artista")
     public ResponseEntity<PerfilArtistaResponse> createPerfilArtista(
             @PathVariable("usuario_id") Long usuario_id,
@@ -82,6 +90,7 @@ public class UsuarioController {
                 .body(PerfilArtistaResponse.fromEntity(result));
     }
 
+    // Devuelve los usuarios.
     @GetMapping("/{usuario_id}/compras")
     public ResponseEntity<List<CompraResponse>> getCompras(@PathVariable("usuario_id") Long usuario_id) {
         List<CompraResponse> result = compraService.getComprasByUsuario(usuario_id).stream()
@@ -96,6 +105,7 @@ public class UsuarioController {
         return ResponseEntity.ok(CompraResponse.fromEntity(result));
     }
 
+    // Devuelve los usuarios.
     @GetMapping("/{usuario_id}/mensajes")
     public ResponseEntity<List<MensajeResponse>> getMensajes(@PathVariable("usuario_id") Long usuario_id) {
         List<MensajeResponse> result = mensajeService.getMensajesByUsuario(usuario_id).stream()
@@ -108,9 +118,7 @@ public class UsuarioController {
     // ADMINISTRACION DE CUENTAS - solo ADMIN (la restriccion esta en SecurityConfig).
 
     // Asignacion de permisos: el administrador cambia el rol de una cuenta.
-    // PATCH y no PUT porque se modifica un solo campo del usuario.
-    // El rol llega como parametro de consulta y Spring lo convierte al enum solo:
-    // si mandan un valor que no existe, responde 400.
+    // PATCH porque se modifica un solo campo; si el rol no existe en el enum, responde 400.
     @PatchMapping("/{usuario_id}/rol")
     public ResponseEntity<UsuarioResponse> asignarRol(
             @PathVariable("usuario_id") Long usuario_id,

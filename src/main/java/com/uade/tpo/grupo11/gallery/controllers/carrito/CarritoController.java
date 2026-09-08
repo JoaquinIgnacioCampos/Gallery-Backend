@@ -11,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 
 import java.util.List;
 
+// Recibe las peticiones HTTP de los carritos y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/carritos")
 public class    CarritoController {
@@ -64,6 +65,7 @@ public class    CarritoController {
     }
 
 
+    // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @GetMapping("/{carritoId}/items")
     public List<ItemCarritoResponse> getItemsByCarrito(
             @PathVariable Long carritoId,
@@ -75,6 +77,7 @@ public class    CarritoController {
     }
 
 
+    // Saca todos los items del carrito sin borrar el carrito.
     @DeleteMapping("/{carritoId}/items")
     public void vaciarCarrito(
             @PathVariable Long carritoId,

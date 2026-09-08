@@ -13,9 +13,7 @@ import java.util.Date;
 import java.util.function.Function;
 
 // Fabrica y verifica los tokens JWT.
-// Un JWT tiene tres partes separadas por puntos: cabecera, contenido y firma.
-// El contenido NO esta encriptado (cualquiera lo puede leer), pero la firma
-// garantiza que nadie lo modifico: si se cambia una letra, la firma deja de coincidir.
+// El contenido no esta encriptado y cualquiera lo puede leer; lo que protege es la firma.
 @Service
 public class JwtService {
 
@@ -45,10 +43,12 @@ public class JwtService {
         return username.equals(userDetails.getUsername()) && !isTokenExpired(token);
     }
 
+    // Saca el email que viaja adentro del token.
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
+    // Dice si el token ya vencio.
     private boolean isTokenExpired(String token) {
         return extractClaim(token, Claims::getExpiration).before(new Date());
     }
@@ -64,6 +64,7 @@ public class JwtService {
         return resolver.apply(claims);
     }
 
+    // Arma la clave con la que se firma y se verifica el token.
     private SecretKey getSecretKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }

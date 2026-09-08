@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Recibe las peticiones HTTP de los encargos y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/encargos")
 public class EncargoController {
@@ -22,11 +23,13 @@ public class EncargoController {
     @Autowired
     private MensajeService mensajeService;
 
+    // Busca el encargo por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{id}")
     public ResponseEntity<EncargoResponse> getEncargoById(@PathVariable Long id) {
         return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.getEncargoById(id)));
     }
 
+    // Devuelve los encargos del artista.
     @GetMapping("/artista/{artistaId}")
     public ResponseEntity<List<EncargoResponse>> getEncargosByArtista(@PathVariable Long artistaId) {
         List<EncargoResponse> result = encargoService.getEncargosByArtista(artistaId).stream()
@@ -35,6 +38,7 @@ public class EncargoController {
         return ResponseEntity.ok(result);
     }
 
+    // Devuelve los encargos del usuario.
     @GetMapping("/usuario/{usuarioId}")
     public ResponseEntity<List<EncargoResponse>> getEncargosByUsuario(@PathVariable Long usuarioId) {
         List<EncargoResponse> result = encargoService.getEncargosByUsuario(usuarioId).stream()
@@ -43,10 +47,12 @@ public class EncargoController {
         return ResponseEntity.ok(result);
     }
 
+    // Crea el encargo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<EncargoResponse> createEncargo(@Valid @RequestBody EncargoRequest request) {
         return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.createEncargo(request)));
     }
+    // Devuelve los mensajes del encargo.
     @GetMapping("/{encargoId}/mensajes")
     public ResponseEntity<List<MensajeResponse>> getMensajesByEncargo(@PathVariable Long encargoId) {
         List<MensajeResponse> result = mensajeService.getMensajesByEncargo(encargoId).stream()

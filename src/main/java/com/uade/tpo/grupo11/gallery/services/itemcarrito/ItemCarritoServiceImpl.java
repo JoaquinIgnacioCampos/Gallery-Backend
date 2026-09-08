@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+// Logica de negocio de los items del carrito: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class ItemCarritoServiceImpl implements ItemCarritoService {
 
@@ -37,6 +38,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     private VarianteRepository varianteRepository;
 
 
+    // Devuelve los items del carrito.
     @Override
     public List<ItemCarrito> getItemsCarrito(Usuario usuarioActual) {
 
@@ -47,6 +49,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     }
 
 
+    // Busca el item del carrito por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public ItemCarrito getItemCarritoById(Long itemId, Usuario usuarioActual) {
 
@@ -60,6 +63,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     }
 
 
+    // Crea el item del carrito con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public ItemCarrito createItemCarrito(ItemCarritoRequest request, Usuario usuarioActual) {
 
@@ -89,6 +93,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     }
 
 
+    // Actualiza el item del carrito: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public ItemCarrito updateItemCarrito(
             Long itemId,
@@ -125,6 +130,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     }
 
 
+    // Elimina el item del carrito de la base.
     @Override
     public void deleteItemCarrito(Long itemId, Usuario usuarioActual) {
 

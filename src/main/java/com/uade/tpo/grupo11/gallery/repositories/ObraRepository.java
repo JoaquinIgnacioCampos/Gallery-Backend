@@ -8,14 +8,11 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
-// REPOSITORY: la unica capa que habla con la base. Es una INTERFAZ: no se implementa,
-// Spring Data genera la clase sola. Al extender JpaRepository ya trae findAll, findById,
-// save, deleteById y existsById sin escribir una linea de SQL.
+// Habla con la base. Al extender JpaRepository, el CRUD basico ya viene hecho.
 @Repository
 public interface ObraRepository extends JpaRepository<Obra, Long> {
 
-    // Query method: Spring lee el nombre y arma la consulta. findBy + Artista + Id
-    // significa "navega la relacion artista y filtra por su id".
+    // Busca por el id del artista. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Obra> findByArtistaId(Long artistaId);
 
     // Busqueda del catalogo con filtros OPCIONALES y combinables. El patron

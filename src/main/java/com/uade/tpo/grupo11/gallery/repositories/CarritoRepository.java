@@ -6,8 +6,10 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
+// Habla con la base. Al extender JpaRepository, el CRUD basico ya viene hecho.
 @Repository
 public interface CarritoRepository extends JpaRepository<Carrito, Long> {
 
+    // Busca por el id del usuario. Spring arma la consulta sola leyendo el nombre del metodo.
     Optional<Carrito> findByUsuarioId(Long usuarioId);
 }

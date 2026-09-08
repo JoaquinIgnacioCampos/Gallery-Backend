@@ -16,8 +16,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 
-// SERVICE: la logica de negocio de las imagenes. Verifica que la obra exista, exige que
-// venga el archivo y calcula la posicion en la galeria si el cliente no la manda.
+// Logica de negocio de las imagenes: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class ImagenServiceImpl implements ImagenService {
 
@@ -28,12 +27,14 @@ public class ImagenServiceImpl implements ImagenService {
     private ObraRepository obraRepository;
 
 
+    // Devuelve las imagenes.
     @Override
     public List<Imagen> getImagenes() {
         return repoImagen.findAll();
     }
 
 
+    // Devuelve imagenes de la obra.
     @Override
     public List<Imagen> getImagenesByObra(Long obraId) {
 
@@ -47,6 +48,7 @@ public class ImagenServiceImpl implements ImagenService {
     }
 
 
+    // Busca la imagen por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Imagen getImagenById(Long imagenId) {
         return repoImagen.findById(imagenId)
@@ -54,6 +56,7 @@ public class ImagenServiceImpl implements ImagenService {
     }
 
 
+    // Crea la imagen con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Imagen createImagen(ImagenRequest request, Usuario usuarioActual) throws IOException {
 
@@ -80,6 +83,7 @@ public class ImagenServiceImpl implements ImagenService {
     }
 
 
+    // Actualiza la imagen: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Imagen updateImagen(Long imagenId, ImagenRequest request, Usuario usuarioActual) throws IOException {
 
@@ -100,6 +104,7 @@ public class ImagenServiceImpl implements ImagenService {
     }
 
 
+    // Elimina la imagen de la base.
     @Override
     public void deleteImagen(Long imagenId, Usuario usuarioActual) {
 

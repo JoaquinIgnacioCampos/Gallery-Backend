@@ -14,9 +14,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-// El portero de la API: define que rutas son publicas, cuales exigen estar logueado
-// y cuales exigen un rol determinado. Se evalua de arriba hacia abajo y gana la
-// primera regla que coincide, por eso el orden importa.
+// El portero de la API: que rutas son publicas, cuales piden login y cuales piden rol.
+// Se evalua de arriba hacia abajo y gana la primera regla que coincide: el orden importa.
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -27,6 +26,7 @@ public class SecurityConfig {
     @Autowired
     private AuthenticationProvider authenticationProvider;
 
+    // Define que rutas son publicas, cuales exigen estar logueado y cuales exigen un rol.
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http

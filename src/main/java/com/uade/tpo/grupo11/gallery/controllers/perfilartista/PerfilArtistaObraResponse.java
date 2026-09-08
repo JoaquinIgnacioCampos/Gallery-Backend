@@ -9,6 +9,7 @@ public record PerfilArtistaObraResponse(
         String descripcion_obra,
         boolean en_venta
 ) {
+    // Traduce la entidad a lo que ve el cliente. Manda ids en vez de objetos anidados.
     public static PerfilArtistaObraResponse fromEntity(Obra obra) {
         return new PerfilArtistaObraResponse(
                 obra.getId(),

@@ -4,8 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
-// Lo que el cliente manda para subir o modificar una imagen.
-// No es JSON: llega como formulario multipart, por eso el archivo es un MultipartFile.
+// Lo que el cliente manda para crear o modificar las imagenes. Las relaciones viajan como ids.
 @Data
 public class ImagenRequest {
 

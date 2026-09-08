@@ -7,6 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 
+// Contrato: que sabe hacer el servicio de los carritos. La implementacion es la que lleva la logica.
 public interface CarritoService {
 
     List<Carrito> getCarritos(Usuario usuarioActual);
@@ -21,5 +22,6 @@ public interface CarritoService {
 
     void vaciarCarrito(Long carritoId, Usuario usuarioActual);
 
+    // Devuelve el carrito del usuario y, si todavia no tiene, se lo crea.
     Carrito getOrCreateCarritoByUsuario(Long usuarioId);
 }
