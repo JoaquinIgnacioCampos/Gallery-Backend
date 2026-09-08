@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaReque
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public interface PerfilArtistaService {
     PerfilArtista getPerfilArtistaById(Long perfilArtistaId);
 
     // Actualiza el perfil de artista: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
-    PerfilArtista updatePerfilArtista(Long perfilArtistaId, PerfilArtistaUpdateRequest request);
+    PerfilArtista updatePerfilArtista(Long perfilArtistaId, PerfilArtistaUpdateRequest request, Usuario usuarioLogueado);
 
     // Devuelve las obras del perfil de artista.
     List<Obra> getObrasByPerfilArtista(Long perfilArtistaId);

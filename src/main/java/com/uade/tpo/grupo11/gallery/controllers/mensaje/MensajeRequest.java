@@ -11,8 +11,8 @@ public class MensajeRequest {
     @NotNull(message = "El encargo es obligatorio")
     private Long encargo_id;
 
-    @NotNull(message = "El usuario emisor es obligatorio")
-    private Long usuario_emisor_id;
+    // El emisor NO se manda: es siempre el usuario logueado. Si viniera en el body,
+    // cualquiera podria escribir un mensaje haciendose pasar por otro.
 
     @NotBlank(message = "El contenido del mensaje es obligatorio")
     private String contenido;

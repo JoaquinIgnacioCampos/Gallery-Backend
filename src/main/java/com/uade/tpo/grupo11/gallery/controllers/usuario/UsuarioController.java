@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -61,8 +62,11 @@ public class UsuarioController {
 
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PatchMapping("/{usuario_id}")
-    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable("usuario_id") Long usuario_id, @Valid @RequestBody UsuarioRequest usuario_request) {
-        Usuario result = usuarioService.updateUsuario(usuario_id, usuario_request);
+    public ResponseEntity<UsuarioResponse> updateUsuario(
+            @PathVariable("usuario_id") Long usuario_id,
+            @Valid @RequestBody UsuarioRequest usuario_request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        Usuario result = usuarioService.updateUsuario(usuario_id, usuario_request, usuarioLogueado);
         return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
 
@@ -105,10 +109,12 @@ public class UsuarioController {
         return ResponseEntity.ok(CompraResponse.fromEntity(result));
     }
 
-    // Devuelve los usuarios.
+    // Devuelve los mensajes enviados por el usuario.
     @GetMapping("/{usuario_id}/mensajes")
-    public ResponseEntity<List<MensajeResponse>> getMensajes(@PathVariable("usuario_id") Long usuario_id) {
-        List<MensajeResponse> result = mensajeService.getMensajesByUsuario(usuario_id).stream()
+    public ResponseEntity<List<MensajeResponse>> getMensajes(
+            @PathVariable("usuario_id") Long usuario_id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<MensajeResponse> result = mensajeService.getMensajesByUsuario(usuario_id, usuarioLogueado).stream()
                 .map(MensajeResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(result);
