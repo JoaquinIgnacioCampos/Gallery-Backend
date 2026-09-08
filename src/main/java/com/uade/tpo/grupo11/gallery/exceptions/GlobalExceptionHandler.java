@@ -64,6 +64,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409, no 404
     }
 
+    // Dos checkouts concurrentes pueden chocar en la misma fila de Variante y que
+    // MySQL aborte a uno con un deadlock (InnoDB elige una victima para romper la
+    // contencion). Sin este handler, la excepcion queda sin capturar y termina
+    // mostrandose como un 403 vacio en vez de un mensaje claro.
+    @ExceptionHandler(org.springframework.dao.ConcurrencyFailureException.class)
+    public ResponseEntity<String> handleConcurrencyFailure(org.springframework.dao.ConcurrencyFailureException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("Hubo un conflicto por alta concurrencia, intenta la operacion de nuevo");
+    }
+
     @ExceptionHandler(EstiloNotFoundException.class)
     public ResponseEntity<String> handleEstiloNotFound(EstiloNotFoundException e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
