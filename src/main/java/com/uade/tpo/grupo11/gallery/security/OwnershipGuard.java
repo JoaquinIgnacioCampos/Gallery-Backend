@@ -8,9 +8,17 @@ public class OwnershipGuard {
 
     private OwnershipGuard() {}
 
-    public static void verificar(Usuario usuarioActual, Long propietarioId) {
+    // Acepta varios propietarios porque algunos recursos (ej: Encargo) son de mas de una
+    // persona a la vez (el cliente que lo pidio y el artista que lo va a hacer).
+    public static void verificar(Usuario usuarioActual, Long... propietariosId) {
         boolean esAdmin = usuarioActual.getRol_usuario() == Rol.ADMIN;
-        boolean esDueño = propietarioId != null && propietarioId.equals(usuarioActual.getId());
+        boolean esDueño = false;
+        for (Long propietarioId : propietariosId) {
+            if (propietarioId != null && propietarioId.equals(usuarioActual.getId())) {
+                esDueño = true;
+                break;
+            }
+        }
 
         if (!esAdmin && !esDueño) {
             throw new AccesoDenegadoException("No tenes permiso para operar sobre este recurso");

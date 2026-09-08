@@ -13,8 +13,8 @@ public class EncargoRequest {
     @NotNull(message = "El artista es obligatorio")
     private Long artista_id;
 
-    @NotNull(message = "El usuario es obligatorio")
-    private Long usuario_id;
+    // El cliente que pide el encargo NO se manda: sale del usuario logueado.
+    // Si viniera en el body, cualquiera podria pedir un encargo a nombre de otro.
 
     @NotNull(message = "El tamanio de lienzo es obligatorio")
     private Long tamanio_id;
