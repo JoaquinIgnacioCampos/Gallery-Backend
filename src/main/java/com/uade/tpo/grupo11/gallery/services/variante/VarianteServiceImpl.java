@@ -16,6 +16,7 @@ import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 // Logica de negocio de las variantes: valida, resuelve las relaciones y coordina los repositorios.
@@ -75,6 +76,7 @@ public class VarianteServiceImpl implements VarianteService {
                 .findById(request.getId_tamanio())
                 .orElseThrow(() -> new TamanioLienzoNotFoundException(request.getId_tamanio()));
 
+        validarPrecio(request.getPrecio_variante());
         validarStock(request.getStock_variante());
         validarDescuento(request.getPorcentaje_descuento());
 
@@ -103,6 +105,7 @@ public class VarianteServiceImpl implements VarianteService {
                 .findById(request.getId_tamanio())
                 .orElseThrow(() -> new TamanioLienzoNotFoundException(request.getId_tamanio()));
 
+        validarPrecio(request.getPrecio_variante());
         validarStock(request.getStock_variante());
         validarDescuento(request.getPorcentaje_descuento());
 
@@ -146,6 +149,14 @@ public class VarianteServiceImpl implements VarianteService {
 
 
     // Reglas de negocio: viven en el Service, no en el Controller ni en el Repository.
+    private void validarPrecio(BigDecimal precio) {
+
+        if (precio == null || precio.signum() < 0) {
+            throw new IllegalArgumentException("El precio no puede ser negativo");
+        }
+    }
+
+
     private void validarStock(Integer stock) {
 
         if (stock == null || stock < 0) {
