@@ -15,7 +15,10 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
     // Busca por el id del artista. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Obra> findByArtistaId(Long artistaId);
 
-    // Ambos limites deben cumplirse en la misma variante. DISTINCT evita obras repetidas.
+    // Busqueda del catalogo con filtros OPCIONALES y combinables. El patron
+    // ":param IS NULL OR condicion" hace que cada filtro se ignore si no vino.
+    // Los dos limites de precio se evaluan sobre la MISMA variante (mismo LEFT JOIN),
+    // y DISTINCT evita que una obra aparezca repetida por tener varias variantes o estilos.
     @Query("""
         SELECT DISTINCT o FROM Obra o
         LEFT JOIN o.variantes v

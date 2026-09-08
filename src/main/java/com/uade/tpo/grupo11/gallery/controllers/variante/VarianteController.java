@@ -13,6 +13,7 @@ import java.util.List;
 @RequestMapping("/api/variantes")
 public class VarianteController {
 
+    // Inyeccion por constructor: el campo queda final y se puede testear sin Spring.
     private final VarianteService servicioVariante;
 
     public VarianteController(VarianteService servicioVariante) {

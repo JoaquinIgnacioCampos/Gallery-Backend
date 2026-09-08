@@ -142,6 +142,8 @@ public class ObraServiceImpl implements ObraService {
     }
 
 
+
+
     // Convierte la lista de ids que manda el cliente en las entidades Estilo.
     private Set<Estilo> buscarEstilos(Set<Long> estiloIds) {
 

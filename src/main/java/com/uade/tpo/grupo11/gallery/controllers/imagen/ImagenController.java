@@ -14,6 +14,7 @@ import java.util.List;
 @RequestMapping("/api/imagenes")
 public class ImagenController {
 
+    // Inyeccion por constructor: el campo queda final y se puede testear sin Spring.
     private final ImagenService servicioImagen;
 
     public ImagenController(ImagenService servicioImagen) {
@@ -46,6 +47,9 @@ public class ImagenController {
 
 
     // 201 CREATED, como en Obra y Variante.
+    // consumes = multipart/form-data: el cuerpo no es JSON sino un formulario con el archivo
+    // adjunto, que es la forma estandar de subir binarios en una API REST.
+    // Por eso el Request va sin @RequestBody: Spring arma el objeto desde los campos del formulario.
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<ImagenResponse> createImagen(@Valid ImagenRequest request) throws IOException {
         return ResponseEntity

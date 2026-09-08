@@ -36,6 +36,8 @@ public class ImagenServiceImpl implements ImagenService {
     @Override
     public List<Imagen> getImagenesByObra(Long obraId) {
 
+        // Si la obra no existe avisamos con 404, en lugar de devolver una lista vacia
+        // que el cliente podria confundir con "esta obra no tiene imagenes".
         if (!obraRepository.existsById(obraId)) {
             throw new ObraNotFoundException(obraId);
         }
@@ -56,6 +58,8 @@ public class ImagenServiceImpl implements ImagenService {
     @Override
     public Imagen createImagen(ImagenRequest request) throws IOException {
 
+        // El archivo no se valida con anotaciones en el Request: @NotNull no detecta
+        // un MultipartFile vacio, asi que la regla se controla aca.
         if (request.getArchivo() == null || request.getArchivo().isEmpty()) {
             throw new IllegalArgumentException("El archivo de la imagen es obligatorio");
         }
@@ -67,6 +71,7 @@ public class ImagenServiceImpl implements ImagenService {
         Imagen imagen = Imagen.builder()
                 .obra(obra)
                 .orden_imagen(calcularOrden(request, obra.getId()))
+                // getBytes() pasa el archivo subido a byte[], que es lo que espera la columna BLOB.
                 .contenido_imagen(request.getArchivo().getBytes())
                 .build();
 
