@@ -38,7 +38,9 @@ public class Imagen {
     // El DER define contenido_imagen como BLOB: el archivo se guarda en la base.
     // @Lob = Large Object, para datos binarios grandes. Sale en base64 en el JSON.
     // En produccion lo habitual seria guardar solo la URL para no inflar la base.
+    // LONGBLOB explicito: sin esto Hibernate mapea byte[]+@Lob como TINYBLOB en MySQL
+    // (255 bytes), insuficiente para una foto real.
     @Lob
-    @Column(name = "contenido_imagen")
+    @Column(name = "contenido_imagen", columnDefinition = "LONGBLOB")
     private byte[] contenido_imagen;
 }
