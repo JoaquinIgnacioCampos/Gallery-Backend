@@ -7,6 +7,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUserMailException;
 import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUsernameException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -67,9 +68,11 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
-    public Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest) {
+    public Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest, Usuario usuarioLogueado) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
+
+        OwnershipGuard.verificar(usuarioLogueado, usuarioId);
 
         if (usuarioRequest.getEmail_usuario() != null) {
             usuarioRepository.findByEmail(usuarioRequest.getEmail_usuario())
