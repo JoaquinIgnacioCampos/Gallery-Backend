@@ -17,7 +17,7 @@ public interface UsuarioService {
     // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.
     Usuario getUsuario(Long usuario_id);
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
-    Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest);
+    Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest, Usuario usuarioLogueado);
 
     // Administracion de cuentas (solo ADMIN): asignar permisos.
     Usuario asignarRol(Long usuarioId, Rol nuevoRol);

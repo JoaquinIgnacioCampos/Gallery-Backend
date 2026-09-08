@@ -62,8 +62,11 @@ public class UsuarioController {
 
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PatchMapping("/{usuario_id}")
-    public ResponseEntity<UsuarioResponse> updateUsuario(@PathVariable("usuario_id") Long usuario_id, @Valid @RequestBody UsuarioRequest usuario_request) {
-        Usuario result = usuarioService.updateUsuario(usuario_id, usuario_request);
+    public ResponseEntity<UsuarioResponse> updateUsuario(
+            @PathVariable("usuario_id") Long usuario_id,
+            @Valid @RequestBody UsuarioRequest usuario_request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        Usuario result = usuarioService.updateUsuario(usuario_id, usuario_request, usuarioLogueado);
         return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
 
