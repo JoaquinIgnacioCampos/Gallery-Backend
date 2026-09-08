@@ -13,6 +13,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -75,8 +76,10 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
 
     // Actualiza el perfil de artista: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
-    public PerfilArtista updatePerfilArtista(Long perfilArtistaId, PerfilArtistaUpdateRequest request) {
+    public PerfilArtista updatePerfilArtista(Long perfilArtistaId, PerfilArtistaUpdateRequest request, Usuario usuarioLogueado) {
         PerfilArtista perfilArtista = getPerfilArtistaById(perfilArtistaId);
+
+        OwnershipGuard.verificar(usuarioLogueado, perfilArtista.getUsuario().getId());
 
         if (request.getAcepta_encargos() != null) {
             perfilArtista.setAcepta_encargos(request.getAcepta_encargos());
