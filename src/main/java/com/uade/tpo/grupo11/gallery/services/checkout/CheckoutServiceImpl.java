@@ -142,9 +142,15 @@ public class CheckoutServiceImpl implements CheckoutService {
                 itemFactura.setDescuento(descuentoUnitario.multiply(cantidad));
                 itemFacturaRepository.save(itemFactura);
 
-                // Descontamos el stock vendido.
-                variante.setStock_variante(variante.getStock_variante() - item.getCantidad());
-                varianteRepository.save(variante);
+                // Descontamos el stock vendido con un UPDATE atomico: la validacion del
+                // paso 2 se hizo contra una foto que pudo quedar vieja si otra compra
+                // se colo justo en el medio. Si esta resta afecta 0 filas, es porque en
+                // este instante exacto ya no habia stock suficiente.
+                int filasAfectadas = varianteRepository.descontarStock(variante.getId(), item.getCantidad());
+                if (filasAfectadas == 0) {
+                    throw new StockInsuficienteException(
+                            variante.getId(), item.getCantidad(), variante.getStock_variante());
+                }
 
                 totalFactura = totalFactura.add(totalItem);
             }
