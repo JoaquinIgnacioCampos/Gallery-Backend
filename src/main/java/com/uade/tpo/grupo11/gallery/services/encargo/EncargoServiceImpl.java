@@ -12,7 +12,7 @@ import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
-import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,34 +27,45 @@ public class EncargoServiceImpl implements EncargoService {
     @Autowired
     private PerfilArtistaRepository artistaRepository;
     @Autowired
-    private UsuarioRepository usuarioRepository;
-    @Autowired
     private TamanioLienzoRepository tamanioLienzoRepository;
     @Autowired
     private MarcoRepository marcoRepository;
 
-    // Busca el encargo por id. Si no existe, se lanza la excepcion y el handler responde 404.
+    // Busca el encargo por id. Solo pueden verlo el cliente y el artista del encargo.
     @Override
-    public Encargo getEncargoById(Long id) {
-        return encargoRepository.findById(id)
+    public Encargo getEncargoById(Long id, Usuario usuarioLogueado) {
+        Encargo encargo = encargoRepository.findById(id)
                 .orElseThrow(() -> new EncargoNotFoundException(id));
+
+        OwnershipGuard.verificar(usuarioLogueado,
+                encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
+
+        return encargo;
     }
 
-    // Devuelve los encargos del artista.
+    // Devuelve los encargos del artista. Solo el propio artista (o ADMIN) puede listarlos.
     @Override
-    public List<Encargo> getEncargosByArtista(Long artistaId) {
+    public List<Encargo> getEncargosByArtista(Long artistaId, Usuario usuarioLogueado) {
+        PerfilArtista artista = artistaRepository.findById(artistaId)
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(artistaId));
+
+        OwnershipGuard.verificar(usuarioLogueado, artista.getUsuario().getId());
+
         return encargoRepository.findByArtistaId(artistaId);
     }
 
-    // Devuelve los encargos del usuario.
+    // Devuelve los encargos del usuario. Solo el propio usuario (o ADMIN) puede listarlos.
     @Override
-    public List<Encargo> getEncargosByUsuario(Long usuarioId) {
+    public List<Encargo> getEncargosByUsuario(Long usuarioId, Usuario usuarioLogueado) {
+        OwnershipGuard.verificar(usuarioLogueado, usuarioId);
+
         return encargoRepository.findByUsuarioId(usuarioId);
     }
 
-    // Crea el encargo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
+    // Crea el encargo con los datos del request. El cliente sale del usuario logueado,
+    // no del body: si viniera ahi, cualquiera podria pedir un encargo a nombre de otro.
     @Override
-    public Encargo createEncargo(EncargoRequest request) {
+    public Encargo createEncargo(EncargoRequest request, Usuario usuarioLogueado) {
         PerfilArtista artista = artistaRepository.findById(request.getArtista_id())
                 .orElseThrow(() -> new PerfilArtistaNotFoundException(request.getArtista_id()));
 
@@ -62,8 +73,6 @@ public class EncargoServiceImpl implements EncargoService {
             throw new PerfilArtistaNoAceptaEncargosException(artista.getId());
         }
 
-        Usuario usuario = usuarioRepository.findById(request.getUsuario_id())
-                .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuario_id()));
         TamanioLienzo tamanio = tamanioLienzoRepository.findById(request.getTamanio_id())
                 .orElseThrow(() -> new TamanioLienzoNotFoundException(request.getTamanio_id()));
         Marco marco = marcoRepository.findById(request.getMarco_id())
@@ -71,7 +80,7 @@ public class EncargoServiceImpl implements EncargoService {
 
         Encargo encargo = new Encargo();
         encargo.setArtista(artista);
-        encargo.setUsuario(usuario);
+        encargo.setUsuario(usuarioLogueado);
         encargo.setTamanio(tamanio);
         encargo.setMarco(marco);
         encargo.setTipo_pintura(request.getTipo_pintura());

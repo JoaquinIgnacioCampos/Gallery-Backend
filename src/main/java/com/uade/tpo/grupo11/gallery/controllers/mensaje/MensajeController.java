@@ -1,10 +1,12 @@
 package com.uade.tpo.grupo11.gallery.controllers.mensaje;
 
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -17,18 +19,22 @@ public class MensajeController {
     @Autowired
     private MensajeService mensajeService;
 
-    // Busca el mensaje por id. Si no existe, se lanza la excepcion y el handler responde 404.
+    // Busca el mensaje por id. Solo lo pueden ver el cliente y el artista del encargo.
     @GetMapping("/{id}")
-    public ResponseEntity<MensajeResponse> getMensajeById(@PathVariable Long id) {
-        return ResponseEntity.ok(MensajeResponse.fromEntity(mensajeService.getMensajeById(id)));
+    public ResponseEntity<MensajeResponse> getMensajeById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(MensajeResponse.fromEntity(mensajeService.getMensajeById(id, usuarioLogueado)));
     }
 
-    // Crea el mensaje con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
+    // Crea el mensaje. El emisor sale del usuario logueado, nunca del body.
     @PostMapping
-    public ResponseEntity<MensajeResponse> createMensaje(@Valid @RequestBody MensajeRequest request) {
+    public ResponseEntity<MensajeResponse> createMensaje(
+            @Valid @RequestBody MensajeRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
         Mensaje mensaje = mensajeService.createMensaje(
                 request.getEncargo_id(),
-                request.getUsuario_emisor_id(),
+                usuarioLogueado,
                 request.getContenido());
         return ResponseEntity.ok(MensajeResponse.fromEntity(mensaje));
     }

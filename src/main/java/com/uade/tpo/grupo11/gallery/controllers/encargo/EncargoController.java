@@ -23,39 +23,49 @@ public class EncargoController {
     @Autowired
     private MensajeService mensajeService;
 
-    // Busca el encargo por id. Si no existe, se lanza la excepcion y el handler responde 404.
+    // Busca el encargo por id. Solo lo pueden ver el cliente y el artista del encargo.
     @GetMapping("/{id}")
-    public ResponseEntity<EncargoResponse> getEncargoById(@PathVariable Long id) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.getEncargoById(id)));
+    public ResponseEntity<EncargoResponse> getEncargoById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.getEncargoById(id, usuarioLogueado)));
     }
 
-    // Devuelve los encargos del artista.
+    // Devuelve los encargos del artista. Solo el propio artista (o ADMIN).
     @GetMapping("/artista/{artistaId}")
-    public ResponseEntity<List<EncargoResponse>> getEncargosByArtista(@PathVariable Long artistaId) {
-        List<EncargoResponse> result = encargoService.getEncargosByArtista(artistaId).stream()
+    public ResponseEntity<List<EncargoResponse>> getEncargosByArtista(
+            @PathVariable Long artistaId,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<EncargoResponse> result = encargoService.getEncargosByArtista(artistaId, usuarioLogueado).stream()
                 .map(EncargoResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(result);
     }
 
-    // Devuelve los encargos del usuario.
+    // Devuelve los encargos del usuario. Solo el propio usuario (o ADMIN).
     @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<EncargoResponse>> getEncargosByUsuario(@PathVariable Long usuarioId) {
-        List<EncargoResponse> result = encargoService.getEncargosByUsuario(usuarioId).stream()
+    public ResponseEntity<List<EncargoResponse>> getEncargosByUsuario(
+            @PathVariable Long usuarioId,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<EncargoResponse> result = encargoService.getEncargosByUsuario(usuarioId, usuarioLogueado).stream()
                 .map(EncargoResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(result);
     }
 
-    // Crea el encargo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
+    // Crea el encargo con los datos del request. El cliente sale del usuario logueado.
     @PostMapping
-    public ResponseEntity<EncargoResponse> createEncargo(@Valid @RequestBody EncargoRequest request) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.createEncargo(request)));
+    public ResponseEntity<EncargoResponse> createEncargo(
+            @Valid @RequestBody EncargoRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.createEncargo(request, usuarioLogueado)));
     }
-    // Devuelve los mensajes del encargo.
+    // Devuelve los mensajes del encargo. Solo el cliente y el artista del encargo.
     @GetMapping("/{encargoId}/mensajes")
-    public ResponseEntity<List<MensajeResponse>> getMensajesByEncargo(@PathVariable Long encargoId) {
-        List<MensajeResponse> result = mensajeService.getMensajesByEncargo(encargoId).stream()
+    public ResponseEntity<List<MensajeResponse>> getMensajesByEncargo(
+            @PathVariable Long encargoId,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<MensajeResponse> result = mensajeService.getMensajesByEncargo(encargoId, usuarioLogueado).stream()
                 .map(MensajeResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(result);
