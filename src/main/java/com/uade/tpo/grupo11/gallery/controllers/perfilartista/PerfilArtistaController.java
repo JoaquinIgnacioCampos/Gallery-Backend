@@ -1,10 +1,12 @@
 package com.uade.tpo.grupo11.gallery.controllers.perfilartista;
 
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,9 +39,10 @@ public class PerfilArtistaController {
     @PatchMapping("/{perfilArtistaId}")
     public ResponseEntity<PerfilArtistaResponse> updatePerfilArtista(
             @PathVariable Long perfilArtistaId,
-            @Valid @RequestBody PerfilArtistaUpdateRequest request
+            @Valid @RequestBody PerfilArtistaUpdateRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado
     ) {
-        PerfilArtista perfilArtista = perfilArtistaService.updatePerfilArtista(perfilArtistaId, request);
+        PerfilArtista perfilArtista = perfilArtistaService.updatePerfilArtista(perfilArtistaId, request, usuarioLogueado);
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
     }
 
