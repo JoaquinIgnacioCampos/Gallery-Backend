@@ -1,13 +1,16 @@
 package com.uade.tpo.grupo11.gallery.controllers.compra;
 
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
+import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 // Recibe las peticiones HTTP de las compras y devuelve la respuesta con su codigo. La logica vive en el service.
@@ -43,10 +46,12 @@ public class CompraController {
 
     // POST - Crear compra
     @PostMapping
-    public CompraResponse createCompra(
+    public ResponseEntity<CompraResponse> createCompra(
             @Valid @RequestBody CompraRequest request) {
 
-        return CompraResponse.fromEntity(compraService.createCompra(request));
+        Compra result = compraService.createCompra(request);
+        return ResponseEntity.created(URI.create("/api/compras/" + result.getId()))
+                .body(CompraResponse.fromEntity(result));
     }
 
 

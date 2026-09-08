@@ -1,11 +1,13 @@
 package com.uade.tpo.grupo11.gallery.controllers.estilo;
 
+import com.uade.tpo.grupo11.gallery.entities.Estilo;
 import com.uade.tpo.grupo11.gallery.services.estilo.EstiloService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 // Recibe las peticiones HTTP de los estilos y devuelve la respuesta con su codigo. La logica vive en el service.
@@ -34,6 +36,8 @@ public class EstiloController {
     // Crea el estilo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<EstiloResponse> crearEstilo(@Valid @RequestBody EstiloRequest request) {
-        return ResponseEntity.ok(EstiloResponse.fromEntity(estiloService.crearEstilo(request)));
+        Estilo result = estiloService.crearEstilo(request);
+        return ResponseEntity.created(URI.create("/api/estilos/" + result.getId()))
+                .body(EstiloResponse.fromEntity(result));
     }
 }

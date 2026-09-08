@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+
 
 // Recibe las peticiones HTTP de los mensajes y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
@@ -36,7 +38,8 @@ public class MensajeController {
                 request.getEncargo_id(),
                 usuarioLogueado,
                 request.getContenido());
-        return ResponseEntity.ok(MensajeResponse.fromEntity(mensaje));
+        return ResponseEntity.created(URI.create("/api/mensajes/" + mensaje.getId()))
+                .body(MensajeResponse.fromEntity(mensaje));
     }
 
 

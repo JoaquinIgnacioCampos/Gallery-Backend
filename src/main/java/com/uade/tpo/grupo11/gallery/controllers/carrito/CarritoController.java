@@ -2,13 +2,16 @@ package com.uade.tpo.grupo11.gallery.controllers.carrito;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoResponse;
+import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 
+import java.net.URI;
 import java.util.List;
 
 // Recibe las peticiones HTTP de los carritos y devuelve la respuesta con su codigo. La logica vive en el service.
@@ -42,11 +45,13 @@ public class    CarritoController {
 
     // POST - Crear carrito
     @PostMapping
-    public CarritoResponse createCarrito(
+    public ResponseEntity<CarritoResponse> createCarrito(
             @Valid @RequestBody CarritoRequest request,
             @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return CarritoResponse.fromEntity(carritoService.createCarrito(request, usuarioActual));
+        Carrito result = carritoService.createCarrito(request, usuarioActual);
+        return ResponseEntity.created(URI.create("/api/carritos/" + result.getId()))
+                .body(CarritoResponse.fromEntity(result));
     }
 
 
