@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
+import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 // Recibe las peticiones HTTP de los encargos y devuelve la respuesta con su codigo. La logica vive en el service.
@@ -50,7 +52,9 @@ public class EncargoController {
     // Crea el encargo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<EncargoResponse> createEncargo(@Valid @RequestBody EncargoRequest request) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.createEncargo(request)));
+        Encargo result = encargoService.createEncargo(request);
+        return ResponseEntity.created(URI.create("/api/encargos/" + result.getId()))
+                .body(EncargoResponse.fromEntity(result));
     }
     // Devuelve los mensajes del encargo.
     @GetMapping("/{encargoId}/mensajes")

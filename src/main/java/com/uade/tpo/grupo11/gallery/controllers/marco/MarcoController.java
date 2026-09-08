@@ -5,9 +5,11 @@ import com.uade.tpo.grupo11.gallery.services.marco.MarcoService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.List;
 
 // Recibe las peticiones HTTP de los marcos y devuelve la respuesta con su codigo. La logica vive en el service.
@@ -38,10 +40,11 @@ public class MarcoController {
 
     // POST - Crear marco
     @PostMapping(consumes = "multipart/form-data")
-    public Marco createMarco(
+    public ResponseEntity<Marco> createMarco(
             @Valid MarcoRequest request) throws IOException {
 
-        return marcoService.createMarco(request);
+        Marco result = marcoService.createMarco(request);
+        return ResponseEntity.created(URI.create("/api/marcos/" + result.getId())).body(result);
     }
 
 

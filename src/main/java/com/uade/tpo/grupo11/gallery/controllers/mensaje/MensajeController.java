@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
+
 
 // Recibe las peticiones HTTP de los mensajes y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
@@ -30,7 +32,8 @@ public class MensajeController {
                 request.getEncargo_id(),
                 request.getUsuario_emisor_id(),
                 request.getContenido());
-        return ResponseEntity.ok(MensajeResponse.fromEntity(mensaje));
+        return ResponseEntity.created(URI.create("/api/mensajes/" + mensaje.getId()))
+                .body(MensajeResponse.fromEntity(mensaje));
     }
 
 

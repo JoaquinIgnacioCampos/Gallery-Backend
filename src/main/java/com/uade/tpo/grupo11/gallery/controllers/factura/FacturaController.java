@@ -1,11 +1,14 @@
 package com.uade.tpo.grupo11.gallery.controllers.factura;
 
+import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.URI;
 import java.util.List;
 
 // Recibe las peticiones HTTP de las facturas y devuelve la respuesta con su codigo. La logica vive en el service.
@@ -38,10 +41,12 @@ public class FacturaController {
 
     // POST - Crear factura
     @PostMapping
-    public FacturaResponse createFactura(
+    public ResponseEntity<FacturaResponse> createFactura(
             @Valid @RequestBody FacturaRequest request) {
 
-        return FacturaResponse.fromEntity(facturaService.createFactura(request));
+        Factura result = facturaService.createFactura(request);
+        return ResponseEntity.created(URI.create("/api/facturas/" + result.getId()))
+                .body(FacturaResponse.fromEntity(result));
     }
 
 
