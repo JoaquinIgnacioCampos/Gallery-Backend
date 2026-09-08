@@ -7,6 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.CompraPropiaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ItemCarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
@@ -82,6 +83,11 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
                 .findById(request.getVariante_id())
                 .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
 
+        // No se puede comprar la propia obra: seria una autoventa.
+        if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
+            throw new CompraPropiaException(variante.getId());
+        }
+
         ItemCarrito itemCarrito = ItemCarrito.builder()
                 .carrito(carrito)
                 .marco(marco)
@@ -120,6 +126,11 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         Variante variante = varianteRepository
                 .findById(request.getVariante_id())
                 .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
+
+        // No se puede comprar la propia obra: seria una autoventa.
+        if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
+            throw new CompraPropiaException(variante.getId());
+        }
 
         itemCarrito.setCarrito(carrito);
         itemCarrito.setMarco(marco);
