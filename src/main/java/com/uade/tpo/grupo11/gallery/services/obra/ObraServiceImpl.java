@@ -23,10 +23,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Set;
 
-// SERVICE: aca vive la logica de negocio de las obras. Valida que el artista y los estilos
-// existan, controla los filtros y no deja borrar una obra que tiene hijos.
-// @Service va en la implementacion, no en la interfaz: es esta clase la que Spring instancia
-// como bean y le inyecta a quien la pida.
+// Logica de negocio de las obras: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class ObraServiceImpl implements ObraService {
 
@@ -47,11 +44,13 @@ public class ObraServiceImpl implements ObraService {
     private ImagenRepository imagenRepository;
 
 
+    // Devuelve las obras.
     @Override
     public List<Obra> getObras() {
         return repoObra.findAll();
     }
 
+    // Busca obras con filtros opcionales y combinables. Valida los precios antes de consultar.
     @Override
     public List<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax) {
         if (precioMin != null && precioMin.signum() < 0) {
@@ -67,12 +66,14 @@ public class ObraServiceImpl implements ObraService {
     }
 
 
+    // Devuelve las obras del artista.
     @Override
     public List<Obra> getObrasByArtista(Long artistaId) {
         return repoObra.findByArtistaId(artistaId);
     }
 
 
+    // Busca la obra por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Obra getObraById(Long obraId) {
         return repoObra.findById(obraId)
@@ -80,12 +81,12 @@ public class ObraServiceImpl implements ObraService {
     }
 
 
+    // Crea la obra con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Obra createObra(ObraRequest request, Usuario usuarioLogueado) {
 
-        // El artista sale del usuario logueado, NO de un id que mande el cliente.
-        // Si lo tomaramos del body, cualquier artista podria publicar a nombre de otro.
-        // 404 si el usuario todavia no creo su perfil de artista.
+        // El artista sale del usuario logueado y no de un id del body: si no, cualquiera
+        // podria publicar a nombre de otro. 404 si todavia no creo su perfil de artista.
         PerfilArtista artista = perfilArtistaRepository
                 .findByUsuarioId(usuarioLogueado.getId())
                 .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioLogueado.getId()));
@@ -102,6 +103,7 @@ public class ObraServiceImpl implements ObraService {
     }
 
 
+    // Actualiza la obra: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Obra updateObra(Long obraId, ObraRequest request) {
 
@@ -121,6 +123,7 @@ public class ObraServiceImpl implements ObraService {
     }
 
 
+    // Elimina la obra de la base.
     @Override
     public void deleteObra(Long obraId) {
 

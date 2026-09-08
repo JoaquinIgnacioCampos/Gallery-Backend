@@ -28,6 +28,7 @@ public class Usuario implements UserDetails{
         this.telefono_usuario = usuario_request.getTelefono_usuario();
     }
 
+    // Copia al usuario solo los campos que vinieron en el request. Los que llegan nulos no se pisan.
     public void patchFrom (UsuarioRequest usuario_request) {
         if (usuario_request.getNombre_usuario() != null){
             this.nombre_usuario = usuario_request.getNombre_usuario();
@@ -90,6 +91,7 @@ public class Usuario implements UserDetails{
     @OneToOne(mappedBy = "usuario")
     private Carrito carrito_usuario;
 
+    // Se ejecuta justo antes del primer guardado: pone la fecha de creacion y el rol por defecto.
     @PrePersist
     private void onCreate() {
         if (this.fecha_creacion == null) {
@@ -107,25 +109,31 @@ public class Usuario implements UserDetails{
         return List.of(new SimpleGrantedAuthority(rol_usuario.name()));
     }
 
+    // Metodo de UserDetails: le dice a Spring Security donde esta la contrasenia.
     @Override
     public String getPassword() {
         return contrasenia_usuario;
     }
 
+    // Metodo de UserDetails: nuestro nombre de usuario para loguearse es el email.
     @Override
     public String getUsername() {
         return email_usuario; // el login se hace con el mail
     }
 
+    // Metodo de UserDetails. No manejamos vencimiento de cuentas, asi que siempre true.
     @Override
     public boolean isAccountNonExpired() { return true; }
 
+    // Metodo de UserDetails. No manejamos bloqueo de cuentas, asi que siempre true.
     @Override
     public boolean isAccountNonLocked() { return true; }
 
+    // Metodo de UserDetails. No vencemos contrasenias, asi que siempre true.
     @Override
     public boolean isCredentialsNonExpired() { return true; }
 
+    // Metodo de UserDetails. Todas las cuentas estan activas.
     @Override
     public boolean isEnabled() { return true; }
 

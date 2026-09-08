@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
+// Recibe las peticiones HTTP de los marcos y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/marcos")
 public class MarcoController {

@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.math.BigDecimal;
 import java.util.List;
 
+// Logica de negocio de las compras: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class CompraServiceImpl implements CompraService {
 
@@ -25,6 +26,7 @@ public class CompraServiceImpl implements CompraService {
     private UsuarioRepository usuarioRepository;
 
 
+    // Devuelve las compras.
     @Override
     public List<Compra> getCompras() {
 
@@ -32,6 +34,7 @@ public class CompraServiceImpl implements CompraService {
     }
 
 
+    // Busca la compra por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Compra getCompraById(Long compraId) {
 
@@ -41,6 +44,7 @@ public class CompraServiceImpl implements CompraService {
     }
 
 
+    // Crea la compra con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Compra createCompra(CompraRequest request) {
 
@@ -58,6 +62,7 @@ public class CompraServiceImpl implements CompraService {
     }
 
 
+    // Actualiza la compra: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Compra updateCompra(
             Long compraId,
@@ -78,6 +83,7 @@ public class CompraServiceImpl implements CompraService {
     }
 
 
+    // Elimina la compra de la base.
     @Override
     public void deleteCompra(Long compraId) {
 
@@ -88,6 +94,7 @@ public class CompraServiceImpl implements CompraService {
         compraRepository.delete(compra);
     }
 
+    // Devuelve las compras del usuario.
     @Override
     public List<Compra> getComprasByUsuario(Long usuarioId) {
         usuarioRepository.findById(usuarioId)
@@ -95,6 +102,7 @@ public class CompraServiceImpl implements CompraService {
         return compraRepository.findByUsuarioId(usuarioId);
     }
 
+    // Crea una compra vacia para un usuario. El checkout usa su propio camino.
     @Override
     public Compra createCompraForUsuario(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)

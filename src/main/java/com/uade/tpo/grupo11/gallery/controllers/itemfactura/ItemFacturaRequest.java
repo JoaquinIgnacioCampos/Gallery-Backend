@@ -3,6 +3,7 @@ package com.uade.tpo.grupo11.gallery.controllers.itemfactura;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+// Lo que el cliente manda para crear o modificar los items de la factura. Las relaciones viajan como ids.
 @Data
 public class ItemFacturaRequest {
 

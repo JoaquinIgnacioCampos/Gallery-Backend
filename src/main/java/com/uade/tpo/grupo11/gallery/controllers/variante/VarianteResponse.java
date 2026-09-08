@@ -5,10 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.Variante;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-// Lo que la API DEVUELVE de una variante. Manda el id de la obra en lugar del objeto,
-// asi el JSON no vuelve a entrar en la obra y de ahi otra vez en sus variantes.
-// Agrega nombre_tamanio, que no esta en la tabla variante: se lo pide al tamanio
-// relacionado para que el front no tenga que hacer una segunda consulta.
+// Lo que la API devuelve de las variantes. No exponemos la entidad: evita recursion y datos de mas.
 public record VarianteResponse(
         Long id,
         Long obra_id,
@@ -19,6 +16,7 @@ public record VarianteResponse(
         Integer porcentaje_descuento,
         LocalDate descuento_hasta
 ) {
+    // Traduce la entidad a lo que ve el cliente. Manda ids en vez de objetos anidados.
     public static VarianteResponse fromEntity(Variante variante) {
         return new VarianteResponse(
                 variante.getId(),

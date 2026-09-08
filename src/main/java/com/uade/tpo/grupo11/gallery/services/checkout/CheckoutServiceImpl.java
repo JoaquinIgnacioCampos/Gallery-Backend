@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+// Logica de negocio de checkout: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
 

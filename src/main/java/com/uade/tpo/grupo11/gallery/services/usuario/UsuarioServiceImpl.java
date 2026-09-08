@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
+// Logica de negocio de los usuarios: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
@@ -28,11 +29,13 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private CompraRepository compraRepository;
 
+    // Devuelve los usuarios.
     @Override
     public List<Usuario> getUsuarios() {
         return usuarioRepository.findAll();
     }
 
+    // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Usuario createUsuario(UsuarioRequest usuarioRequest) {
         if (usuarioRequest.getNombre_usuario() == null || usuarioRequest.getNombre_usuario().isBlank()) {
@@ -58,6 +61,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
+    // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Usuario getUsuario(Long usuario_id) {
         Optional<Usuario> result = usuarioRepository.findById(usuario_id);
@@ -68,6 +72,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         throw new UsuarioNotFoundException(usuario_id);
     }
 
+    // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
     public Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -95,10 +100,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
 
-    // ASIGNACION DE PERMISOS. Es lo que pide el enunciado: un administrador decide
-    // que puede hacer cada cuenta. El cambio tiene efecto en la peticion siguiente,
-    // sin volver a loguearse: el token solo guarda el email, y los permisos se leen
-    // de la base cada vez que pasa por el filtro.
+    // Asignacion de permisos: un administrador decide que puede hacer cada cuenta.
+    // El cambio vale enseguida, sin relogueo: los permisos se leen de la base en cada peticion.
     @Override
     public Usuario asignarRol(Long usuarioId, Rol nuevoRol) {
 

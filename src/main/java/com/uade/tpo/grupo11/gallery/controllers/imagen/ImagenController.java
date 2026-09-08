@@ -9,8 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.List;
 
-// CONTROLLER de Imagen. La diferencia con los otros dos es que aca entra un ARCHIVO,
-// asi que los endpoints de alta y modificacion consumen multipart/form-data en lugar de JSON.
+// Recibe las peticiones HTTP de las imagenes y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/imagenes")
 public class ImagenController {
@@ -40,6 +39,7 @@ public class ImagenController {
     }
 
 
+    // Busca la imagen por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{imagenId}")
     public ResponseEntity<ImagenResponse> getImagenById(@PathVariable Long imagenId) {
         return ResponseEntity.ok(ImagenResponse.fromEntity(servicioImagen.getImagenById(imagenId)));
@@ -58,6 +58,7 @@ public class ImagenController {
     }
 
 
+    // Actualiza la imagen: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PutMapping(value = "/{imagenId}", consumes = "multipart/form-data")
     public ResponseEntity<ImagenResponse> updateImagen(
             @PathVariable Long imagenId,
@@ -67,7 +68,7 @@ public class ImagenController {
     }
 
 
-    // DELETE devuelve 204 NO CONTENT: salio bien y no hay cuerpo que devolver.
+    // Elimina la imagen de la base.
     @DeleteMapping("/{imagenId}")
     public ResponseEntity<Void> deleteImagen(@PathVariable Long imagenId) {
         servicioImagen.deleteImagen(imagenId);

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 
 
+// Habla con la base. Al extender JpaRepository, el CRUD basico ya viene hecho.
 @Repository
 public interface TamanioLienzoRepository extends JpaRepository<TamanioLienzo, Long> {
 }

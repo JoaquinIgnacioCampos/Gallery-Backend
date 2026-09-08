@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
+// Recibe las peticiones HTTP de los mensajes y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/mensajes")
 public class MensajeController {
@@ -16,11 +17,13 @@ public class MensajeController {
     @Autowired
     private MensajeService mensajeService;
 
+    // Busca el mensaje por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{id}")
     public ResponseEntity<MensajeResponse> getMensajeById(@PathVariable Long id) {
         return ResponseEntity.ok(MensajeResponse.fromEntity(mensajeService.getMensajeById(id)));
     }
 
+    // Crea el mensaje con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<MensajeResponse> createMensaje(@Valid @RequestBody MensajeRequest request) {
         Mensaje mensaje = mensajeService.createMensaje(

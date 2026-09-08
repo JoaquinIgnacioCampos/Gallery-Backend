@@ -5,6 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.Factura;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+// Lo que la API devuelve de las facturas. No exponemos la entidad: evita recursion y datos de mas.
 public record FacturaResponse(
         Long id,
         Long artista_id,
@@ -13,6 +14,7 @@ public record FacturaResponse(
         BigDecimal precio_total_factura,
         LocalDateTime fecha_creacion_factura
 ) {
+    // Traduce la entidad a lo que ve el cliente. Manda ids en vez de objetos anidados.
     public static FacturaResponse fromEntity(Factura factura) {
         return new FacturaResponse(
                 factura.getId(),

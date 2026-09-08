@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Recibe las peticiones HTTP de las compras y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/compras")
 public class CompraController {
@@ -71,6 +72,7 @@ public class CompraController {
     }
 
 
+    // Devuelve las facturas de la compra.
     @GetMapping("/{compraId}/facturas")
     public List<FacturaResponse> getFacturasByCompra(
             @PathVariable Long compraId) {

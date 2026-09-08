@@ -52,6 +52,7 @@ public class Encargo {
     @Column(name = "fecha_creacion_encargo", nullable = false, updatable = false)
     private LocalDateTime fecha_creacion_encargo;
 
+    // Se ejecuta justo antes del primer guardado para completar los valores por defecto.
     @PrePersist
     public void prePersist() {
         this.fecha_creacion_encargo = LocalDateTime.now();

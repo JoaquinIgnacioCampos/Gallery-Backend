@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+// Recibe las peticiones HTTP de checkout y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/checkout")
 public class CheckoutController {
@@ -20,14 +21,8 @@ public class CheckoutController {
         this.checkoutService = checkoutService;
     }
 
-    // POST /api/checkout
-    // Convierte el carrito del usuario LOGUEADO en una compra con sus facturas.
-    // 201: se creo un recurso nuevo (la compra).
-    //
-    // El usuario NO llega por parametro. @AuthenticationPrincipal inyecta el usuario
-    // que el filtro de JWT dejo registrado al validar el token, asi que la identidad
-    // sale de una firma y no de algo que el cliente pueda escribir.
-    // Antes recibia ?usuarioId=1 y cualquiera podia comprar con el carrito de otro.
+    // Convierte el carrito del usuario logueado en una compra con sus facturas. Devuelve 201.
+    // El usuario sale del token y no de un parametro: antes cualquiera podia comprar con el carrito de otro.
     @PostMapping
     public ResponseEntity<CompraResponse> checkout(@AuthenticationPrincipal Usuario usuarioLogueado) {
         return ResponseEntity

@@ -16,10 +16,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-// FILTRO: se ejecuta ANTES de que la peticion llegue a cualquier controller.
-// Su unico trabajo es mirar si viene un token valido y, si viene, dejar registrado
-// quien es el usuario para el resto de la peticion.
-// OncePerRequestFilter garantiza que corra una sola vez por peticion.
+// Se ejecuta antes de que la peticion llegue a cualquier controller.
+// Si viene un token valido, deja registrado quien es el usuario para el resto de la peticion.
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -29,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private UserDetailsService userDetailsService;
 
+    // Corre antes que cualquier controller: si viene un token valido, deja registrado quien es el usuario.
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,

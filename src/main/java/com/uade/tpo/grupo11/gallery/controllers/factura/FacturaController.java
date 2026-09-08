@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Recibe las peticiones HTTP de las facturas y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/facturas")
 public class FacturaController {

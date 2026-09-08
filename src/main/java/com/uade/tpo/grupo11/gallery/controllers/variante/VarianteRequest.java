@@ -6,11 +6,7 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-// Lo que el cliente manda para crear o modificar una variante.
-// Las relaciones viajan como ids (obra_id, id_tamanio), no como objetos anidados:
-// el Service los busca en la base y arma la entidad.
-// Las anotaciones controlan que los datos OBLIGATORIOS esten presentes;
-// las reglas de negocio (stock no negativo, descuento de 0 a 100) viven en el Service.
+// Lo que el cliente manda para crear o modificar las variantes. Las relaciones viajan como ids.
 @Data
 public class VarianteRequest {
 

@@ -23,11 +23,11 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    // Valida mail y contrasenia y, si estan bien, devuelve un token.
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
-        // Aca se comprueba la contrasenia: el AuthenticationManager busca al usuario
-        // y compara el hash. Si no coincide lanza BadCredentialsException, que el
-        // handler global traduce a 401 "Mail o contrasenia incorrectos".
+        // Aca se comprueba la contrasenia comparando contra el hash guardado.
+        // Si no coincide lanza BadCredentialsException y el handler global responde 401.
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail_usuario(), request.getContrasenia_usuario()));

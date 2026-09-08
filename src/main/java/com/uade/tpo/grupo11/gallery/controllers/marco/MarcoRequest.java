@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 
+// Lo que el cliente manda para crear o modificar los marcos. Las relaciones viajan como ids.
 @Data
 public class MarcoRequest {
 

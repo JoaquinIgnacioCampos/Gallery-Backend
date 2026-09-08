@@ -8,8 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// CONTROLLER de Variante. Misma estructura que ObraController: recibe HTTP, delega en el
-// Service y devuelve el codigo que corresponde. Devuelve siempre Response, nunca la entity.
+// Recibe las peticiones HTTP de las variantes y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/variantes")
 public class VarianteController {
@@ -46,7 +45,7 @@ public class VarianteController {
     }
 
 
-    // POST crea: 201 CREATED. @Valid revisa el Request antes de entrar al metodo.
+    // Crea la variante con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @PostMapping
     public ResponseEntity<VarianteResponse> createVariante(@Valid @RequestBody VarianteRequest request) {
         return ResponseEntity
@@ -55,6 +54,7 @@ public class VarianteController {
     }
 
 
+    // Actualiza la variante: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PutMapping("/{varianteId}")
     public ResponseEntity<VarianteResponse> updateVariante(
             @PathVariable Long varianteId,
@@ -74,7 +74,7 @@ public class VarianteController {
     }
 
 
-    // DELETE devuelve 204 NO CONTENT: salio bien y no hay cuerpo que devolver.
+    // Elimina la variante de la base.
     @DeleteMapping("/{varianteId}")
     public ResponseEntity<Void> deleteVariante(@PathVariable Long varianteId) {
         servicioVariante.deleteVariante(varianteId);

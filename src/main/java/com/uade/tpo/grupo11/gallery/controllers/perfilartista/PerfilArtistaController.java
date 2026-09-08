@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// Recibe las peticiones HTTP de los perfiles de artista y devuelve la respuesta con su codigo. La logica vive en el service.
 @RestController
 @RequestMapping("/api/artistas")
 public class PerfilArtistaController {
@@ -16,6 +17,7 @@ public class PerfilArtistaController {
     @Autowired
     private PerfilArtistaService perfilArtistaService;
 
+    // Devuelve los perfiles de artista.
     @GetMapping
     public ResponseEntity<List<PerfilArtistaResponse>> getPerfilArtistas() {
         List<PerfilArtistaResponse> perfiles = perfilArtistaService.getPerfilArtistas().stream()
@@ -24,12 +26,14 @@ public class PerfilArtistaController {
         return ResponseEntity.ok(perfiles);
     }
 
+    // Busca el perfil de artista por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{perfilArtistaId}")
     public ResponseEntity<PerfilArtistaResponse> getPerfilArtistaById(@PathVariable Long perfilArtistaId) {
         PerfilArtista perfilArtista = perfilArtistaService.getPerfilArtistaById(perfilArtistaId);
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
     }
 
+    // Actualiza el perfil de artista: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @PatchMapping("/{perfilArtistaId}")
     public ResponseEntity<PerfilArtistaResponse> updatePerfilArtista(
             @PathVariable Long perfilArtistaId,
@@ -39,6 +43,7 @@ public class PerfilArtistaController {
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
     }
 
+    // Devuelve las obras del perfil de artista.
     @GetMapping("/{perfilArtistaId}/obras")
     public ResponseEntity<List<PerfilArtistaObraResponse>> getObrasByPerfilArtista(
             @PathVariable Long perfilArtistaId
