@@ -89,6 +89,19 @@ public class SecurityConfig {
                         .requestMatchers("/api/carritos/**", "/api/items-carrito/**", "/api/checkout/**")
                                 .hasAnyAuthority("CLIENTE", "ARTISTA_CLIENTE", "ADMIN")
 
+                        // COMPRA/FACTURA/ITEM-FACTURA: los genera el checkout (llamada interna,
+                        // no pasa por estas rutas HTTP). Escribirlos a mano queda solo para ADMIN,
+                        // por ejemplo para una correccion administrativa.
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/compras/**", "/api/facturas/**", "/api/items-factura/**")
+                                .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/compras/**", "/api/facturas/**")
+                                .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/compras/**", "/api/facturas/**")
+                                .hasAuthority("ADMIN")
+
                         // Todo lo demas exige estar logueado, sin importar el rol.
                         .anyRequest().authenticated())
                 // STATELESS: el servidor no guarda sesiones. Cada peticion se identifica
