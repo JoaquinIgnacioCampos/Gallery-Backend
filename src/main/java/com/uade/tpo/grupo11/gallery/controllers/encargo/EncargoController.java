@@ -60,7 +60,9 @@ public class EncargoController {
     public ResponseEntity<EncargoResponse> createEncargo(
             @Valid @RequestBody EncargoRequest request,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.createEncargo(request, usuarioLogueado)));
+        Encargo result = encargoService.createEncargo(request, usuarioLogueado);
+        return ResponseEntity.created(URI.create("/api/encargos/" + result.getId()))
+                .body(EncargoResponse.fromEntity(result));
     }
     // Devuelve los mensajes del encargo. Solo el cliente y el artista del encargo.
     @GetMapping("/{encargoId}/mensajes")
