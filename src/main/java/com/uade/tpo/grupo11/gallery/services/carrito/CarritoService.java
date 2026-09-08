@@ -5,27 +5,22 @@ import java.util.List;
 import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 
 // Contrato: que sabe hacer el servicio de los carritos. La implementacion es la que lleva la logica.
 public interface CarritoService {
 
-    // Devuelve los carritos.
-    List<Carrito> getCarritos();
+    List<Carrito> getCarritos(Usuario usuarioActual);
 
-    // Busca el carrito por id. Si no existe, se lanza la excepcion y el handler responde 404.
-    Carrito getCarritoById(Long carritoId);
+    Carrito getCarritoById(Long carritoId, Usuario usuarioActual);
 
-    // Crea el carrito con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
-    Carrito createCarrito(CarritoRequest request);
+    Carrito createCarrito(CarritoRequest request, Usuario usuarioActual);
 
-    // Actualiza el carrito: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
-    Carrito updateCarrito(Long carritoId, CarritoRequest request);
+    Carrito updateCarrito(Long carritoId, CarritoRequest request, Usuario usuarioActual);
 
-    // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
-    List<ItemCarrito> getItemsByCarrito(Long carritoId);
+    List<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual);
 
-    // Saca todos los items del carrito sin borrar el carrito.
-    void vaciarCarrito(Long carritoId);
+    void vaciarCarrito(Long carritoId, Usuario usuarioActual);
 
     // Devuelve el carrito del usuario y, si todavia no tiene, se lo crea.
     Carrito getOrCreateCarritoByUsuario(Long usuarioId);

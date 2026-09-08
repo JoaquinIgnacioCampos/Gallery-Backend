@@ -179,11 +179,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
     }
 
-    @ExceptionHandler(UsuarioEnUsoException.class)
-    public ResponseEntity<String> handleUsuarioEnUso(UsuarioEnUsoException e) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
-    }
-
     // Se dispara cuando un parametro no se puede convertir al tipo esperado,
     // por ejemplo un rol que no existe en el enum. Es culpa de lo que mandaron: 400.
     @ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)

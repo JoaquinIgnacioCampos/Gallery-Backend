@@ -21,10 +21,6 @@ public interface ObraService {
     Obra getObraById(Long obraId);
     // Recibe al usuario logueado: la obra se publica a nombre de quien la crea.
     Obra createObra(ObraRequest request, Usuario usuarioLogueado);
-    // Actualiza la obra: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
-    Obra updateObra(Long obraId, ObraRequest request);
-    // Elimina la obra de la base.
-    void deleteObra(Long obraId);
-
-
+    Obra updateObra(Long obraId, ObraRequest request, Usuario usuarioLogueado);
+    void deleteObra(Long obraId, Usuario usuarioLogueado);
 }

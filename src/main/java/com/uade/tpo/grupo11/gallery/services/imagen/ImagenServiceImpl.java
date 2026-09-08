@@ -3,10 +3,12 @@ package com.uade.tpo.grupo11.gallery.services.imagen;
 import com.uade.tpo.grupo11.gallery.controllers.imagen.ImagenRequest;
 import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.ImagenNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,7 +58,7 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Crea la imagen con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
-    public Imagen createImagen(ImagenRequest request) throws IOException {
+    public Imagen createImagen(ImagenRequest request, Usuario usuarioActual) throws IOException {
 
         // El archivo no se valida con anotaciones en el Request: @NotNull no detecta
         // un MultipartFile vacio, asi que la regla se controla aca.
@@ -67,6 +69,8 @@ public class ImagenServiceImpl implements ImagenService {
         Obra obra = obraRepository
                 .findById(request.getObra_id())
                 .orElseThrow(() -> new ObraNotFoundException(request.getObra_id()));
+
+        OwnershipGuard.verificar(usuarioActual, obra.getArtista().getUsuario().getId());
 
         Imagen imagen = Imagen.builder()
                 .obra(obra)
@@ -81,9 +85,11 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Actualiza la imagen: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
-    public Imagen updateImagen(Long imagenId, ImagenRequest request) throws IOException {
+    public Imagen updateImagen(Long imagenId, ImagenRequest request, Usuario usuarioActual) throws IOException {
 
         Imagen imagenExistente = getImagenById(imagenId);
+
+        OwnershipGuard.verificar(usuarioActual, imagenExistente.getObra().getArtista().getUsuario().getId());
 
         // La obra de una imagen no se cambia: la imagen pertenece a la obra donde se subio.
         if (request.getOrden_imagen() != null) {
@@ -100,9 +106,11 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Elimina la imagen de la base.
     @Override
-    public void deleteImagen(Long imagenId) {
+    public void deleteImagen(Long imagenId, Usuario usuarioActual) {
 
         Imagen imagen = getImagenById(imagenId);
+
+        OwnershipGuard.verificar(usuarioActual, imagen.getObra().getArtista().getUsuario().getId());
 
         repoImagen.delete(imagen);
     }

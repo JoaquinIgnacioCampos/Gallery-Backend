@@ -2,9 +2,11 @@ package com.uade.tpo.grupo11.gallery.controllers.carrito;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoResponse;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 
 import java.util.List;
@@ -20,9 +22,9 @@ public class    CarritoController {
 
     // GET - Obtener todos los carritos
     @GetMapping
-    public List<CarritoResponse> getCarritos() {
+    public List<CarritoResponse> getCarritos(@AuthenticationPrincipal Usuario usuarioActual) {
 
-        return carritoService.getCarritos().stream()
+        return carritoService.getCarritos(usuarioActual).stream()
                 .map(CarritoResponse::fromEntity)
                 .toList();
     }
@@ -31,18 +33,20 @@ public class    CarritoController {
     // GET - Obtener carrito por ID
     @GetMapping("/{carritoId}")
     public CarritoResponse getCarritoById(
-            @PathVariable Long carritoId) {
+            @PathVariable Long carritoId,
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return CarritoResponse.fromEntity(carritoService.getCarritoById(carritoId));
+        return CarritoResponse.fromEntity(carritoService.getCarritoById(carritoId, usuarioActual));
     }
 
 
     // POST - Crear carrito
     @PostMapping
     public CarritoResponse createCarrito(
-            @Valid @RequestBody CarritoRequest request) {
+            @Valid @RequestBody CarritoRequest request,
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return CarritoResponse.fromEntity(carritoService.createCarrito(request));
+        return CarritoResponse.fromEntity(carritoService.createCarrito(request, usuarioActual));
     }
 
 
@@ -50,11 +54,13 @@ public class    CarritoController {
     @PutMapping("/{carritoId}")
     public CarritoResponse updateCarrito(
             @PathVariable Long carritoId,
-            @Valid @RequestBody CarritoRequest request) {
+            @Valid @RequestBody CarritoRequest request,
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
         return CarritoResponse.fromEntity(carritoService.updateCarrito(
                 carritoId,
-                request
+                request,
+                usuarioActual
         ));
     }
 
@@ -62,9 +68,10 @@ public class    CarritoController {
     // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @GetMapping("/{carritoId}/items")
     public List<ItemCarritoResponse> getItemsByCarrito(
-            @PathVariable Long carritoId) {
+            @PathVariable Long carritoId,
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return carritoService.getItemsByCarrito(carritoId).stream()
+        return carritoService.getItemsByCarrito(carritoId, usuarioActual).stream()
                 .map(ItemCarritoResponse::fromEntity)
                 .toList();
     }
@@ -73,8 +80,9 @@ public class    CarritoController {
     // Saca todos los items del carrito sin borrar el carrito.
     @DeleteMapping("/{carritoId}/items")
     public void vaciarCarrito(
-            @PathVariable Long carritoId) {
+            @PathVariable Long carritoId,
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        carritoService.vaciarCarrito(carritoId);
+        carritoService.vaciarCarrito(carritoId, usuarioActual);
     }
 }

@@ -3,6 +3,7 @@ package com.uade.tpo.grupo11.gallery.services.variante;
 import com.uade.tpo.grupo11.gallery.controllers.variante.VarianteRequest;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
@@ -10,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -61,11 +63,13 @@ public class VarianteServiceImpl implements VarianteService {
 
     // Crea la variante con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
-    public Variante createVariante(VarianteRequest request) {
+    public Variante createVariante(VarianteRequest request, Usuario usuarioActual) {
 
         Obra obra = obraRepository
                 .findById(request.getObra_id())
                 .orElseThrow(() -> new ObraNotFoundException(request.getObra_id()));
+
+        OwnershipGuard.verificar(usuarioActual, obra.getArtista().getUsuario().getId());
 
         TamanioLienzo tamanio = tamanioLienzoRepository
                 .findById(request.getId_tamanio())
@@ -89,9 +93,11 @@ public class VarianteServiceImpl implements VarianteService {
 
     // Actualiza la variante: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
-    public Variante updateVariante(Long varianteId, VarianteRequest request) {
+    public Variante updateVariante(Long varianteId, VarianteRequest request, Usuario usuarioActual) {
 
         Variante varianteExistente = getVarianteById(varianteId);
+
+        OwnershipGuard.verificar(usuarioActual, varianteExistente.getObra().getArtista().getUsuario().getId());
 
         TamanioLienzo tamanio = tamanioLienzoRepository
                 .findById(request.getId_tamanio())
@@ -113,9 +119,11 @@ public class VarianteServiceImpl implements VarianteService {
 
     // Cambia solo el stock. Por eso es PATCH y no PUT.
     @Override
-    public Variante actualizarStock(Long varianteId, Integer nuevoStock) {
+    public Variante actualizarStock(Long varianteId, Integer nuevoStock, Usuario usuarioActual) {
 
         Variante variante = getVarianteById(varianteId);
+
+        OwnershipGuard.verificar(usuarioActual, variante.getObra().getArtista().getUsuario().getId());
 
         validarStock(nuevoStock);
 
@@ -127,9 +135,11 @@ public class VarianteServiceImpl implements VarianteService {
 
     // Elimina la variante de la base.
     @Override
-    public void deleteVariante(Long varianteId) {
+    public void deleteVariante(Long varianteId, Usuario usuarioActual) {
 
         Variante variante = getVarianteById(varianteId);
+
+        OwnershipGuard.verificar(usuarioActual, variante.getObra().getArtista().getUsuario().getId());
 
         repoVariante.delete(variante);
     }

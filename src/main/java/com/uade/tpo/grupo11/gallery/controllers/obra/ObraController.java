@@ -2,10 +2,10 @@ package com.uade.tpo.grupo11.gallery.controllers.obra;
 
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.obra.ObraService;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -68,16 +68,19 @@ public class ObraController {
     @PutMapping("/{obraId}")
     public ResponseEntity<ObraResponse> updateObra(
             @PathVariable Long obraId,
-            @Valid @RequestBody ObraRequest request) {
+            @Valid @RequestBody ObraRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
 
-        return ResponseEntity.ok(ObraResponse.fromEntity(servicioObra.updateObra(obraId, request)));
+        return ResponseEntity.ok(ObraResponse.fromEntity(servicioObra.updateObra(obraId, request, usuarioLogueado)));
     }
 
 
     // Elimina la obra de la base.
     @DeleteMapping("/{obraId}")
-    public ResponseEntity<Void> deleteObra(@PathVariable Long obraId) {
-        servicioObra.deleteObra(obraId);
+    public ResponseEntity<Void> deleteObra(
+            @PathVariable Long obraId,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        servicioObra.deleteObra(obraId, usuarioLogueado);
         return ResponseEntity.noContent().build();
     }
 }

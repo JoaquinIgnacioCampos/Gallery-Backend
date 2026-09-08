@@ -126,12 +126,4 @@ public class UsuarioController {
 
         return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.asignarRol(usuario_id, rol)));
     }
-
-
-    // Baja de cuenta. 204 NO CONTENT: salio bien y no hay nada que devolver.
-    @DeleteMapping("/{usuario_id}")
-    public ResponseEntity<Void> eliminarUsuario(@PathVariable("usuario_id") Long usuario_id) {
-        usuarioService.eliminarUsuario(usuario_id);
-        return ResponseEntity.noContent().build();
-    }
 }

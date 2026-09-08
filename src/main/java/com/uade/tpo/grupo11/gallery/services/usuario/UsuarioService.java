@@ -19,8 +19,6 @@ public interface UsuarioService {
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     Usuario updateUsuario(Long usuarioId, UsuarioRequest usuarioRequest);
 
-    // Administracion de cuentas (solo ADMIN): asignar permisos y dar de baja.
+    // Administracion de cuentas (solo ADMIN): asignar permisos.
     Usuario asignarRol(Long usuarioId, Rol nuevoRol);
-    // Elimina el usuario de la base.
-    void eliminarUsuario(Long usuarioId);
 }

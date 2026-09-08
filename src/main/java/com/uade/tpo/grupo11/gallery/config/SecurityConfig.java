@@ -44,11 +44,23 @@ public class SecurityConfig {
                         // El catalogo se puede mirar sin loguearse, pero solo mirar.
                         .requestMatchers(HttpMethod.GET,
                                 "/api/obras/**", "/api/variantes/**", "/api/imagenes/**",
-                                "/api/estilos/**", "/api/tamanios-lienzo/**", "/api/marcos/**").permitAll()
+                                "/api/estilos/**", "/api/tamanios-lienzo/**", "/api/marcos/**",
+                                "/api/artistas/**").permitAll()
 
-                        // ADMINISTRACION DE CUENTAS: asignar permisos y dar de baja. Solo ADMIN.
+                        // ADMINISTRACION DE CUENTAS: asignar permisos. Solo ADMIN.
                         .requestMatchers("/api/usuarios/*/rol").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasAuthority("ADMIN")
+
+                        // CONFIGURACION DEL CATALOGO: estilos, tamanios y marcos son maestros
+                        // del sistema, no de un artista puntual. Escribirlos es solo de ADMIN.
+                        .requestMatchers(HttpMethod.POST,
+                                "/api/estilos/**", "/api/tamanios-lienzo/**", "/api/marcos/**")
+                                .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,
+                                "/api/estilos/**", "/api/tamanios-lienzo/**", "/api/marcos/**")
+                                .hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE,
+                                "/api/estilos/**", "/api/tamanios-lienzo/**", "/api/marcos/**")
+                                .hasAuthority("ADMIN")
 
                         // PUBLICAR Y GESTIONAR OBRAS: solo quien vende.
                         .requestMatchers(HttpMethod.POST,
