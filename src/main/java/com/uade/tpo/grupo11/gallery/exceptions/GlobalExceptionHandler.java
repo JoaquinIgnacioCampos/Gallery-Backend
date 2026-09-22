@@ -53,6 +53,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+    @ExceptionHandler(CompraPropiaException.class)
+    public ResponseEntity<String> handleCompraPropia(CompraPropiaException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
 
     @ExceptionHandler(ItemFacturaNotFoundException.class)
     public ResponseEntity<String> handleItemFacturaNotFound(ItemFacturaNotFoundException e) {
