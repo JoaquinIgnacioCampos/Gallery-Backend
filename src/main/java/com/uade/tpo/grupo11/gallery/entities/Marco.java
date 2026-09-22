@@ -27,8 +27,10 @@ public class Marco {
     @Column(name = "color_marco", nullable = false)
     private String color_marco;
 
+    // LONGBLOB explicito: sin esto Hibernate mapea byte[]+@Lob como TINYBLOB en MySQL
+    // (255 bytes), suficiente para un placeholder de prueba pero no para una foto real.
     @Lob
-    @Column(name = "imagen_marco")
+    @Column(name = "imagen_marco", columnDefinition = "LONGBLOB")
     private byte[] imagen_marco;
 
     @Column(name = "precio_marco", nullable = false)
