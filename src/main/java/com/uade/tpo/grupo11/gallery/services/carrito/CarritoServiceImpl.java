@@ -57,19 +57,12 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
-    // Crea el carrito con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
+    // Crea el carrito con los datos del request. El dueño es siempre el usuario logueado.
     @Override
     public Carrito createCarrito(CarritoRequest request, Usuario usuarioActual) {
 
-        Usuario usuario = usuarioRepository
-                .findById(request.getUsuario_id())
-                .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuario_id()));
-
-        // No se puede crear un carrito a nombre de otro usuario.
-        OwnershipGuard.verificar(usuarioActual, usuario.getId());
-
         Carrito carrito = Carrito.builder()
-                .usuario(usuario)
+                .usuario(usuarioActual)
                 .direccion_cliente(request.getDireccion_cliente())
                 .build();
 
@@ -90,11 +83,7 @@ public class CarritoServiceImpl implements CarritoService {
 
         OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
-        Usuario usuario = usuarioRepository
-                .findById(request.getUsuario_id())
-                .orElseThrow(() -> new UsuarioNotFoundException(request.getUsuario_id()));
-
-        carrito.setUsuario(usuario);
+        // El dueño del carrito no se cambia al editarlo, igual que el artista de una obra.
         carrito.setDireccion_cliente(request.getDireccion_cliente());
 
         return carritoRepository.save(carrito);
