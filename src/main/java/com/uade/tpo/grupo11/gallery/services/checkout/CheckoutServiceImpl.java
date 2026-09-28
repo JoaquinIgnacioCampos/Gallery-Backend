@@ -16,14 +16,13 @@ import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
+import com.uade.tpo.grupo11.gallery.services.PrecioVigente;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -176,20 +175,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     // vuelve solo al precio de lista sin que nadie toque nada.
     private BigDecimal aplicarDescuento(Variante variante) {
 
-        Integer porcentaje = variante.getPorcentaje_descuento();
-        LocalDate hasta = variante.getDescuento_hasta();
-
-        boolean vigente = porcentaje != null
-                && porcentaje > 0
-                && (hasta == null || !hasta.isBefore(LocalDate.now()));
-
-        if (!vigente) {
-            return variante.getPrecio_variante();
-        }
-
-        BigDecimal factor = BigDecimal.valueOf(100 - porcentaje)
-                .divide(BigDecimal.valueOf(100), 4, RoundingMode.HALF_UP);
-
-        return variante.getPrecio_variante().multiply(factor).setScale(2, RoundingMode.HALF_UP);
+        // La cuenta se mudo a PrecioVigente para que el carrito muestre exactamente
+        // el mismo precio que despues se cobra aca.
+        return PrecioVigente.de(variante);
     }
 }

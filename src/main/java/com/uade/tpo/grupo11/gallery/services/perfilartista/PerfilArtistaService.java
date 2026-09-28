@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.services.perfilartista;
 
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
+import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -28,4 +29,7 @@ public interface PerfilArtistaService {
 
     // Devuelve las obras del perfil de artista.
     List<Obra> getObrasByPerfilArtista(Long perfilArtistaId);
+
+    // Devuelve las ventas del artista: las facturas emitidas a su nombre.
+    List<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado);
 }

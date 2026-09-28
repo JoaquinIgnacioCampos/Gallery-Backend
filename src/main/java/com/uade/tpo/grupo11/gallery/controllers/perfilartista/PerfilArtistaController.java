@@ -1,5 +1,6 @@
 package com.uade.tpo.grupo11.gallery.controllers.perfilartista;
 
+import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
@@ -55,5 +56,19 @@ public class PerfilArtistaController {
                 .map(PerfilArtistaObraResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(obras);
+    }
+
+    // Las ventas del artista: una fila por factura emitida a su nombre. El service
+    // verifica que quien pregunta sea el dueño del perfil, no cualquier artista.
+    @GetMapping("/{perfilArtistaId}/facturas")
+    public ResponseEntity<List<FacturaResponse>> getFacturasByPerfilArtista(
+            @PathVariable Long perfilArtistaId,
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        List<FacturaResponse> facturas = perfilArtistaService
+                .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado).stream()
+                .map(FacturaResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(facturas);
     }
 }

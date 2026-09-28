@@ -54,6 +54,13 @@ public class UsuarioController {
                 .body(UsuarioResponse.fromEntity(result));
     }
 
+    // Devuelve el usuario dueño del token. El front lo necesita apenas se loguea: el token
+    // solo lleva el email, pero para pedir su carrito o sus compras hace falta el id.
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponse> getUsuarioActual(@AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioLogueado));
+    }
+
     // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{usuario_id}")
     public ResponseEntity<UsuarioResponse> getUsuario(@PathVariable("usuario_id") Long usuario_id) {
