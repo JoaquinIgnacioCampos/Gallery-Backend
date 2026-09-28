@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.services.perfilartista;
 
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
+import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -10,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.DuplicatePerfilArtistaException;
 import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaInvalidDataException;
 import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
+import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
@@ -30,6 +32,8 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private ObraRepository obraRepository;
+    @Autowired
+    private FacturaRepository facturaRepository;
 
     // Devuelve los perfiles de artista del usuario.
     @Override
@@ -96,6 +100,15 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     public List<Obra> getObrasByPerfilArtista(Long perfilArtistaId) {
         getPerfilArtistaById(perfilArtistaId);
         return obraRepository.findByArtistaId(perfilArtistaId);
+    }
+
+    // Devuelve las ventas del artista. Son datos de plata, asi que no alcanza con tener
+    // el rol: hay que ser el dueño de ese perfil (o ADMIN), y eso lo decide el token.
+    @Override
+    public List<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado) {
+        PerfilArtista perfil = getPerfilArtistaById(perfilArtistaId);
+        OwnershipGuard.verificar(usuarioLogueado, perfil.getUsuario().getId());
+        return facturaRepository.findByArtistaId(perfilArtistaId);
     }
 
     // Regla de negocio: el nombre artistico no puede venir vacio.

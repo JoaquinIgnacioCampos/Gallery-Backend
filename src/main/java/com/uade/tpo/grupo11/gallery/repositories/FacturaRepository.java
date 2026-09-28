@@ -12,4 +12,7 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
 
     // Busca por el id de la compra. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Factura> findByCompraId(Long compraId);
+
+    // Las facturas emitidas a nombre de un artista: son sus ventas.
+    List<Factura> findByArtistaId(Long artistaId);
 }
