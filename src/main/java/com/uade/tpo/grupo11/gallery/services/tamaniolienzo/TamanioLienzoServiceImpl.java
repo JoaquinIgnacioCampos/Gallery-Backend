@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.services.tamaniolienzo;
 
 import com.uade.tpo.grupo11.gallery.controllers.tamaniolienzo.TamanioLienzoRequest;
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,13 @@ public class TamanioLienzoServiceImpl implements TamanioLienzoService {
     // Devuelve los tamanios de lienzo.
     @Override
     public List<TamanioLienzo> getTamanioLienzos() {
-        return tamanioLienzoRepository.findAll();
+        List<TamanioLienzo> tamaniolienzo = tamanioLienzoRepository.findAll();
+
+        if (tamaniolienzo.isEmpty()) {
+            throw new RecursoNoEncontradoException("No se cargaron tamanios de lienzo");
+        }
+
+        return tamaniolienzo;
     }
 
     // Crea el tamanio de lienzo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.

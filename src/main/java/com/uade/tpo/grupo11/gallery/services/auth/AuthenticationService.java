@@ -3,8 +3,10 @@ package com.uade.tpo.grupo11.gallery.services.auth;
 import com.uade.tpo.grupo11.gallery.config.JwtService;
 import com.uade.tpo.grupo11.gallery.controllers.auth.AuthenticationRequest;
 import com.uade.tpo.grupo11.gallery.controllers.auth.AuthenticationResponse;
+import com.uade.tpo.grupo11.gallery.controllers.usuario.UsuarioRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
+import com.uade.tpo.grupo11.gallery.services.usuario.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +25,9 @@ public class AuthenticationService {
     @Autowired
     private AuthenticationManager authenticationManager;
 
+    @Autowired
+    private UsuarioService usuarioService;
+
     // Valida mail y contrasenia y, si estan bien, devuelve un token.
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
 
@@ -39,4 +44,15 @@ public class AuthenticationService {
         var jwtToken = jwtService.generateToken(usuario);
         return new AuthenticationResponse(jwtToken);
     }
+
+    // Registra al usuario (delega toda la validacion/creacion en UsuarioService,
+    // que ya tiene los chequeos de duplicados y el hash de la contrasenia)
+    // y, si sale bien, genera su token para que no tenga que loguearse aparte.
+    public AuthenticationResponse register(UsuarioRequest usuarioRequest) {
+        Usuario usuario = usuarioService.createUsuario(usuarioRequest);
+
+        var jwtToken = jwtService.generateToken(usuario);
+        return new AuthenticationResponse(jwtToken);
+    }
+
 }
