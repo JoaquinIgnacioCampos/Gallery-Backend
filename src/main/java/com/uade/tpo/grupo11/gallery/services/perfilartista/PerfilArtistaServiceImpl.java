@@ -39,14 +39,17 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
                 .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioId));
     }
 
-    // Crea el perfil de artista con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
-
-    //FALTA QUE LA COMPROBACION DE LOS TOKENS
+    // La identidad viene del contexto de seguridad, nunca de un id elegido por el cliente.
     @Override
     @Transactional(rollbackFor = Throwable.class)
-    public PerfilArtista createPerfilArtista(Long usuarioId, PerfilArtistaRequest request) {
+    public PerfilArtista createPerfilArtista(Usuario usuarioLogueado, PerfilArtistaRequest request) {
+        Long usuarioId = usuarioLogueado.getId();
         Usuario usuario = usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
+
+        if (usuario.getRol_usuario() == Rol.ADMIN) {
+            throw new AccesoDenegadoException("ya tiene permisos para hacer todo");
+        }
 
         if (perfilArtistaRepository.findByUsuarioId(usuarioId).isPresent()) {
             throw new DuplicatePerfilArtistaException(usuarioId);
@@ -58,8 +61,10 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         perfilArtista.setAcepta_encargos(request.isAcepta_encargos());
         perfilArtista = perfilArtistaRepository.save(perfilArtista);
 
-        usuario.setRol_usuario(Rol.ARTISTA_CLIENTE);
-        usuarioRepository.save(usuario);
+        if (usuario.getRol_usuario() == Rol.CLIENTE) {
+            usuario.setRol_usuario(Rol.ARTISTA_CLIENTE);
+            usuarioRepository.save(usuario);
+        }
 
         return perfilArtista;
     }
