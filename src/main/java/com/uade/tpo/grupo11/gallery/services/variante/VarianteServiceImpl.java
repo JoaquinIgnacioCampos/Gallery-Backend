@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
@@ -36,21 +37,29 @@ public class VarianteServiceImpl implements VarianteService {
     // Devuelve las variantes.
     @Override
     public List<Variante> getVariantes() {
-        return repoVariante.findAll();
-    }
+        List<Variante> variantes = repoVariante.findAll();
 
+        if (variantes.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay variantes registradas en el catálogo");
+        }
+
+        return variantes;
+    }
 
     // Devuelve las variantes de la obra.
     @Override
     public List<Variante> getVariantesByObra(Long obraId) {
-
-        // Si la obra no existe avisamos con 404, en lugar de devolver una lista vacia
-        // que el cliente podria interpretar como "esta obra no tiene variantes".
         if (!obraRepository.existsById(obraId)) {
             throw new ObraNotFoundException(obraId);
         }
 
-        return repoVariante.findByObraId(obraId);
+        List<Variante> variantes = repoVariante.findByObraId(obraId);
+
+        if (variantes.isEmpty()) {
+            throw new RecursoNoEncontradoException("La obra con ID " + obraId + " no posee variantes asociadas");
+        }
+
+        return variantes;
     }
 
 

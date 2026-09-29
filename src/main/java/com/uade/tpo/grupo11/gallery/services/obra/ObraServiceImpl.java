@@ -5,10 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.Estilo;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
-import com.uade.tpo.grupo11.gallery.exceptions.EstiloNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.ObraEnUsoException;
-import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.EstiloRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
@@ -48,7 +45,13 @@ public class ObraServiceImpl implements ObraService {
     // Devuelve las obras.
     @Override
     public List<Obra> getObras() {
-        return repoObra.findAll();
+        List<Obra> obra = repoObra.findAll();
+
+        if (obra.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay ninguna obra cargada");
+        }
+
+        return obra;
     }
 
     // Busca obras con filtros opcionales y combinables. Valida los precios antes de consultar.
@@ -63,14 +66,40 @@ public class ObraServiceImpl implements ObraService {
         if (precioMin != null && precioMax != null && precioMin.compareTo(precioMax) > 0) {
             throw new IllegalArgumentException("El precio minimo no puede superar al maximo.");
         }
-        return repoObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax);
+
+        // Verificar existencia de entidades si se envían los IDs
+        if (artistaId != null && !perfilArtistaRepository.existsById(artistaId)) {
+            throw new PerfilArtistaNotFoundException(artistaId);
+        }
+        if (estiloId != null && !estiloRepository.existsById(estiloId)) {
+            throw new RecursoNoEncontradoException("No existe el estilo con ID: " + estiloId);
+        }
+
+        List<Obra> resultados = repoObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax);
+
+        // Verificar si la consulta volvió vacía
+        if (resultados.isEmpty()) {
+            throw new RecursoNoEncontradoException("No se encontraron obras que coincidan con los filtros aplicados.");
+        }
+
+        return resultados;
     }
 
 
     // Devuelve las obras del artista.
     @Override
     public List<Obra> getObrasByArtista(Long artistaId) {
-        return repoObra.findByArtistaId(artistaId);
+        if (!perfilArtistaRepository.existsById(artistaId)) {
+            throw new PerfilArtistaNotFoundException(artistaId);
+        }
+
+        List<Obra> obras = repoObra.findByArtistaId(artistaId);
+
+        if (obras.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay obras publicadas por el artista" + artistaId);
+        }
+
+        return obras;
     }
 
 
@@ -154,8 +183,8 @@ public class ObraServiceImpl implements ObraService {
 
         Set<Estilo> estilos = new HashSet<>();
 
-        if (estiloIds == null) {
-            return estilos;
+        if (estilos.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay estilos cargados");
         }
 
         for (Long estiloId : estiloIds) {

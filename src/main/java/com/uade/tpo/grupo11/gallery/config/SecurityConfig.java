@@ -55,6 +55,8 @@ public class SecurityConfig {
 
                         // ADMINISTRACION DE CUENTAS: asignar permisos. Solo ADMIN.
                         .requestMatchers("/api/usuarios/*/rol").hasAuthority("ADMIN")
+                        // ADMINISTRACION: la lista completa de usuarios es informacion sensible.
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/*").hasAuthority("ADMIN")
 
                         // CONFIGURACION DEL CATALOGO: estilos, tamanios y marcos son maestros
                         // del sistema, no de un artista puntual. Escribirlos es solo de ADMIN.
@@ -88,8 +90,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PATCH, "/api/encargos/**")
                                 .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
-                        // ADMINISTRACION: la lista completa de usuarios es informacion sensible.
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios").hasAuthority("ADMIN")
 
                         // COMPRAR: carrito y checkout son de quien compra.
                         .requestMatchers("/api/carritos/**", "/api/items-carrito/**", "/api/checkout/**")

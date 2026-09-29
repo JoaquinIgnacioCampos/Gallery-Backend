@@ -5,6 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUserMailException;
 import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUsernameException;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
@@ -26,7 +27,13 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Override
     public List<Usuario> getUsuarios() {
-        return usuarioRepository.findAll();
+        List<Usuario> usuarios = usuarioRepository.findAll();
+
+        if (usuarios.isEmpty()) {
+            throw new RecursoNoEncontradoException("No se encontraron usuarios registrados en el sistema");
+        }
+
+        return usuarios;
     }
 
     // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
@@ -58,12 +65,8 @@ public class UsuarioServiceImpl implements UsuarioService {
     // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public Usuario getUsuario(Long usuario_id) {
-        Optional<Usuario> result = usuarioRepository.findById(usuario_id);
-        if (result.isPresent()) {
-            return result.get();
-        }
-
-        throw new UsuarioNotFoundException(usuario_id);
+        return usuarioRepository.findById(usuario_id)
+                .orElseThrow(() -> new UsuarioNotFoundException(usuario_id));
     }
 
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.

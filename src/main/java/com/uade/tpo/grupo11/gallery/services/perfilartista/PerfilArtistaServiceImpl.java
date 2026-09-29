@@ -7,10 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
-import com.uade.tpo.grupo11.gallery.exceptions.DuplicatePerfilArtistaException;
-import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaInvalidDataException;
-import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
@@ -43,6 +40,8 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     }
 
     // Crea el perfil de artista con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
+
+    //FALTA QUE LA COMPROBACION DE LOS TOKENS
     @Override
     @Transactional(rollbackFor = Throwable.class)
     public PerfilArtista createPerfilArtista(Long usuarioId, PerfilArtistaRequest request) {
@@ -68,7 +67,13 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     // Devuelve los perfiles de artista.
     @Override
     public List<PerfilArtista> getPerfilArtistas() {
-        return perfilArtistaRepository.findAll();
+        List<PerfilArtista> perfiles = perfilArtistaRepository.findAll();
+
+        if (perfiles.isEmpty()) {
+            throw new RecursoNoEncontradoException("No se encontraron perfiles de artista registrados");
+        }
+
+        return perfiles;
     }
 
     // Busca el perfil de artista por id. Si no existe, se lanza la excepcion y el handler responde 404.
@@ -99,7 +104,13 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     @Override
     public List<Obra> getObrasByPerfilArtista(Long perfilArtistaId) {
         getPerfilArtistaById(perfilArtistaId);
-        return obraRepository.findByArtistaId(perfilArtistaId);
+        List<Obra> obras = obraRepository.findByArtistaId(perfilArtistaId);
+
+        if (obras.isEmpty()) {
+            throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no tiene obras publicadas");
+        }
+
+        return obras;
     }
 
     // Devuelve las ventas del artista. Son datos de plata, asi que no alcanza con tener
@@ -108,7 +119,14 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     public List<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado) {
         PerfilArtista perfil = getPerfilArtistaById(perfilArtistaId);
         OwnershipGuard.verificar(usuarioLogueado, perfil.getUsuario().getId());
-        return facturaRepository.findByArtistaId(perfilArtistaId);
+
+        List<Factura> facturas = facturaRepository.findByArtistaId(perfilArtistaId);
+
+        if (facturas.isEmpty()) {
+            throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no registra ventas ni facturas");
+        }
+
+        return facturas;
     }
 
     // Regla de negocio: el nombre artistico no puede venir vacio.
