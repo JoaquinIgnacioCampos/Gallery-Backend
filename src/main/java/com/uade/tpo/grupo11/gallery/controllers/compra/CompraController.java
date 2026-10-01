@@ -2,12 +2,14 @@ package com.uade.tpo.grupo11.gallery.controllers.compra;
 
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -28,7 +30,6 @@ public class CompraController {
     // GET - Obtener todas las compras
     @GetMapping
     public List<CompraResponse> getCompras() {
-
         return compraService.getCompras().stream()
                 .map(CompraResponse::fromEntity)
                 .toList();
@@ -76,14 +77,18 @@ public class CompraController {
         compraService.deleteCompra(compraId);
     }
 
-
+/*      //Lo deje comentado porque la busqueda de las facturas por compra ya lo hace la clase Factura
+        //Si quieren hacer la logica de la factura desde aca, hay que borrar lel metodo de factura y hacer lo de los permisos con esta clase
     // Devuelve las facturas de la compra.
     @GetMapping("/{compraId}/facturas")
-    public List<FacturaResponse> getFacturasByCompra(
-            @PathVariable Long compraId) {
+    public ResponseEntity<List<FacturaResponse>> getFacturasByCompra(
+            @PathVariable Long compraId,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
 
-        return facturaService.getFacturasByCompra(compraId).stream()
+        List<FacturaResponse> result = facturaService.getFacturasByCompra(compraId, usuarioLogueado).stream()
                 .map(FacturaResponse::fromEntity)
                 .toList();
+        return ResponseEntity.ok(result);
     }
+*/
 }
