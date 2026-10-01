@@ -91,13 +91,13 @@ public class UsuarioController {
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(result));
     }
 
-    // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
-    @PostMapping("/{usuario_id}/perfil-artista")
+    // Crea el perfil propio usando la identidad autenticada por el filtro JWT.
+    @PostMapping("/me/perfil-artista")
     public ResponseEntity<PerfilArtistaResponse> createPerfilArtista(
-            @PathVariable("usuario_id") Long usuario_id,
+            @AuthenticationPrincipal Usuario usuarioLogueado,
             @Valid @RequestBody PerfilArtistaRequest perfil_artista_request) {
-        PerfilArtista result = perfilArtistaService.createPerfilArtista(usuario_id, perfil_artista_request);
-        return ResponseEntity.created(URI.create("/api/usuarios/" + usuario_id + "/perfil-artista"))
+        PerfilArtista result = perfilArtistaService.createPerfilArtista(usuarioLogueado, perfil_artista_request);
+        return ResponseEntity.created(URI.create("/api/usuarios/" + usuarioLogueado.getId() + "/perfil-artista"))
                 .body(PerfilArtistaResponse.fromEntity(result));
     }
 

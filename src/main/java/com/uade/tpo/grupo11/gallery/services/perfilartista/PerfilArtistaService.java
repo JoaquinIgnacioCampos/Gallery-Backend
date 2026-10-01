@@ -15,8 +15,8 @@ public interface PerfilArtistaService {
     // Devuelve los perfiles de artista del usuario.
     PerfilArtista getPerfilArtistaByUsuario(Long usuarioId);
 
-    // Crea el perfil de artista con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
-    PerfilArtista createPerfilArtista(Long usuarioId, PerfilArtistaRequest request);
+    // Crea el perfil exclusivamente para el usuario autenticado.
+    PerfilArtista createPerfilArtista(Usuario usuarioLogueado, PerfilArtistaRequest request);
 
     // Devuelve los perfiles de artista.
     List<PerfilArtista> getPerfilArtistas();
