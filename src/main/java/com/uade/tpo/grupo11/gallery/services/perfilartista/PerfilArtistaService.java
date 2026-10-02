@@ -8,6 +8,7 @@ import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 
 import java.util.List;
+import java.util.Optional;
 
 // Contrato: que sabe hacer el servicio de los perfiles de artista. La implementacion es la que lleva la logica.
 public interface PerfilArtistaService {
@@ -32,4 +33,6 @@ public interface PerfilArtistaService {
 
     // Devuelve las ventas del artista: las facturas emitidas a su nombre.
     List<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado);
+
+    Optional<PerfilArtista> getPerfilArtistaByUsuarioOptional(Long usuarioId);
 }

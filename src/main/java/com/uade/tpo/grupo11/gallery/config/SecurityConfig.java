@@ -55,8 +55,13 @@ public class SecurityConfig {
 
                         // ADMINISTRACION DE CUENTAS: asignar permisos. Solo ADMIN.
                         .requestMatchers("/api/usuarios/*/rol").hasAuthority("ADMIN")
-                        // ADMINISTRACION: la lista completa de usuarios es informacion sensible.
-                        .requestMatchers(HttpMethod.GET, "/api/usuarios/*").hasAuthority("ADMIN")
+                        // Listado completo: informacion sensible, solo ADMIN (regla que faltaba agregar).
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios").hasAuthority("ADMIN")
+
+                        // Un usuario puntual: cualquier rol autenticado puede pedirlo; el service decide
+                        // si es EL dueño o un ADMIN (OwnershipGuard), no esta regla.
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/*")
+                        .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
                         // CONFIGURACION DEL CATALOGO: estilos, tamanios y marcos son maestros
                         // del sistema, no de un artista puntual. Escribirlos es solo de ADMIN.

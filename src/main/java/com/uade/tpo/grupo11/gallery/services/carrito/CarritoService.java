@@ -23,5 +23,9 @@ public interface CarritoService {
     void vaciarCarrito(Long carritoId, Usuario usuarioActual);
 
     // Devuelve el carrito del usuario y, si todavia no tiene, se lo crea.
-    Carrito getOrCreateCarritoByUsuario(Long usuarioId);
+    Carrito getOrCreateCarritoByUsuario(Long usuarioId, Usuario usuarioActual);
+
+    // Para cuando se conoce la direccion desde el arranque (por ejemplo, al registrarse).
+    Carrito getOrCreateCarritoByUsuario(Long usuarioId, Usuario usuarioActual, String direccionInicial);
+
 }

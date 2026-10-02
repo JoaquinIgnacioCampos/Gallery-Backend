@@ -20,4 +20,5 @@ public class UsuarioRequest {
     private String email_usuario;
 
     private String telefono_usuario;
+    private String direccion_cliente;   // es opcional, despues es obligatorio si queres que sea entrega a domicilio
 }

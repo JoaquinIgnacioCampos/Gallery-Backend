@@ -26,7 +26,6 @@ public class    CarritoController {
     // GET - Obtener todos los carritos
     @GetMapping
     public List<CarritoResponse> getCarritos(@AuthenticationPrincipal Usuario usuarioActual) {
-
         return carritoService.getCarritos(usuarioActual).stream()
                 .map(CarritoResponse::fromEntity)
                 .toList();

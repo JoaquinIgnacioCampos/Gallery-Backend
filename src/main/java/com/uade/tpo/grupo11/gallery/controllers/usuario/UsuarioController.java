@@ -39,8 +39,8 @@ public class UsuarioController {
 
     // Devuelve los usuarios.
     @GetMapping
-    public ResponseEntity<List<UsuarioResponse>> getUsuarios() {
-        List<UsuarioResponse> result = usuarioService.getUsuarios().stream()
+    public ResponseEntity<List<UsuarioResponse>> getUsuarios(@AuthenticationPrincipal Usuario usuarioActual) {
+        List<UsuarioResponse> result = usuarioService.getUsuarios(usuarioActual).stream()
                 .map(UsuarioResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(result);
@@ -57,14 +57,22 @@ public class UsuarioController {
     // Devuelve el usuario dueño del token. El front lo necesita apenas se loguea: el token
     // solo lleva el email, pero para pedir su carrito o sus compras hace falta el id.
     @GetMapping("/me")
-    public ResponseEntity<UsuarioResponse> getUsuarioActual(@AuthenticationPrincipal Usuario usuarioLogueado) {
-        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioLogueado));
+    public ResponseEntity<PerfilCompletoResponse> getUsuarioActual(@AuthenticationPrincipal Usuario usuarioLogueado) {
+        Usuario usuario = usuarioService.getUsuarioActual(usuarioLogueado);
+
+        PerfilArtista perfilArtista = perfilArtistaService
+                .getPerfilArtistaByUsuarioOptional(usuarioLogueado.getId())
+                .orElse(null);
+
+        return ResponseEntity.ok(PerfilCompletoResponse.of(usuario, perfilArtista));
     }
 
     // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{usuario_id}")
-    public ResponseEntity<UsuarioResponse> getUsuario(@PathVariable("usuario_id") Long usuario_id) {
-        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.getUsuario(usuario_id)));
+    public ResponseEntity<UsuarioResponse> getUsuario(
+            @PathVariable("usuario_id") Long usuario_id,
+            @AuthenticationPrincipal Usuario usuarioActual) {
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.getUsuario(usuario_id, usuarioActual)));
     }
 
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
@@ -79,8 +87,10 @@ public class UsuarioController {
 
     // Devuelve los usuarios.
     @GetMapping("/{usuario_id}/carrito")
-    public ResponseEntity<CarritoResponse> getCarrito(@PathVariable("usuario_id") Long usuario_id) {
-        Carrito result = carritoService.getOrCreateCarritoByUsuario(usuario_id);
+    public ResponseEntity<CarritoResponse> getCarrito(
+            @PathVariable("usuario_id") Long usuario_id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        Carrito result = carritoService.getOrCreateCarritoByUsuario(usuario_id, usuarioLogueado);
         return ResponseEntity.ok(CarritoResponse.fromEntity(result));
     }
 
@@ -129,7 +139,6 @@ public class UsuarioController {
 
 
     // ADMINISTRACION DE CUENTAS - solo ADMIN (la restriccion esta en SecurityConfig).
-
     // Asignacion de permisos: el administrador cambia el rol de una cuenta.
     // PATCH porque se modifica un solo campo; si el rol no existe en el enum, responde 400.
     @PatchMapping("/{usuario_id}/rol")

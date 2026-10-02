@@ -9,6 +9,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
+import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,14 +26,17 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Override
-    public List<Usuario> getUsuarios() {
-        List<Usuario> usuarios = usuarioRepository.findAll();
+    @Autowired
+    private CarritoService carritoService;
 
+    @Override
+    public List<Usuario> getUsuarios(Usuario usuarioActual) {
+        OwnershipGuard.soloAdmin(usuarioActual);
+
+        List<Usuario> usuarios = usuarioRepository.findAll();
         if (usuarios.isEmpty()) {
             throw new RecursoNoEncontradoException("No se encontraron usuarios registrados en el sistema");
         }
-
         return usuarios;
     }
 
@@ -59,14 +63,34 @@ public class UsuarioServiceImpl implements UsuarioService {
         Usuario usuario = new Usuario(usuarioRequest);
         usuario.setContrasenia_usuario(passwordEncoder.encode(usuarioRequest.getContrasenia_usuario()));
 
-        return usuarioRepository.save(usuario);
+        Usuario usuarioGuardado = usuarioRepository.save(usuario);
+
+        // Todo usuario nuevo arranca con su carrito ya creado, con la direccion que haya
+        // mandado en el registro (puede venir vacia, se completa despues con el PUT).
+        carritoService.getOrCreateCarritoByUsuario(
+                usuarioGuardado.getId(),
+                usuarioGuardado,
+                usuarioRequest.getDireccion_cliente());
+
+        return usuarioGuardado;
     }
 
     // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
-    public Usuario getUsuario(Long usuario_id) {
-        return usuarioRepository.findById(usuario_id)
+    public Usuario getUsuario(Long usuario_id, Usuario usuarioActual) {
+        Usuario usuario = usuarioRepository.findById(usuario_id)
                 .orElseThrow(() -> new UsuarioNotFoundException(usuario_id));
+
+        OwnershipGuard.verificar(usuarioActual, usuario_id);
+
+        return usuario;
+    }
+
+    // El propio usuario del token.
+    @Override
+    public Usuario getUsuarioActual(Usuario usuarioLogueado) {
+        return usuarioRepository.findById(usuarioLogueado.getId())
+                .orElseThrow(() -> new UsuarioNotFoundException(usuarioLogueado.getId()));
     }
 
     // Actualiza el usuario: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
