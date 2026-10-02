@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -33,6 +34,9 @@ public class SecurityConfig {
                 // CSRF se apaga porque no usamos cookies de sesion: cada peticion
                 // se autentica con su token, asi que ese ataque no aplica.
                 .csrf(AbstractHttpConfigurer::disable)
+                // Habilita CORS usando las reglas de CorsConfig: sin esto el navegador
+                // bloquea al frontend porque corre en otro puerto que la API.
+                .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         // La documentacion de la API es publica: sin esto Swagger devuelve 401.
