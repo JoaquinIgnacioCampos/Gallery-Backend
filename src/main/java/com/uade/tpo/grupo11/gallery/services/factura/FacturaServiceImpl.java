@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaRequest;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.FacturaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
@@ -11,6 +12,7 @@ import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,33 +33,37 @@ public class FacturaServiceImpl implements FacturaService {
     private CompraRepository compraRepository;
 
 
-    // Devuelve las facturas.
+    // Devuelve las facturas. Solo el ADMIN
     @Override
-    public List<Factura> getFacturas() {
-
+    public List<Factura> getFacturas(Usuario usuarioLogueado) {
+        OwnershipGuard.soloAdmin(usuarioLogueado);
         return facturaRepository.findAll();
     }
 
 
-    // Devuelve las facturas de la compra.
+    // Devuelve las facturas de la compra. Solo el dueño de esa compra y los artistas que partcipan pueden acceder
     @Override
-    public List<Factura> getFacturasByCompra(Long compraId) {
+    public List<Factura> getFacturasByCompra(Long compraId, Usuario usuarioLogueado) {
+        Compra compra = compraRepository.findById(compraId)
+                .orElseThrow(() -> new CompraNotFoundException(compraId));
 
-        if (!compraRepository.existsById(compraId)) {
-            throw new CompraNotFoundException(compraId);
-        }
+        OwnershipGuard.verificar(usuarioLogueado, compra.getUsuario().getId());
 
         return facturaRepository.findByCompraId(compraId);
     }
 
 
-    // Busca la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
+    // Busca la factura por id. Si no existe, se lanza la excepcion y el handler responde 404. Solo accede el dueño de esa compra y los artistas que partcipan
     @Override
-    public Factura getFacturaById(Long facturaId) {
-
-        return facturaRepository
-                .findById(facturaId)
+    public Factura getFacturaById(Long facturaId, Usuario usuarioLogueado) {
+        Factura factura = facturaRepository.findById(facturaId)
                 .orElseThrow(() -> new FacturaNotFoundException(facturaId));
+
+        OwnershipGuard.verificar(usuarioLogueado,
+                factura.getArtista().getUsuario().getId(),
+                factura.getCompra().getUsuario().getId());
+
+        return factura;
     }
 
 

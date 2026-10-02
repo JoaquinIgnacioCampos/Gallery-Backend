@@ -107,6 +107,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.DELETE,
                                 "/api/compras/**", "/api/facturas/**")
                                 .hasAuthority("ADMIN")
+                        // Ver una factura: quien la compró, el artista involucrado, o ADMIN.
+                        .requestMatchers(HttpMethod.GET, "/api/facturas/**")
+                        .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
                         // Todo lo demas exige estar logueado, sin importar el rol.
                         .anyRequest().authenticated())
