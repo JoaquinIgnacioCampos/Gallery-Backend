@@ -6,11 +6,7 @@ import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
-import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.CompraPropiaException;
-import com.uade.tpo.grupo11.gallery.exceptions.ItemCarritoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
@@ -42,11 +38,14 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     // Devuelve los items del carrito.
     @Override
     public List<ItemCarrito> getItemsCarrito(Usuario usuarioActual) {
-
         // Ver todos los items de todos los carritos es una vista administrativa.
         OwnershipGuard.soloAdmin(usuarioActual);
 
-        return itemCarritoRepository.findAll();
+        List<ItemCarrito> items = itemCarritoRepository.findAll();
+        if (items.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay items de carrito registrados en el sistema");
+        }
+        return items;
     }
 
 

@@ -29,19 +29,26 @@ public class CompraController {
 
     // GET - Obtener todas las compras
     @GetMapping
-    public List<CompraResponse> getCompras() {
-        return compraService.getCompras().stream()
-                .map(CompraResponse::fromEntity)
-                .toList();
+    public ResponseEntity<List<CompraResponse>> getCompras(@AuthenticationPrincipal Usuario usuarioActual) {
+        List<CompraResponse> result = compraService.getCompras(usuarioActual).stream()
+                .map(CompraResponse::fromEntity).toList();
+        return ResponseEntity.ok(result);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<List<CompraResponse>> getMisCompras(@AuthenticationPrincipal Usuario usuarioActual) {
+        List<CompraResponse> result = compraService.getMisCompras(usuarioActual).stream()
+                .map(CompraResponse::fromEntity).toList();
+        return ResponseEntity.ok(result);
+    }
 
     // GET - Obtener una compra por ID
+    // Este solo funciona para quen hizo la compra y para a quien le compraron y el ADMIN
     @GetMapping("/{compraId}")
-    public CompraResponse getCompraById(
-            @PathVariable Long compraId) {
-
-        return CompraResponse.fromEntity(compraService.getCompraById(compraId));
+    public ResponseEntity<CompraResponse> getCompraById(
+            @PathVariable Long compraId,
+            @AuthenticationPrincipal Usuario usuarioActual) {
+        return ResponseEntity.ok(CompraResponse.fromEntity(compraService.getCompraById(compraId, usuarioActual)));
     }
 
 

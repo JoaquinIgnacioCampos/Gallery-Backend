@@ -7,6 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
+import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
@@ -50,6 +51,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     @Autowired
     private VarianteRepository varianteRepository;
 
+    private static final String DIRECCION_RETIRO_GALERIA = "Galería Grupo 11, Brandsen 805, CABA";
+    private static final BigDecimal COSTO_ENVIO_DOMICILIO = new BigDecimal("1500.00");
 
     /**
      * Convierte el carrito de un usuario en una compra.
@@ -90,11 +93,31 @@ public class CheckoutServiceImpl implements CheckoutService {
             itemsPorArtista.computeIfAbsent(artista, a -> new java.util.ArrayList<>()).add(item);
         }
 
+        // 3.5) Se decide el tipo de entrega UNA vez, acá, antes de crear la Compra:
+        // si el carrito tiene direccion cargada, se envia; si no, se retira en el local.
+        String direccionEntrega;
+        TipoEntrega tipoEntrega;
+        BigDecimal costoEnvio;
+
+        if (carrito.getDireccion_cliente() != null && !carrito.getDireccion_cliente().isBlank()) {
+            direccionEntrega = carrito.getDireccion_cliente();
+            tipoEntrega = TipoEntrega.ENVIO_DOMICILIO;
+            costoEnvio = COSTO_ENVIO_DOMICILIO;
+        } else {
+            direccionEntrega = DIRECCION_RETIRO_GALERIA;
+            tipoEntrega = TipoEntrega.RETIRO_LOCAL;
+            costoEnvio = BigDecimal.ZERO;
+        }
+
+
         // 4) La Compra: la "bolsa" del cliente. Una sola, sin importar cuantos artistas haya.
         Compra compra = Compra.builder()
                 .usuario(carrito.getUsuario())
                 .fecha_compra(LocalDateTime.now())
                 .total_compra(BigDecimal.ZERO)
+                .direccion_entrega(direccionEntrega)
+                .tipo_entrega(tipoEntrega)
+                .costo_envio(costoEnvio)     // nuevo campo
                 .build();
         compra = compraRepository.save(compra);
 

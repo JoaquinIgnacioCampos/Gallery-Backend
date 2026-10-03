@@ -4,10 +4,13 @@ import com.uade.tpo.grupo11.gallery.controllers.compra.CompraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
+import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,24 +28,51 @@ public class CompraServiceImpl implements CompraService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private FacturaRepository facturaRepository;
 
     // Devuelve las compras.
     @Override
-    public List<Compra> getCompras() {
+    public List<Compra> getCompras(Usuario usuarioActual) {
+        OwnershipGuard.soloAdmin(usuarioActual);
 
-        return compraRepository.findAll();
+        List<Compra> compras = compraRepository.findAll();
+        if (compras.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay compras registradas en el sistema");
+        }
+        return compras;
     }
 
 
     // Busca la compra por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
-    public Compra getCompraById(Long compraId) {
-
-        return compraRepository
-                .findById(compraId)
+    public Compra getCompraById(Long compraId, Usuario usuarioActual) {
+        Compra compra = compraRepository.findById(compraId)
                 .orElseThrow(() -> new CompraNotFoundException(compraId));
+
+        List<Long> artistasInvolucrados = facturaRepository.findByCompraId(compraId).stream()
+                .map(f -> f.getArtista().getUsuario().getId())
+                .toList();
+
+        Long[] propietarios = java.util.stream.Stream.concat(
+                java.util.stream.Stream.of(compra.getUsuario().getId()),
+                artistasInvolucrados.stream()
+        ).toArray(Long[]::new);
+
+        OwnershipGuard.verificar(usuarioActual, propietarios);
+
+        return compra;
     }
 
+    // Atajo para "mis compras", igual que /me en Usuario.
+    @Override
+    public List<Compra> getMisCompras(Usuario usuarioActual) {
+        List<Compra> compras = compraRepository.findByUsuarioId(usuarioActual.getId());
+        if (compras.isEmpty()) {
+            throw new RecursoNoEncontradoException("No tenés compras registradas todavía");
+        }
+        return compras;
+    }
 
     // Crea la compra con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
@@ -96,10 +126,17 @@ public class CompraServiceImpl implements CompraService {
 
     // Devuelve las compras del usuario.
     @Override
-    public List<Compra> getComprasByUsuario(Long usuarioId) {
+    public List<Compra> getComprasByUsuario(Long usuarioId, Usuario usuarioActual) {
         usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
-        return compraRepository.findByUsuarioId(usuarioId);
+
+        OwnershipGuard.verificar(usuarioActual, usuarioId);
+
+        List<Compra> compras = compraRepository.findByUsuarioId(usuarioId);
+        if (compras.isEmpty()) {
+            throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no tiene compras registradas");
+        }
+        return compras;
     }
 
     // Crea una compra vacia para un usuario. El checkout usa su propio camino.

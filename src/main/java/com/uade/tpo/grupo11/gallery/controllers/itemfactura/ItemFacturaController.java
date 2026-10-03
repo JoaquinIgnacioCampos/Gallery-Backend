@@ -1,10 +1,12 @@
 package com.uade.tpo.grupo11.gallery.controllers.itemfactura;
 
 import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
+import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.itemfactura.ItemFacturaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -20,16 +22,20 @@ public class ItemFacturaController {
 
     // Busca el item de la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @GetMapping("/{id}")
-    public ResponseEntity<ItemFacturaResponse> getItemFacturaById(@PathVariable Long id) {
-        return ResponseEntity.ok(ItemFacturaResponse.fromEntity(itemFacturaService.getItemFacturaById(id)));
+    public ResponseEntity<ItemFacturaResponse> getItemFacturaById(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioActual) {
+        return ResponseEntity.ok(ItemFacturaResponse.fromEntity(
+                itemFacturaService.getItemFacturaById(id, usuarioActual)));
     }
 
     // Devuelve los items de la factura de la factura.
     @GetMapping("/factura/{facturaId}")
-    public ResponseEntity<List<ItemFacturaResponse>> getItemFacturasByFactura(@PathVariable Long facturaId) {
-        List<ItemFacturaResponse> result = itemFacturaService.getItemFacturasByFactura(facturaId).stream()
-                .map(ItemFacturaResponse::fromEntity)
-                .toList();
+    public ResponseEntity<List<ItemFacturaResponse>> getItemFacturasByFactura(
+            @PathVariable Long facturaId,
+            @AuthenticationPrincipal Usuario usuarioActual) {
+        List<ItemFacturaResponse> result = itemFacturaService.getItemFacturasByFactura(facturaId, usuarioActual).stream()
+                .map(ItemFacturaResponse::fromEntity).toList();
         return ResponseEntity.ok(result);
     }
 
