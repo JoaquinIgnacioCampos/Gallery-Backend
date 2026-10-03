@@ -42,6 +42,7 @@ public class FacturaController {
     }
 
     //GET - Obtiene la factura por una compra especifica (el id de la compra)
+    //Solo el que hizo la compra, no el que vendio la obra
     @GetMapping("/compra/{compraId}")
     public ResponseEntity<List<FacturaResponse>> getFacturasByCompra(
             @PathVariable Long compraId,

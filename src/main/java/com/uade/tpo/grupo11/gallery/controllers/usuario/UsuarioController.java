@@ -112,11 +112,13 @@ public class UsuarioController {
     }
 
     // Devuelve los usuarios.
+    // solo devuelve a quien hizo la compra a quien le copraron y al ADMIN
     @GetMapping("/{usuario_id}/compras")
-    public ResponseEntity<List<CompraResponse>> getCompras(@PathVariable("usuario_id") Long usuario_id) {
-        List<CompraResponse> result = compraService.getComprasByUsuario(usuario_id).stream()
-                .map(CompraResponse::fromEntity)
-                .toList();
+    public ResponseEntity<List<CompraResponse>> getCompras(
+            @PathVariable("usuario_id") Long usuario_id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<CompraResponse> result = compraService.getComprasByUsuario(usuario_id, usuarioLogueado).stream()
+                .map(CompraResponse::fromEntity).toList();
         return ResponseEntity.ok(result);
     }
 

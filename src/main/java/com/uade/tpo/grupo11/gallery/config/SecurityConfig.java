@@ -100,6 +100,20 @@ public class SecurityConfig {
                         .requestMatchers("/api/carritos/**", "/api/items-carrito/**", "/api/checkout/**")
                                 .hasAnyAuthority("CLIENTE", "ARTISTA_CLIENTE", "ADMIN")
 
+
+                        // Compras: el listado completo es solo ADMIN; una compra puntual y "mis compras"
+                        // quedan abiertas a cualquier rol logueado, el service filtra por comprador/vendedor/ADMIN.
+                        .requestMatchers(HttpMethod.GET, "/api/compras").hasAuthority("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/compras/me")
+                        .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/compras/**")
+                        .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
+
+                        // Items de factura: el service verifica que seas el comprador o el artista involucrado.
+                        .requestMatchers(HttpMethod.GET, "/api/items-factura/**")
+                        .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
+
+
                         // COMPRA/FACTURA/ITEM-FACTURA: los genera el checkout (llamada interna,
                         // no pasa por estas rutas HTTP). Escribirlos a mano queda solo para ADMIN,
                         // por ejemplo para una correccion administrativa.

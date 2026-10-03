@@ -1,21 +1,14 @@
 package com.uade.tpo.grupo11.gallery.services.itemfactura;
 
 import com.uade.tpo.grupo11.gallery.controllers.itemfactura.ItemFacturaRequest;
-import com.uade.tpo.grupo11.gallery.entities.Compra;
-import com.uade.tpo.grupo11.gallery.entities.Factura;
-import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
-import com.uade.tpo.grupo11.gallery.entities.Marco;
-import com.uade.tpo.grupo11.gallery.entities.Variante;
-import com.uade.tpo.grupo11.gallery.exceptions.FacturaNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.ItemFacturaNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
-import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
+import com.uade.tpo.grupo11.gallery.entities.*;
+import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
+import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,15 +34,33 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
 
     // Busca el item de la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
-    public ItemFactura getItemFacturaById(Long id) {
-        return itemFacturaRepository.findById(id)
+    public ItemFactura getItemFacturaById(Long id, Usuario usuarioActual) {
+        ItemFactura item = itemFacturaRepository.findById(id)
                 .orElseThrow(() -> new ItemFacturaNotFoundException(id));
+
+        Factura factura = item.getFactura();
+        OwnershipGuard.verificar(usuarioActual,
+                factura.getArtista().getUsuario().getId(),
+                factura.getCompra().getUsuario().getId());
+
+        return item;
     }
 
     // Devuelve los items de la factura de la factura.
     @Override
-    public List<ItemFactura> getItemFacturasByFactura(Long facturaId) {
-        return itemFacturaRepository.findByFacturaId(facturaId);
+    public List<ItemFactura> getItemFacturasByFactura(Long facturaId, Usuario usuarioActual) {
+        Factura factura = facturaRepository.findById(facturaId)
+                .orElseThrow(() -> new FacturaNotFoundException(facturaId));
+
+        OwnershipGuard.verificar(usuarioActual,
+                factura.getArtista().getUsuario().getId(),
+                factura.getCompra().getUsuario().getId());
+
+        List<ItemFactura> items = itemFacturaRepository.findByFacturaId(facturaId);
+        if (items.isEmpty()) {
+            throw new RecursoNoEncontradoException("La factura con id " + facturaId + " no tiene items cargados");
+        }
+        return items;
     }
 
     // Crea el item de la factura con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
