@@ -77,11 +77,16 @@ public class CheckoutServiceImpl implements CheckoutService {
         }
 
         // 1.5) Si eligió envío a domicilio, necesita tener una dirección cargada.
-        // Si eligió retiro, no importa si tiene dirección o no.
+        // Si no se especifica tipo de entrega (o se pide retiro), se defaultea a
+        // retiro por sucursal sin costo, sin importar si el carrito tiene dirección o no.
+        TipoEntrega tipoEntrega = tipoEntregaElegido == TipoEntrega.ENVIO_DOMICILIO
+                ? TipoEntrega.ENVIO_DOMICILIO
+                : TipoEntrega.RETIRO_LOCAL;
+
         String direccionEntrega;
         BigDecimal costoEnvio;
 
-        if (tipoEntregaElegido == TipoEntrega.ENVIO_DOMICILIO) {
+        if (tipoEntrega == TipoEntrega.ENVIO_DOMICILIO) {
             if (carrito.getDireccion_cliente() == null || carrito.getDireccion_cliente().isBlank()) {
                 throw new DireccionRequeridaException(
                         "Para elegir envío a domicilio primero tenés que cargar tu dirección");
@@ -109,23 +114,6 @@ public class CheckoutServiceImpl implements CheckoutService {
             itemsPorArtista.computeIfAbsent(artista, a -> new java.util.ArrayList<>()).add(item);
         }
 
-        // 3.5) Se decide el tipo de entrega UNA vez, acá, antes de crear la Compra:
-        // si el carrito tiene direccion cargada, se envia; si no, se retira en el local.
-        String direccionEntrega;
-        TipoEntrega tipoEntrega;
-        BigDecimal costoEnvio;
-
-        if (carrito.getDireccion_cliente() != null && !carrito.getDireccion_cliente().isBlank()) {
-            direccionEntrega = carrito.getDireccion_cliente();
-            tipoEntrega = TipoEntrega.ENVIO_DOMICILIO;
-            costoEnvio = COSTO_ENVIO_DOMICILIO;
-        } else {
-            direccionEntrega = DIRECCION_RETIRO_GALERIA;
-            tipoEntrega = TipoEntrega.RETIRO_LOCAL;
-            costoEnvio = BigDecimal.ZERO;
-        }
-
-
         // 4) La Compra: la "bolsa" del cliente. Una sola, sin importar cuantos artistas haya.
         Compra compra = Compra.builder()
                 .usuario(carrito.getUsuario())
@@ -133,7 +121,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .total_compra(BigDecimal.ZERO)
                 .direccion_entrega(direccionEntrega)
                 .tipo_entrega(tipoEntrega)
-                .costo_envio(costoEnvio)     // nuevo campo
+                .costo_envio(costoEnvio)
                 .build();
         compra = compraRepository.save(compra);
 
