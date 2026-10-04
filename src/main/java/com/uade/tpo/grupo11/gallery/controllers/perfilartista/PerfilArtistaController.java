@@ -52,6 +52,15 @@ public class PerfilArtistaController {
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
     }
 
+    // El propio perfil de artista: el id sale del token, no hace falta que el artista lo sepa.
+    @GetMapping("/me")
+    public ResponseEntity<PerfilArtistaResponse> getPerfilArtistaPropio(
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilPropio));
+    }
+
     // Actualiza el propio perfil: el id sale del token, no hace falta que el artista lo sepa.
     @PatchMapping("/me")
     public ResponseEntity<PerfilArtistaResponse> updatePerfilArtistaPropio(
