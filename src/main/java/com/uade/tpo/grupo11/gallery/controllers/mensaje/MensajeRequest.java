@@ -16,8 +16,4 @@ public class MensajeRequest {
 
     @NotBlank(message = "El contenido del mensaje es obligatorio")
     private String contenido;
-
-    //Para validar el contenido del mensaje
-    @NotBlank(message = "El contenido del mensaje es obligatorio")
-    private String contenido_mensaje;
 }
