@@ -34,27 +34,9 @@ public class EncargoController {
         return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.getEncargoById(id, usuarioLogueado)));
     }
 
-    // Devuelve los encargos del artista. Solo el propio artista (o ADMIN).
-    @GetMapping("/artista/{artistaId}")
-    public ResponseEntity<List<EncargoResponse>> getEncargosByArtista(
-            @PathVariable Long artistaId,
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<EncargoResponse> result = encargoService.getEncargosByArtista(artistaId, usuarioLogueado).stream()
-                .map(EncargoResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
-    }
-
-    // Devuelve los encargos del usuario. Solo el propio usuario (o ADMIN).
-    @GetMapping("/usuario/{usuarioId}")
-    public ResponseEntity<List<EncargoResponse>> getEncargosByUsuario(
-            @PathVariable Long usuarioId,
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<EncargoResponse> result = encargoService.getEncargosByUsuario(usuarioId, usuarioLogueado).stream()
-                .map(EncargoResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
-    }
+    // Los encargos del artista y del usuario se piden desde /api/artistas/{id}/encargos
+    // y /api/usuarios/{id}/encargos respectivamente, junto con el resto de los recursos
+    // propios de cada uno (facturas, compras, mensajes, etc.).
 
     // Crea el encargo con los datos del request. El cliente sale del usuario logueado.
     @PostMapping

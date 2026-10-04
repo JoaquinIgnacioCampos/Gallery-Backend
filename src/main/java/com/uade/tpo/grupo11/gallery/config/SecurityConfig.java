@@ -41,10 +41,10 @@ public class SecurityConfig {
                         // Registrarse es publico: todavia no hay usuario ni token.
                         .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
 
-                        // Las ventas de un artista son plata: van ANTES de la regla publica del
-                        // catalogo, porque gana la primera que coincide y "/api/artistas/**"
-                        // las dejaria abiertas. Que sea SU artista lo verifica el service.
-                        .requestMatchers(HttpMethod.GET, "/api/artistas/*/facturas")
+                        // Las ventas y los encargos de un artista son privados: van ANTES de la
+                        // regla publica del catalogo, porque gana la primera que coincide y
+                        // "/api/artistas/**" las dejaria abiertas. Que sea SU artista lo verifica el service.
+                        .requestMatchers(HttpMethod.GET, "/api/artistas/*/facturas", "/api/artistas/*/encargos")
                                 .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
                         // El catalogo se puede mirar sin loguearse, pero solo mirar.

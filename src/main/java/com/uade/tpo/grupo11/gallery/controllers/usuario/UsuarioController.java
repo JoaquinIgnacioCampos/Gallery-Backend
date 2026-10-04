@@ -4,11 +4,13 @@ import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoResponse;
 import com.uade.tpo.grupo11.gallery.controllers.compra.CompraResponse;
+import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaResponse;
 import com.uade.tpo.grupo11.gallery.services.carrito.CarritoService;
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
+import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
 import com.uade.tpo.grupo11.gallery.services.mensaje.MensajeService;
 import com.uade.tpo.grupo11.gallery.services.usuario.UsuarioService;
@@ -36,6 +38,8 @@ public class UsuarioController {
     private CompraService compraService;
     @Autowired
     private MensajeService mensajeService;
+    @Autowired
+    private EncargoService encargoService;
 
     // Devuelve los usuarios.
     @GetMapping
@@ -135,6 +139,29 @@ public class UsuarioController {
             @AuthenticationPrincipal Usuario usuarioLogueado) {
         List<MensajeResponse> result = mensajeService.getMensajesByUsuario(usuario_id, usuarioLogueado).stream()
                 .map(MensajeResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
+    }
+
+
+    // Devuelve los encargos que pidio el usuario (como cliente). Solo el propio usuario (o ADMIN).
+    @GetMapping("/{usuario_id}/encargos")
+    public ResponseEntity<List<EncargoResponse>> getEncargos(
+            @PathVariable("usuario_id") Long usuario_id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<EncargoResponse> result = encargoService.getEncargosByUsuario(usuario_id, usuarioLogueado).stream()
+                .map(EncargoResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
+    }
+
+    // Los encargos propios: el id sale del token, no hace falta que el cliente lo sepa.
+    @GetMapping("/me/encargos")
+    public ResponseEntity<List<EncargoResponse>> getEncargosPropios(
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<EncargoResponse> result = encargoService
+                .getEncargosByUsuario(usuarioLogueado.getId(), usuarioLogueado).stream()
+                .map(EncargoResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(result);
     }
