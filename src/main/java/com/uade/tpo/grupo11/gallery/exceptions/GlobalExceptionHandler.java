@@ -213,4 +213,9 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
     }
 
+    @ExceptionHandler(DireccionRequeridaException.class)
+    public ResponseEntity<String> handleDireccionRequerida(DireccionRequeridaException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
 }
