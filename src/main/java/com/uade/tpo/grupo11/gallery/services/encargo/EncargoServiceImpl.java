@@ -1,18 +1,12 @@
 package com.uade.tpo.grupo11.gallery.services.encargo;
 
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
-import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
-import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
-import com.uade.tpo.grupo11.gallery.entities.Usuario;
-import com.uade.tpo.grupo11.gallery.entities.Encargo;
-import com.uade.tpo.grupo11.gallery.entities.Marco;
+import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
-import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
-import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
-import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
-import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
+import com.uade.tpo.grupo11.gallery.repositories.*;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +24,12 @@ public class EncargoServiceImpl implements EncargoService {
     private TamanioLienzoRepository tamanioLienzoRepository;
     @Autowired
     private MarcoRepository marcoRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+    @Autowired
+    private FacturaRepository facturaRepository;
+    @Autowired
+    private CompraRepository compraRepository;
 
     // Busca el encargo por id. Solo pueden verlo el cliente y el artista del encargo.
     @Override
@@ -51,19 +51,34 @@ public class EncargoServiceImpl implements EncargoService {
 
         OwnershipGuard.verificar(usuarioLogueado, artista.getUsuario().getId());
 
-        return encargoRepository.findByArtistaId(artistaId);
+        List<Encargo> encargos = encargoRepository.findByArtistaId(artistaId);
+        if (encargos.isEmpty()) {
+            throw new RecursoNoEncontradoException("El artista con id " + artistaId + " no tiene encargos registrados");
+        }
+        return encargos;
     }
 
     // Devuelve los encargos del usuario. Solo el propio usuario (o ADMIN) puede listarlos.
     @Override
     public List<Encargo> getEncargosByUsuario(Long usuarioId, Usuario usuarioLogueado) {
+        usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
+
         OwnershipGuard.verificar(usuarioLogueado, usuarioId);
 
-        return encargoRepository.findByUsuarioId(usuarioId);
+        List<Encargo> encargos = encargoRepository.findByUsuarioId(usuarioId);
+        if (encargos.isEmpty()) {
+            throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no tiene encargos registrados");
+        }
+        return encargos;
     }
 
     // Crea el encargo con los datos del request. El cliente sale del usuario logueado,
     // no del body: si viniera ahi, cualquiera podria pedir un encargo a nombre de otro.
+    //Ahora tampoco un artista se puede hacer un encargo a si mismo
+
+    //Habria que modificar los accesos para que un artista fije el precio que se alla charlado por mensaje con el cliene,
+    // pero le debe aparecer al cliene una aviso de cuanto va a pagar antes de hacer la compra o algo por el estilo
     @Override
     public Encargo createEncargo(EncargoRequest request, Usuario usuarioLogueado) {
         PerfilArtista artista = artistaRepository.findById(request.getArtista_id())
@@ -71,6 +86,11 @@ public class EncargoServiceImpl implements EncargoService {
 
         if (!artista.isAcepta_encargos()) {
             throw new PerfilArtistaNoAceptaEncargosException(artista.getId());
+        }
+
+        // No se puede pedir un encargo a uno mismo.
+        if (artista.getUsuario().getId().equals(usuarioLogueado.getId())) {
+            throw new AutoencargoNoPermitidoException(usuarioLogueado.getId());
         }
 
         TamanioLienzo tamanio = tamanioLienzoRepository.findById(request.getTamanio_id())
@@ -90,20 +110,67 @@ public class EncargoServiceImpl implements EncargoService {
 
         return encargoRepository.save(encargo);
     }
-    // Mueve el encargo al estado siguiente si la transicion es valida.
+
+    // El artista factura su encargo terminado. Genera una Factura "suelta", con una
+// Compra propia (no de catalogo) para que encaje con el mismo modelo que el checkout.
+    @Override
+    @Transactional
+    public Factura facturarEncargo(Long encargoId, Usuario usuarioLogueado) {
+        Encargo encargo = encargoRepository.findById(encargoId)
+                .orElseThrow(() -> new EncargoNotFoundException(encargoId));
+
+        boolean esArtistaDelEncargo = encargo.getArtista().getUsuario().getId().equals(usuarioLogueado.getId());
+        if (!esArtistaDelEncargo) {
+            OwnershipGuard.soloAdmin(usuarioLogueado);
+        }
+
+        if (encargo.getEstado_encargo() != EstadoEncargo.TERMINADO) {
+            throw new EncargoNoTerminadoException(encargoId);
+        }
+
+        if (encargo.getFactura() != null) {
+            throw new EncargoYaFacturadoException(encargoId);
+        }
+
+        Compra compra = Compra.builder()
+                .usuario(encargo.getUsuario())
+                .fecha_compra(java.time.LocalDateTime.now())
+                .total_compra(java.math.BigDecimal.ZERO)
+                .build();
+        compra = compraRepository.save(compra);
+
+        Factura factura = Factura.builder()
+                .artista(encargo.getArtista())
+                .compra(compra)
+                .detalle_factura("Encargo #" + encargo.getId() + ": " + encargo.getDescripcion_encargo())
+                .precio_total_factura(java.math.BigDecimal.ZERO)
+                .fecha_creacion_factura(java.time.LocalDateTime.now())
+                .build();
+        factura = facturaRepository.save(factura);
+
+        encargo.setFactura(factura);
+        encargoRepository.save(encargo);
+
+        return factura;
+    }
+
+    // El artista mueve el encargo al estado siguiente si la transicion es valida. Tanto el cliente como el Artista pueden cancelar el encargo
     @Override
     public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado) {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
-        // Chequeo de pertenencia: el rol ya se valido en el SecurityConfig, pero eso no alcanza.
-        // Sin esto, cualquier artista podria cancelar los encargos de otro.
-        PerfilArtista artistaLogueado = artistaRepository.findByUsuarioId(usuarioLogueado.getId())
-                .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioLogueado.getId()));
+        boolean esArtistaDelEncargo = encargo.getArtista().getUsuario().getId().equals(usuarioLogueado.getId());
+        boolean esClienteDelEncargo = encargo.getUsuario().getId().equals(usuarioLogueado.getId());
+        boolean esAdmin = usuarioLogueado.getRol_usuario() == com.uade.tpo.grupo11.gallery.entities.enums.Rol.ADMIN;
 
-        if (!encargo.getArtista().getId().equals(artistaLogueado.getId())) {
-            throw new AccesoDenegadoException(
-                    "El encargo con id " + encargoId + " no te pertenece");
+        if (!esArtistaDelEncargo && !esClienteDelEncargo && !esAdmin) {
+            throw new AccesoDenegadoException("El encargo con id " + encargoId + " no te pertenece");
+        }
+
+        // El cliente solo puede cancelar; el resto de las transiciones son privativas del artista (o ADMIN).
+        if (esClienteDelEncargo && !esArtistaDelEncargo && !esAdmin && nuevoEstado != EstadoEncargo.CANCELADO) {
+            throw new AccesoDenegadoException("Solo el artista puede mover el encargo a este estado");
         }
 
         EstadoEncargo estadoActual = encargo.getEstado_encargo();

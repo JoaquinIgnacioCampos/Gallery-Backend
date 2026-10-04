@@ -15,4 +15,6 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
 
     // Busca por el id del emisor. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Mensaje> findByEmisorId(Long usuarioId);
-}
+
+    //PAra que los mensajes queden ordenados
+    List<Mensaje> findByEncargoIdOrderByFechaCreacionMensajeAsc(Long encargoId);}

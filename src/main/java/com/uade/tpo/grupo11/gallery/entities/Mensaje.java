@@ -28,4 +28,14 @@ public class Mensaje {
 
     @Column(name = "contenido_mensaje", nullable = false)
     private String contenido_mensaje;
+
+    //Fecha de los mensajes para ordenarlos
+    @Column(name = "fecha_creacion_mensaje", nullable = false, updatable = false)
+    private LocalDateTime fecha_creacion_mensaje;
+
+    // Se ejecuta justo antes del primer guardado, igual que en Encargo.
+    @PrePersist
+    public void prePersist() {
+        this.fecha_creacion_mensaje = LocalDateTime.now();
+    }
 }

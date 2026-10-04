@@ -3,9 +3,7 @@ package com.uade.tpo.grupo11.gallery.services.mensaje;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
-import com.uade.tpo.grupo11.gallery.exceptions.EncargoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.MensajeNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MensajeRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
@@ -52,7 +50,11 @@ public class MensajeServiceImpl implements MensajeService {
         OwnershipGuard.verificar(usuarioLogueado,
                 encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
 
-        return mensajeRepository.findByEncargoId(encargoId);
+        List<Mensaje> mensajes = mensajeRepository.findByEncargoIdOrderByFechaCreacionMensajeAsc(encargoId);
+        if (mensajes.isEmpty()) {
+            throw new RecursoNoEncontradoException("El encargo con id " + encargoId + " todavía no tiene mensajes");
+        }
+        return mensajes;
     }
 
     // Devuelve los mensajes enviados por el usuario. Solo el propio usuario (o ADMIN).
@@ -62,7 +64,11 @@ public class MensajeServiceImpl implements MensajeService {
 
         OwnershipGuard.verificar(usuarioLogueado, usuarioId);
 
-        return mensajeRepository.findByEmisorId(usuarioId);
+        List<Mensaje> mensajes = mensajeRepository.findByEmisorId(usuarioId);
+        if (mensajes.isEmpty()) {
+            throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no envió mensajes todavía");
+        }
+        return mensajes;
     }
 
     // Crea el mensaje. El emisor es siempre el usuario logueado, y tiene que ser
@@ -75,6 +81,10 @@ public class MensajeServiceImpl implements MensajeService {
         OwnershipGuard.verificar(usuarioLogueado,
                 encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
 
+        if (encargo.getEstado_encargo() == com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo.CANCELADO) {
+            throw new EncargoCanceladoException(encargoId);
+        }
+
         Mensaje mensaje = new Mensaje();
         mensaje.setEncargo(encargo);
         mensaje.setEmisor(usuarioLogueado);
@@ -82,5 +92,4 @@ public class MensajeServiceImpl implements MensajeService {
 
         return mensajeRepository.save(mensaje);
     }
-
 }

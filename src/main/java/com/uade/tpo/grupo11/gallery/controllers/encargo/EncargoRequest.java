@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
 import com.uade.tpo.grupo11.gallery.entities.enums.TipoLienzo;
 import com.uade.tpo.grupo11.gallery.entities.enums.TipoPintura;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -28,5 +29,7 @@ public class EncargoRequest {
     @NotNull(message = "El tipo de lienzo es obligatorio")
     private TipoLienzo tipo_lienzo;
 
+    @NotBlank(message = "La descripción del encargo es obligatoria")
     private String descripcion_encargo;
+
 }

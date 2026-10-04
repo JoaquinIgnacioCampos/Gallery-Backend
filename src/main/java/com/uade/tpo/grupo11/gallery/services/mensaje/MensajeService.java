@@ -2,7 +2,6 @@ package com.uade.tpo.grupo11.gallery.services.mensaje;
 
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
-
 import java.util.List;
 
 // Contrato: que sabe hacer el servicio de los mensajes. La implementacion es la que lleva la logica.

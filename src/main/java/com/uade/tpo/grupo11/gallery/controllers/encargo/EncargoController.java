@@ -1,5 +1,6 @@
 package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
+import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -85,6 +86,14 @@ public class EncargoController {
 
         return ResponseEntity.ok(EncargoResponse.fromEntity(
                 encargoService.cambiarEstado(id, request.getNuevoEstado(), usuarioLogueado)));
+    }
+
+    @PostMapping("/{id}/facturar")
+    public ResponseEntity<FacturaResponse> facturarEncargo(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(FacturaResponse.fromEntity(
+                encargoService.facturarEncargo(id, usuarioLogueado)));
     }
 
 }

@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.services.encargo;
 
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
+import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
 
@@ -19,4 +20,7 @@ public interface EncargoService {
     Encargo createEncargo(EncargoRequest request, Usuario usuarioLogueado);
     // Recibe al usuario logueado para verificar que el encargo sea suyo.
     Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado);
+    // Para hacer la factura del encargo
+    Factura facturarEncargo(Long encargoId, Usuario usuarioLogueado);
+
 }
