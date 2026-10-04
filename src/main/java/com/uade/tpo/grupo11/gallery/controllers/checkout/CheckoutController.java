@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.controllers.compra.CompraResponse;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.checkout.CheckoutService;
 
+import jakarta.validation.Valid;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import org.springframework.http.HttpStatus;
@@ -24,9 +25,12 @@ public class CheckoutController {
     // Convierte el carrito del usuario logueado en una compra con sus facturas. Devuelve 201.
     // El usuario sale del token y no de un parametro: antes cualquiera podia comprar con el carrito de otro.
     @PostMapping
-    public ResponseEntity<CompraResponse> checkout(@AuthenticationPrincipal Usuario usuarioLogueado) {
+    public ResponseEntity<CompraResponse> checkout(
+            @Valid @RequestBody CheckoutRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(CompraResponse.fromEntity(checkoutService.checkout(usuarioLogueado.getId())));
+                .body(CompraResponse.fromEntity(
+                        checkoutService.checkout(usuarioLogueado.getId(), request.getTipo_entrega())));
     }
 }

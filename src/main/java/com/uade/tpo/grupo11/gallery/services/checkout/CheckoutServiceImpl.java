@@ -10,6 +10,7 @@ import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
+import com.uade.tpo.grupo11.gallery.exceptions.DireccionRequeridaException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
@@ -63,7 +64,7 @@ public class CheckoutServiceImpl implements CheckoutService {
      */
     @Override
     @Transactional
-    public Compra checkout(Long usuarioId) {
+    public Compra checkout(Long usuarioId, TipoEntrega tipoEntregaElegido) {
 
         // 1) Buscamos el carrito del usuario y sus items.
         Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
@@ -75,8 +76,24 @@ public class CheckoutServiceImpl implements CheckoutService {
             throw new CarritoVacioException(carrito.getId());
         }
 
+        // 1.5) Si eligió envío a domicilio, necesita tener una dirección cargada.
+        // Si eligió retiro, no importa si tiene dirección o no.
+        String direccionEntrega;
+        BigDecimal costoEnvio;
+
+        if (tipoEntregaElegido == TipoEntrega.ENVIO_DOMICILIO) {
+            if (carrito.getDireccion_cliente() == null || carrito.getDireccion_cliente().isBlank()) {
+                throw new DireccionRequeridaException(
+                        "Para elegir envío a domicilio primero tenés que cargar tu dirección");
+            }
+            direccionEntrega = carrito.getDireccion_cliente();
+            costoEnvio = COSTO_ENVIO_DOMICILIO;
+        } else {
+            direccionEntrega = DIRECCION_RETIRO_GALERIA;
+            costoEnvio = BigDecimal.ZERO;
+        }
+
         // 2) Validamos el stock de TODO antes de tocar nada.
-        //    Si falla recien en el tercer item, no queremos haber descontado los dos primeros.
         for (ItemCarrito item : items) {
             Variante variante = item.getVariante();
             if (variante.getStock_variante() < item.getCantidad()) {
@@ -86,7 +103,6 @@ public class CheckoutServiceImpl implements CheckoutService {
         }
 
         // 3) Agrupamos los items por artista, siguiendo variante -> obra -> artista.
-        //    De aca sale una factura por cada artista al que le compramos.
         Map<PerfilArtista, List<ItemCarrito>> itemsPorArtista = new LinkedHashMap<>();
         for (ItemCarrito item : items) {
             PerfilArtista artista = item.getVariante().getObra().getArtista();
@@ -141,20 +157,19 @@ public class CheckoutServiceImpl implements CheckoutService {
                 Variante variante = item.getVariante();
                 BigDecimal cantidad = BigDecimal.valueOf(item.getCantidad());
 
-                // Precio del dia: el de la variante menos el descuento si esta vigente.
+                // Precio del día: el de la variante menos el descuento si está vigente.
                 BigDecimal precioLista = variante.getPrecio_variante();
                 BigDecimal precioConDescuento = aplicarDescuento(variante);
                 BigDecimal descuentoUnitario = precioLista.subtract(precioConDescuento);
 
-                // El marco se eligio al agregar al carrito y suma al precio.
+                // El marco se eligió al agregar al carrito y suma al precio.
                 BigDecimal precioMarco = item.getMarco() != null
                         ? item.getMarco().getPrecio_marco()
                         : BigDecimal.ZERO;
 
                 BigDecimal totalItem = precioConDescuento.add(precioMarco).multiply(cantidad);
 
-                // El item de factura guarda los importes CONGELADOS: si el artista cambia
-                // el precio manana, esta factura sigue diciendo lo que se pago hoy.
+                // El item de factura guarda los importes CONGELADOS.
                 ItemFactura itemFactura = new ItemFactura();
                 itemFactura.setFactura(factura);
                 itemFactura.setVariante(variante);
@@ -164,10 +179,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 itemFactura.setDescuento(descuentoUnitario.multiply(cantidad));
                 itemFacturaRepository.save(itemFactura);
 
-                // Descontamos el stock vendido con un UPDATE atomico: la validacion del
-                // paso 2 se hizo contra una foto que pudo quedar vieja si otra compra
-                // se colo justo en el medio. Si esta resta afecta 0 filas, es porque en
-                // este instante exacto ya no habia stock suficiente.
+                // Descontamos el stock vendido con un UPDATE atómico.
                 int filasAfectadas = varianteRepository.descontarStock(variante.getId(), item.getCantidad());
                 if (filasAfectadas == 0) {
                     throw new StockInsuficienteException(
@@ -183,11 +195,11 @@ public class CheckoutServiceImpl implements CheckoutService {
             totalGeneral = totalGeneral.add(totalFactura);
         }
 
-        // 6) El total de la compra queda congelado tambien.
-        compra.setTotal_compra(totalGeneral);
+        // 6) El total de la compra incluye el subtotal de los ítems más el costo de envío (si aplica).
+        compra.setTotal_compra(totalGeneral.add(costoEnvio));
         compra = compraRepository.save(compra);
 
-        // 7) Se vacia el carrito: sus items ya viajaron a las facturas.
+        // 7) Se vacía el carrito: sus ítems ya viajaron a las facturas.
         itemCarritoRepository.deleteAll(items);
 
         return compra;

@@ -213,4 +213,29 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(respuesta);
     }
 
+    @ExceptionHandler(DireccionRequeridaException.class)
+    public ResponseEntity<String> handleDireccionRequerida(DireccionRequeridaException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+    }
+
+    @ExceptionHandler(AutoencargoNoPermitidoException.class)
+    public ResponseEntity<String> handleAutoencargo(AutoencargoNoPermitidoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(EncargoNoTerminadoException.class)
+    public ResponseEntity<String> handleEncargoNoTerminado(EncargoNoTerminadoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(EncargoYaFacturadoException.class)
+    public ResponseEntity<String> handleEncargoYaFacturado(EncargoYaFacturadoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(EncargoCanceladoException.class)
+    public ResponseEntity<String> handleEncargoCancelado(EncargoCanceladoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
 }

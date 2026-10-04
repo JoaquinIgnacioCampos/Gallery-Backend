@@ -34,6 +34,10 @@ public class Encargo {
     @JoinColumn(name = "marco_id", nullable = false)
     private Marco marco;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "factura_id")
+    private Factura factura;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "tipo_pintura", nullable = false)
     private TipoPintura tipo_pintura;
