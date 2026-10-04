@@ -2,8 +2,10 @@ package com.uade.tpo.grupo11.gallery.services.estilo;
 
 import com.uade.tpo.grupo11.gallery.controllers.estilo.EstiloRequest;
 import com.uade.tpo.grupo11.gallery.entities.Estilo;
+import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
 import com.uade.tpo.grupo11.gallery.exceptions.EstiloDuplicadoException;
 import com.uade.tpo.grupo11.gallery.exceptions.EstiloNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.repositories.EstiloRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,13 @@ public class EstiloServiceImpl implements EstiloService {
     // Devuelve los estilos.
     @Override
     public List<Estilo> obtenerTodos() {
-        return estiloRepository.findAll();
+        List<Estilo> estilo = estiloRepository.findAll();
+
+        if (estilo.isEmpty()) {
+            throw new RecursoNoEncontradoException("No se cargaron Estilos");
+        }
+
+        return estilo;
     }
 
     // Crea el estilo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.

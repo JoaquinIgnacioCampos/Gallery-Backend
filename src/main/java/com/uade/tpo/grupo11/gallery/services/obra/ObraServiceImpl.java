@@ -178,14 +178,13 @@ public class ObraServiceImpl implements ObraService {
 
 
 
-    // Convierte la lista de ids que manda el cliente en las entidades Estilo.
     private Set<Estilo> buscarEstilos(Set<Long> estiloIds) {
 
-        Set<Estilo> estilos = new HashSet<>();
-
-        if (estilos.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay estilos cargados");
+        if (estiloIds == null || estiloIds.isEmpty()) {
+            throw new RecursoNoEncontradoException("Debe indicar al menos un estilo para la obra");
         }
+
+        Set<Estilo> estilos = new HashSet<>();
 
         for (Long estiloId : estiloIds) {
             Estilo estilo = estiloRepository

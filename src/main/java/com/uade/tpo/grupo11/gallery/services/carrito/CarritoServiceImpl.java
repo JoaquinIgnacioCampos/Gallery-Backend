@@ -3,6 +3,8 @@ package com.uade.tpo.grupo11.gallery.services.carrito;
 
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
@@ -35,12 +37,16 @@ public class CarritoServiceImpl implements CarritoService {
     // Devuelve los carritos.
     @Override
     public List<Carrito> getCarritos(Usuario usuarioActual) {
-
         // Ver todos los carritos es una vista administrativa: no es de nadie en particular.
         OwnershipGuard.soloAdmin(usuarioActual);
 
-        return carritoRepository.findAll();
+        List<Carrito> carritos = carritoRepository.findAll();
+        if (carritos.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay carritos registrados en el sistema");
+        }
+        return carritos;
     }
+
 
 
     // Busca el carrito por id. Si no existe, se lanza la excepcion y el handler responde 404.
@@ -100,7 +106,13 @@ public class CarritoServiceImpl implements CarritoService {
 
         OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
-        return itemCarritoRepository.findByCarritoId(carritoId);
+        List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId);
+
+        if (items.isEmpty()) {
+            throw new CarritoVacioException(carritoId);
+        }
+
+        return items;
     }
 
 
@@ -119,19 +131,27 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
 
-    // Devuelve el carrito del usuario y, si todavia no tiene, se lo crea.
     @Override
-    public Carrito getOrCreateCarritoByUsuario(Long usuarioId) {
+    public Carrito getOrCreateCarritoByUsuario(Long usuarioId, Usuario usuarioActual) {
+        return getOrCreateCarritoByUsuario(usuarioId, usuarioActual, null);
+    }
+
+
+    @Override
+    public Carrito getOrCreateCarritoByUsuario(Long usuarioId, Usuario usuarioActual, String direccionInicial) {
 
         Usuario usuario = usuarioRepository
                 .findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
+
+        OwnershipGuard.verificar(usuarioActual, usuarioId);
 
         return carritoRepository
                 .findByUsuarioId(usuarioId)
                 .orElseGet(() -> carritoRepository.save(
                         Carrito.builder()
                                 .usuario(usuario)
+                                .direccion_cliente(direccionInicial)
                                 .build()
                 ));
     }

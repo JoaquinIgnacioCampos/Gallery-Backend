@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 // Logica de negocio de los perfiles de artista: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -37,6 +38,13 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     public PerfilArtista getPerfilArtistaByUsuario(Long usuarioId) {
         return perfilArtistaRepository.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioId));
+    }
+
+    //no tira excepcion si no existe,
+    // para componer el perfil completo sin que la ausencia de perfil artista corte el flujo.
+    @Override
+    public Optional<PerfilArtista> getPerfilArtistaByUsuarioOptional(Long usuarioId) {
+        return perfilArtistaRepository.findByUsuarioId(usuarioId);
     }
 
     // La identidad viene del contexto de seguridad, nunca de un id elegido por el cliente.
