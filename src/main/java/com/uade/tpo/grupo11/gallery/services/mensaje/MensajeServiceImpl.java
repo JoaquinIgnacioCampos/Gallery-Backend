@@ -50,7 +50,7 @@ public class MensajeServiceImpl implements MensajeService {
         OwnershipGuard.verificar(usuarioLogueado,
                 encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
 
-        List<Mensaje> mensajes = mensajeRepository.findByEncargoIdOrderByFecha_creacion_mensajeAsc(encargoId);
+        List<Mensaje> mensajes = mensajeRepository.findByEncargoIdOrderByFecha_creacion_mensajeDesc(encargoId);
         if (mensajes.isEmpty()) {
             throw new RecursoNoEncontradoException("El encargo con id " + encargoId + " todavía no tiene mensajes");
         }

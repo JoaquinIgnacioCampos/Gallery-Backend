@@ -20,7 +20,7 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
 
     // El nombre del campo en la entidad ya tiene guiones bajos (fecha_creacion_mensaje), asi que
     // un metodo derivado (findBy...OrderBy...) los interpreta como separadores de propiedad anidada
-    // y falla. Se usa @Query explicita para evitar esa ambiguedad.
-    @Query("SELECT m FROM Mensaje m WHERE m.encargo.id = :encargoId ORDER BY m.fecha_creacion_mensaje ASC")
-    List<Mensaje> findByEncargoIdOrderByFecha_creacion_mensajeAsc(@Param("encargoId") Long encargoId);
+    // y falla. Se usa @Query explicita para evitar esa ambiguedad. Del mas nuevo al mas antiguo, para cargar la conversacion desde lo ultimo.
+    @Query("SELECT m FROM Mensaje m WHERE m.encargo.id = :encargoId ORDER BY m.fecha_creacion_mensaje DESC")
+    List<Mensaje> findByEncargoIdOrderByFecha_creacion_mensajeDesc(@Param("encargoId") Long encargoId);
 }
