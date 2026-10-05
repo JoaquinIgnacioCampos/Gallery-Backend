@@ -87,6 +87,8 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
             throw new CompraPropiaException(variante.getId());
         }
 
+        validarStockDisponible(carrito, variante, request.getCantidad(), null);
+
         ItemCarrito itemCarrito = ItemCarrito.builder()
                 .carrito(carrito)
                 .marco(marco)
@@ -131,6 +133,8 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
             throw new CompraPropiaException(variante.getId());
         }
 
+        validarStockDisponible(carrito, variante, request.getCantidad(), itemId);
+
         itemCarrito.setCarrito(carrito);
         itemCarrito.setMarco(marco);
         itemCarrito.setVariante(variante);
@@ -151,5 +155,19 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         OwnershipGuard.verificar(usuarioActual, itemCarrito.getCarrito().getUsuario().getId());
 
         itemCarritoRepository.delete(itemCarrito);
+    }
+
+    // Lo que ya hay en el carrito para la misma variante (sin contar el item que se edita) mas lo pedido no puede superar el stock.
+    private void validarStockDisponible(Carrito carrito, Variante variante, int cantidadPedida, Long itemIdExcluido) {
+        int yaEnCarrito = itemCarritoRepository.findByCarritoId(carrito.getId()).stream()
+                .filter(item -> item.getVariante().getId().equals(variante.getId()))
+                .filter(item -> itemIdExcluido == null || !item.getId().equals(itemIdExcluido))
+                .mapToInt(ItemCarrito::getCantidad)
+                .sum();
+
+        int total = yaEnCarrito + cantidadPedida;
+        if (total > variante.getStock_variante()) {
+            throw new StockInsuficienteException(variante.getId(), total, variante.getStock_variante());
+        }
     }
 }
