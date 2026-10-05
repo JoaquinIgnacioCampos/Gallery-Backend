@@ -46,6 +46,15 @@ public class    CarritoController {
     }
 
 
+    // El propio carrito: el id sale del token, no hace falta pasar primero por /api/usuarios/{id}.
+    // Se crea solo si todavia no existe, igual que el equivalente en UsuarioController.
+    @GetMapping("/me")
+    public CarritoResponse getCarritoPropio(@AuthenticationPrincipal Usuario usuarioActual) {
+        return CarritoResponse.fromEntity(
+                carritoService.getOrCreateCarritoByUsuario(usuarioActual.getId(), usuarioActual));
+    }
+
+
     // POST - Crear carrito
     @PostMapping
     public ResponseEntity<CarritoResponse> createCarrito(
@@ -73,6 +82,21 @@ public class    CarritoController {
     }
 
 
+    // Modifica el propio carrito: el id sale del token.
+    @PutMapping("/me")
+    public CarritoResponse updateCarritoPropio(
+            @Valid @RequestBody CarritoRequest request,
+            @AuthenticationPrincipal Usuario usuarioActual) {
+
+        Carrito propio = carritoService.getOrCreateCarritoByUsuario(usuarioActual.getId(), usuarioActual);
+        return CarritoResponse.fromEntity(carritoService.updateCarrito(
+                propio.getId(),
+                request,
+                usuarioActual
+        ));
+    }
+
+
     // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @GetMapping("/{carritoId}/items")
     public ResponseEntity<Page<ItemCarritoResponse>> getItemsByCarrito(
@@ -86,6 +110,16 @@ public class    CarritoController {
     }
 
 
+    // Las lineas del propio carrito: el id sale del token.
+    @GetMapping("/me/items")
+    public List<ItemCarritoResponse> getItemsByCarritoPropio(@AuthenticationPrincipal Usuario usuarioActual) {
+        Carrito propio = carritoService.getOrCreateCarritoByUsuario(usuarioActual.getId(), usuarioActual);
+        return carritoService.getItemsByCarrito(propio.getId(), usuarioActual).stream()
+                .map(ItemCarritoResponse::fromEntity)
+                .toList();
+    }
+
+
     // Saca todos los items del carrito sin borrar el carrito.
     @DeleteMapping("/{carritoId}/items")
     public void vaciarCarrito(
@@ -93,5 +127,13 @@ public class    CarritoController {
             @AuthenticationPrincipal Usuario usuarioActual) {
 
         carritoService.vaciarCarrito(carritoId, usuarioActual);
+    }
+
+
+    // Vacia el propio carrito: el id sale del token.
+    @DeleteMapping("/me/items")
+    public void vaciarCarritoPropio(@AuthenticationPrincipal Usuario usuarioActual) {
+        Carrito propio = carritoService.getOrCreateCarritoByUsuario(usuarioActual.getId(), usuarioActual);
+        carritoService.vaciarCarrito(propio.getId(), usuarioActual);
     }
 }

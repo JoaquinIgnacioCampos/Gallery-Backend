@@ -92,6 +92,15 @@ public class UsuarioController {
         return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
 
+    // Actualiza el propio usuario: el id sale del token, no hace falta que el cliente lo sepa.
+    @PatchMapping("/me")
+    public ResponseEntity<UsuarioResponse> updateUsuarioPropio(
+            @Valid @RequestBody UsuarioRequest usuario_request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        Usuario result = usuarioService.updateUsuario(usuarioLogueado.getId(), usuario_request, usuarioLogueado);
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
+    }
+
     // Devuelve los usuarios.
     @GetMapping("/{usuario_id}/carrito")
     public ResponseEntity<CarritoResponse> getCarrito(
@@ -105,6 +114,14 @@ public class UsuarioController {
     @GetMapping("/{usuario_id}/perfil-artista")
     public ResponseEntity<PerfilArtistaResponse> getPerfilArtista(@PathVariable("usuario_id") Long usuario_id) {
         PerfilArtista result = perfilArtistaService.getPerfilArtistaByUsuario(usuario_id);
+        return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(result));
+    }
+
+    // El propio perfil de artista: el id sale del token, no hace falta que el cliente lo sepa.
+    @GetMapping("/me/perfil-artista")
+    public ResponseEntity<PerfilArtistaResponse> getPerfilArtistaPropio(
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        PerfilArtista result = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(result));
     }
 
@@ -145,6 +162,17 @@ public class UsuarioController {
             @RequestParam(required = false) Integer size) {
         return ResponseEntity.ok(mensajeService.getMensajesByUsuario(usuario_id, usuarioLogueado, Paginacion.de(page, size))
                 .map(MensajeResponse::fromEntity));
+    }
+
+    // Los propios mensajes: el id sale del token, no hace falta que el cliente lo sepa.
+    @GetMapping("/me/mensajes")
+    public ResponseEntity<List<MensajeResponse>> getMensajesPropios(
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        List<MensajeResponse> result = mensajeService
+                .getMensajesByUsuario(usuarioLogueado.getId(), usuarioLogueado).stream()
+                .map(MensajeResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(result);
     }
 
 
