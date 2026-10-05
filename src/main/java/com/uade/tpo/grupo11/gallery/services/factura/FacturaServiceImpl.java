@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.FacturaNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
@@ -37,7 +38,11 @@ public class FacturaServiceImpl implements FacturaService {
     @Override
     public List<Factura> getFacturas(Usuario usuarioLogueado) {
         OwnershipGuard.soloAdmin(usuarioLogueado);
-        return facturaRepository.findAll();
+        List<Factura> facturas = facturaRepository.findAll();
+        if (facturas.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay facturas registradas en el sistema");
+        }
+        return facturas;
     }
 
 
@@ -49,7 +54,11 @@ public class FacturaServiceImpl implements FacturaService {
 
         OwnershipGuard.verificar(usuarioLogueado, compra.getUsuario().getId());
 
-        return facturaRepository.findByCompraId(compraId);
+        List<Factura> facturas = facturaRepository.findByCompraId(compraId);
+        if (facturas.isEmpty()) {
+            throw new RecursoNoEncontradoException("La compra con id " + compraId + " no tiene facturas");
+        }
+        return facturas;
     }
 
 

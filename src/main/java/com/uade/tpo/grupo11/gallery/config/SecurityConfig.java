@@ -93,8 +93,6 @@ public class SecurityConfig {
                                 .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
 
-                        .requestMatchers(HttpMethod.POST, "/api/encargos/*/facturar")
-                        .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
                         // ENCARGOS: los pide quien compra; el estado lo mueve el artista.
                         // Que sea EL artista de ese encargo lo verifica el service, no esta regla.
                         .requestMatchers(HttpMethod.POST, "/api/encargos/**")

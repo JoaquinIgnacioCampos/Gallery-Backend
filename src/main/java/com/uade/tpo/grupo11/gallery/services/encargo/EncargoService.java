@@ -20,11 +20,11 @@ public interface EncargoService {
     Encargo createEncargo(EncargoRequest request, Usuario usuarioLogueado);
     // Recibe al usuario logueado para verificar que el encargo sea suyo.
     Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado);
-    // Para hacer la factura del encargo
-    Factura facturarEncargo(Long encargoId, Usuario usuarioLogueado);
-    // El artista carga o cambia el precio mientras el encargo siga abierto. Cualquier cambio invalida la aceptacion previa.
+    // El cliente paga el encargo terminado; el back lo pasa a PAGADO.
+    Encargo pagarEncargo(Long encargoId, Usuario usuarioLogueado);
+    // El artista carga o cambia el precio mientras el encargo este pendiente.
     Encargo definirPrecio(Long encargoId, java.math.BigDecimal precio, Usuario usuarioLogueado);
-    // El cliente acepta el precio cargado por el artista; sin aceptacion no hay facturacion.
+    // El cliente acepta el precio cargado por el artista: el encargo queda aprobado y el precio congelado.
     Encargo aceptarPrecio(Long encargoId, Usuario usuarioLogueado);
 
 }

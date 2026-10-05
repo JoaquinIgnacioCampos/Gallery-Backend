@@ -1,6 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
-import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -80,7 +79,7 @@ public class EncargoController {
                 encargoService.definirPrecio(id, request.getPrecio_acordado(), usuarioLogueado)));
     }
 
-    // El cliente acepta el precio cargado. Sin esta aceptacion el encargo no se puede facturar.
+    // El cliente acepta el precio cargado: el encargo queda aprobado y el precio congelado.
     @PostMapping("/{id}/aceptar-precio")
     public ResponseEntity<EncargoResponse> aceptarPrecio(
             @PathVariable Long id,
@@ -89,12 +88,13 @@ public class EncargoController {
                 encargoService.aceptarPrecio(id, usuarioLogueado)));
     }
 
-    @PostMapping("/{id}/facturar")
-    public ResponseEntity<FacturaResponse> facturarEncargo(
+    // El cliente paga el encargo terminado. El pago es simulado desde el front; el cambio a PAGADO lo hace el back.
+    @PostMapping("/{id}/pagar")
+    public ResponseEntity<EncargoResponse> pagarEncargo(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
-        return ResponseEntity.ok(FacturaResponse.fromEntity(
-                encargoService.facturarEncargo(id, usuarioLogueado)));
+        return ResponseEntity.ok(EncargoResponse.fromEntity(
+                encargoService.pagarEncargo(id, usuarioLogueado)));
     }
 
 }

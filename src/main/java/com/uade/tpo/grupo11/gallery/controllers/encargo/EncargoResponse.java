@@ -20,7 +20,6 @@ public record EncargoResponse(
         EstadoEncargo estado_encargo,
         String descripcion_encargo,
         BigDecimal precio_acordado,
-        boolean precio_aceptado,
         LocalDateTime fecha_creacion_encargo
 ) {
     // Traduce la entidad a lo que ve el cliente. Manda ids en vez de objetos anidados.
@@ -36,7 +35,6 @@ public record EncargoResponse(
                 encargo.getEstado_encargo(),
                 encargo.getDescripcion_encargo(),
                 encargo.getPrecio_acordado(),
-                encargo.isPrecio_aceptado(),
                 encargo.getFecha_creacion_encargo()
         );
     }
