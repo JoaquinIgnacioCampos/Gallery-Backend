@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.ImagenNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
@@ -30,7 +31,11 @@ public class ImagenServiceImpl implements ImagenService {
     // Devuelve las imagenes.
     @Override
     public List<Imagen> getImagenes() {
-        return repoImagen.findAll();
+        List<Imagen> imagenes = repoImagen.findAll();
+        if (imagenes.isEmpty()) {
+            throw new RecursoNoEncontradoException("No hay imagenes registradas en el sistema");
+        }
+        return imagenes;
     }
 
 
@@ -38,13 +43,15 @@ public class ImagenServiceImpl implements ImagenService {
     @Override
     public List<Imagen> getImagenesByObra(Long obraId) {
 
-        // Si la obra no existe avisamos con 404, en lugar de devolver una lista vacia
-        // que el cliente podria confundir con "esta obra no tiene imagenes".
         if (!obraRepository.existsById(obraId)) {
             throw new ObraNotFoundException(obraId);
         }
 
-        return repoImagen.findByObraIdOrdenadas(obraId);
+        List<Imagen> imagenes = repoImagen.findByObraIdOrdenadas(obraId);
+        if (imagenes.isEmpty()) {
+            throw new RecursoNoEncontradoException("La obra con id " + obraId + " no tiene imagenes");
+        }
+        return imagenes;
     }
 
 
