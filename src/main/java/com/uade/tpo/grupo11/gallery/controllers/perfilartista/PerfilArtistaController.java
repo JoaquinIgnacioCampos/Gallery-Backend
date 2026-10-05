@@ -52,12 +52,46 @@ public class PerfilArtistaController {
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
     }
 
+    // El propio perfil de artista: el id sale del token, no hace falta que el artista lo sepa.
+    @GetMapping("/me")
+    public ResponseEntity<PerfilArtistaResponse> getPerfilArtistaPropio(
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilPropio));
+    }
+
+    // Actualiza el propio perfil: el id sale del token, no hace falta que el artista lo sepa.
+    @PatchMapping("/me")
+    public ResponseEntity<PerfilArtistaResponse> updatePerfilArtistaPropio(
+            @Valid @RequestBody PerfilArtistaUpdateRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        PerfilArtista perfilArtista = perfilArtistaService
+                .updatePerfilArtista(perfilPropio.getId(), request, usuarioLogueado);
+        return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
+    }
+
     // Devuelve las obras del perfil de artista.
     @GetMapping("/{perfilArtistaId}/obras")
     public ResponseEntity<List<PerfilArtistaObraResponse>> getObrasByPerfilArtista(
             @PathVariable Long perfilArtistaId
     ) {
         List<PerfilArtistaObraResponse> obras = perfilArtistaService.getObrasByPerfilArtista(perfilArtistaId).stream()
+                .map(PerfilArtistaObraResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(obras);
+    }
+
+    // Las propias obras: el id sale del token, no hace falta que el artista lo sepa.
+    @GetMapping("/me/obras")
+    public ResponseEntity<List<PerfilArtistaObraResponse>> getObrasPropias(
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        List<PerfilArtistaObraResponse> obras = perfilArtistaService
+                .getObrasByPerfilArtista(perfilPropio.getId()).stream()
                 .map(PerfilArtistaObraResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(obras);
@@ -72,6 +106,19 @@ public class PerfilArtistaController {
     ) {
         List<FacturaResponse> facturas = perfilArtistaService
                 .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado).stream()
+                .map(FacturaResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(facturas);
+    }
+
+    // Las propias ventas: el id sale del token, no hace falta que el artista lo sepa.
+    @GetMapping("/me/facturas")
+    public ResponseEntity<List<FacturaResponse>> getFacturasPropias(
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        List<FacturaResponse> facturas = perfilArtistaService
+                .getFacturasByPerfilArtista(perfilPropio.getId(), usuarioLogueado).stream()
                 .map(FacturaResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(facturas);
