@@ -88,6 +88,25 @@ public class EncargoController {
                 encargoService.cambiarEstado(id, request.getNuevoEstado(), usuarioLogueado)));
     }
 
+    // El artista carga o cambia el precio. Cualquier cambio deja el precio pendiente de aceptacion del cliente.
+    @PatchMapping("/{id}/precio")
+    public ResponseEntity<EncargoResponse> definirPrecio(
+            @PathVariable Long id,
+            @Valid @RequestBody DefinirPrecioRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(EncargoResponse.fromEntity(
+                encargoService.definirPrecio(id, request.getPrecio_acordado(), usuarioLogueado)));
+    }
+
+    // El cliente acepta el precio cargado. Sin esta aceptacion el encargo no se puede facturar.
+    @PostMapping("/{id}/aceptar-precio")
+    public ResponseEntity<EncargoResponse> aceptarPrecio(
+            @PathVariable Long id,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(EncargoResponse.fromEntity(
+                encargoService.aceptarPrecio(id, usuarioLogueado)));
+    }
+
     @PostMapping("/{id}/facturar")
     public ResponseEntity<FacturaResponse> facturarEncargo(
             @PathVariable Long id,

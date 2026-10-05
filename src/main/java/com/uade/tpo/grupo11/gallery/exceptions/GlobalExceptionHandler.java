@@ -110,6 +110,21 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  // 400: el cliente mando datos invalidos
     }
 
+    @ExceptionHandler(EncargoCerradoPrecioException.class)
+    public ResponseEntity<String> handleEncargoCerradoPrecio(EncargoCerradoPrecioException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(PrecioEncargoNoDefinidoException.class)
+    public ResponseEntity<String> handlePrecioEncargoNoDefinido(PrecioEncargoNoDefinidoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(PrecioEncargoNoAceptadoException.class)
+    public ResponseEntity<String> handlePrecioEncargoNoAceptado(PrecioEncargoNoAceptadoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
     @ExceptionHandler(EstiloDuplicadoException.class)
     public ResponseEntity<String> handleEstiloDuplicado(EstiloDuplicadoException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

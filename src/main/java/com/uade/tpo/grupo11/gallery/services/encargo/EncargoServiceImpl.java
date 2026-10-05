@@ -132,10 +132,16 @@ public class EncargoServiceImpl implements EncargoService {
             throw new EncargoYaFacturadoException(encargoId);
         }
 
+        if (!encargo.isPrecio_aceptado()) {
+            throw new PrecioEncargoNoAceptadoException(encargoId);
+        }
+
+        java.math.BigDecimal precioFinal = encargo.getPrecio_acordado();
+
         Compra compra = Compra.builder()
                 .usuario(encargo.getUsuario())
                 .fecha_compra(java.time.LocalDateTime.now())
-                .total_compra(java.math.BigDecimal.ZERO)
+                .total_compra(precioFinal)
                 .build();
         compra = compraRepository.save(compra);
 
@@ -143,7 +149,7 @@ public class EncargoServiceImpl implements EncargoService {
                 .artista(encargo.getArtista())
                 .compra(compra)
                 .detalle_factura("Encargo #" + encargo.getId() + ": " + encargo.getDescripcion_encargo())
-                .precio_total_factura(java.math.BigDecimal.ZERO)
+                .precio_total_factura(precioFinal)
                 .fecha_creacion_factura(java.time.LocalDateTime.now())
                 .build();
         factura = facturaRepository.save(factura);
@@ -181,6 +187,53 @@ public class EncargoServiceImpl implements EncargoService {
 
         encargo.setEstado_encargo(nuevoEstado);
         return encargoRepository.save(encargo);
+    }
+
+    // Solo el artista del encargo (o ADMIN) carga el precio, y solo mientras el encargo siga abierto.
+    @Override
+    public Encargo definirPrecio(Long encargoId, java.math.BigDecimal precio, Usuario usuarioLogueado) {
+        Encargo encargo = encargoRepository.findById(encargoId)
+                .orElseThrow(() -> new EncargoNotFoundException(encargoId));
+
+        boolean esArtistaDelEncargo = encargo.getArtista().getUsuario().getId().equals(usuarioLogueado.getId());
+        if (!esArtistaDelEncargo) {
+            OwnershipGuard.soloAdmin(usuarioLogueado);
+        }
+
+        verificarAbiertoParaPrecio(encargo);
+
+        encargo.setPrecio_acordado(precio);
+        encargo.setPrecio_aceptado(false);
+        return encargoRepository.save(encargo);
+    }
+
+    // Solo el cliente del encargo puede aceptar el precio: ni el artista ni ADMIN aceptan por el cliente.
+    @Override
+    public Encargo aceptarPrecio(Long encargoId, Usuario usuarioLogueado) {
+        Encargo encargo = encargoRepository.findById(encargoId)
+                .orElseThrow(() -> new EncargoNotFoundException(encargoId));
+
+        if (!encargo.getUsuario().getId().equals(usuarioLogueado.getId())) {
+            throw new AccesoDenegadoException("El encargo con id " + encargoId + " no te pertenece");
+        }
+
+        verificarAbiertoParaPrecio(encargo);
+
+        if (encargo.getPrecio_acordado() == null) {
+            throw new PrecioEncargoNoDefinidoException(encargoId);
+        }
+
+        encargo.setPrecio_aceptado(true);
+        return encargoRepository.save(encargo);
+    }
+
+    private void verificarAbiertoParaPrecio(Encargo encargo) {
+        if (encargo.getEstado_encargo() == EstadoEncargo.CANCELADO) {
+            throw new EncargoCanceladoException(encargo.getId());
+        }
+        if (encargo.getEstado_encargo() == EstadoEncargo.TERMINADO || encargo.getFactura() != null) {
+            throw new EncargoCerradoPrecioException(encargo.getId());
+        }
     }
 
     // Dice a que estados se puede pasar desde el actual. Terminado y cancelado son finales.
