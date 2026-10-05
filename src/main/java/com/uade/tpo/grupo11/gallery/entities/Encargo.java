@@ -57,9 +57,6 @@ public class Encargo {
     @Column(name = "precio_acordado")
     private BigDecimal precio_acordado;
 
-    @Column(name = "precio_aceptado", nullable = false)
-    private boolean precio_aceptado;
-
     @Column(name = "fecha_creacion_encargo", nullable = false, updatable = false)
     private LocalDateTime fecha_creacion_encargo;
 

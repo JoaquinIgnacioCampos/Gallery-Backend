@@ -111,59 +111,29 @@ public class EncargoServiceImpl implements EncargoService {
         return encargoRepository.save(encargo);
     }
 
-    // El artista factura su encargo terminado. Genera una Factura "suelta", con una
-// Compra propia (no de catalogo) para que encaje con el mismo modelo que el checkout.
+    // El cliente paga el encargo terminado. El pago es simulado desde el front, pero el paso a PAGADO lo hace el back.
     @Override
     @Transactional
-    public Factura facturarEncargo(Long encargoId, Usuario usuarioLogueado) {
+    public Encargo pagarEncargo(Long encargoId, Usuario usuarioLogueado) {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
-        boolean esArtistaDelEncargo = encargo.getArtista().getUsuario().getId().equals(usuarioLogueado.getId());
-        if (!esArtistaDelEncargo) {
-            OwnershipGuard.soloAdmin(usuarioLogueado);
+        if (!encargo.getUsuario().getId().equals(usuarioLogueado.getId())) {
+            throw new AccesoDenegadoException("El encargo con id " + encargoId + " no te pertenece");
         }
 
-        if (encargo.getEstado_encargo() != EstadoEncargo.EN_PROCESO
-                && encargo.getEstado_encargo() != EstadoEncargo.TERMINADO) {
-            throw new EncargoNoTerminadoException(encargoId);
+        if (encargo.getEstado_encargo() != EstadoEncargo.TERMINADO) {
+            throw new TransicionEstadoInvalidaException(encargo.getEstado_encargo(), EstadoEncargo.PAGADO);
         }
 
-        if (encargo.getFactura() != null) {
-            throw new EncargoYaFacturadoException(encargoId);
-        }
-
-        if (!encargo.isPrecio_aceptado()) {
-            throw new PrecioEncargoNoAceptadoException(encargoId);
-        }
-
-        java.math.BigDecimal precioFinal = encargo.getPrecio_acordado();
-
-        Compra compra = Compra.builder()
-                .usuario(encargo.getUsuario())
-                .fecha_compra(java.time.LocalDateTime.now())
-                .total_compra(precioFinal)
-                .build();
-        compra = compraRepository.save(compra);
-
-        Factura factura = Factura.builder()
-                .artista(encargo.getArtista())
-                .compra(compra)
-                .detalle_factura("Encargo #" + encargo.getId() + ": " + encargo.getDescripcion_encargo())
-                .precio_total_factura(precioFinal)
-                .fecha_creacion_factura(java.time.LocalDateTime.now())
-                .build();
-        factura = facturaRepository.save(factura);
-
-        encargo.setFactura(factura);
-        encargo.setEstado_encargo(EstadoEncargo.TERMINADO);
-        encargoRepository.save(encargo);
-
-        return factura;
+        encargo.setEstado_encargo(EstadoEncargo.PAGADO);
+        return encargoRepository.save(encargo);
     }
 
-    // El artista mueve el encargo al estado siguiente si la transicion es valida. Tanto el cliente como el Artista pueden cancelar el encargo
+    // El artista mueve el encargo al estado siguiente si la transicion es valida. Tanto el cliente como el Artista pueden cancelar el encargo.
+    // Al terminar el encargo se emite su factura, con el precio congelado al aprobarlo.
     @Override
+    @Transactional
     public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado) {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
@@ -188,10 +158,13 @@ public class EncargoServiceImpl implements EncargoService {
         }
 
         encargo.setEstado_encargo(nuevoEstado);
+        if (nuevoEstado == EstadoEncargo.TERMINADO) {
+            generarFactura(encargo);
+        }
         return encargoRepository.save(encargo);
     }
 
-    // Solo el artista del encargo (o ADMIN) carga el precio, y solo mientras el encargo siga abierto.
+    // Solo el artista del encargo (o ADMIN) carga el precio, y solo mientras el encargo siga pendiente.
     @Override
     public Encargo definirPrecio(Long encargoId, java.math.BigDecimal precio, Usuario usuarioLogueado) {
         Encargo encargo = encargoRepository.findById(encargoId)
@@ -202,14 +175,14 @@ public class EncargoServiceImpl implements EncargoService {
             OwnershipGuard.soloAdmin(usuarioLogueado);
         }
 
-        verificarAbiertoParaPrecio(encargo);
+        verificarPrecioEditable(encargo);
 
         encargo.setPrecio_acordado(precio);
-        encargo.setPrecio_aceptado(false);
         return encargoRepository.save(encargo);
     }
 
     // Solo el cliente del encargo puede aceptar el precio: ni el artista ni ADMIN aceptan por el cliente.
+    // Aceptar aprueba el encargo y congela el precio.
     @Override
     public Encargo aceptarPrecio(Long encargoId, Usuario usuarioLogueado) {
         Encargo encargo = encargoRepository.findById(encargoId)
@@ -219,35 +192,54 @@ public class EncargoServiceImpl implements EncargoService {
             throw new AccesoDenegadoException("El encargo con id " + encargoId + " no te pertenece");
         }
 
-        verificarAbiertoParaPrecio(encargo);
+        verificarPrecioEditable(encargo);
 
         if (encargo.getPrecio_acordado() == null) {
             throw new PrecioEncargoNoDefinidoException(encargoId);
         }
 
-        encargo.setPrecio_aceptado(true);
-        // Aceptar el precio es el "dale, arrancá" del cliente: el encargo pasa a produccion.
-        if (encargo.getEstado_encargo() == EstadoEncargo.PENDIENTE) {
-            encargo.setEstado_encargo(EstadoEncargo.EN_PROCESO);
-        }
+        encargo.setEstado_encargo(EstadoEncargo.APROBADO);
         return encargoRepository.save(encargo);
     }
 
-    private void verificarAbiertoParaPrecio(Encargo encargo) {
+    // El precio se negocia solo mientras el encargo esta pendiente: al aprobarlo queda congelado.
+    private void verificarPrecioEditable(Encargo encargo) {
         if (encargo.getEstado_encargo() == EstadoEncargo.CANCELADO) {
             throw new EncargoCanceladoException(encargo.getId());
         }
-        if (encargo.getEstado_encargo() == EstadoEncargo.TERMINADO || encargo.getFactura() != null) {
+        if (encargo.getEstado_encargo() != EstadoEncargo.PENDIENTE) {
             throw new EncargoCerradoPrecioException(encargo.getId());
         }
     }
 
-    // Dice a que estados se puede pasar desde el actual. Terminado y cancelado son finales.
+    // La factura se emite al terminar el encargo, con el precio congelado al aprobarlo.
+    private void generarFactura(Encargo encargo) {
+        java.math.BigDecimal precioFinal = encargo.getPrecio_acordado();
+
+        Compra compra = Compra.builder()
+                .usuario(encargo.getUsuario())
+                .fecha_compra(java.time.LocalDateTime.now())
+                .total_compra(precioFinal)
+                .build();
+        compra = compraRepository.save(compra);
+
+        Factura factura = Factura.builder()
+                .artista(encargo.getArtista())
+                .compra(compra)
+                .detalle_factura("Encargo #" + encargo.getId() + ": " + encargo.getDescripcion_encargo())
+                .precio_total_factura(precioFinal)
+                .fecha_creacion_factura(java.time.LocalDateTime.now())
+                .build();
+        encargo.setFactura(facturaRepository.save(factura));
+    }
+
+    // Dice a que estados se puede pasar desde el actual. Volver a PENDIENTE reabre la negociacion del precio. TERMINADO pasa a PAGADO solo con el pago; PAGADO y CANCELADO son finales.
     private List<EstadoEncargo> transicionesValidas(EstadoEncargo estadoActual) {
         return switch (estadoActual) {
-            case PENDIENTE -> List.of(EstadoEncargo.EN_PROCESO, EstadoEncargo.CANCELADO);
-            case EN_PROCESO -> List.of(EstadoEncargo.TERMINADO, EstadoEncargo.CANCELADO);
-            case TERMINADO, CANCELADO -> List.of(); // estados finales, no admiten cambios
+            case PENDIENTE -> List.of(EstadoEncargo.CANCELADO);
+            case APROBADO -> List.of(EstadoEncargo.EN_PROCESO, EstadoEncargo.PENDIENTE, EstadoEncargo.CANCELADO);
+            case EN_PROCESO -> List.of(EstadoEncargo.TERMINADO, EstadoEncargo.PENDIENTE, EstadoEncargo.CANCELADO);
+            case TERMINADO, PAGADO, CANCELADO -> List.of();
         };
     }
 
