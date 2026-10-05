@@ -1,8 +1,10 @@
 package com.uade.tpo.grupo11.gallery.controllers.perfilartista;
 
+import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,9 @@ public class PerfilArtistaController {
 
     @Autowired
     private PerfilArtistaService perfilArtistaService;
+
+    @Autowired
+    private EncargoService encargoService;
 
     // Devuelve los perfiles de artista.
     @GetMapping
@@ -70,5 +75,33 @@ public class PerfilArtistaController {
                 .map(FacturaResponse::fromEntity)
                 .toList();
         return ResponseEntity.ok(facturas);
+    }
+
+    // Los encargos que le pidieron al artista. El service verifica que quien pregunta
+    // sea el dueño del perfil (o ADMIN), no cualquier artista.
+    @GetMapping("/{perfilArtistaId}/encargos")
+    public ResponseEntity<List<EncargoResponse>> getEncargosByPerfilArtista(
+            @PathVariable Long perfilArtistaId,
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        List<EncargoResponse> encargos = encargoService
+                .getEncargosByArtista(perfilArtistaId, usuarioLogueado).stream()
+                .map(EncargoResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(encargos);
+    }
+
+    // Los encargos propios, resolviendo el perfil desde la identidad del token: no hace
+    // falta que el artista sepa (ni mande) el id de su propio perfil.
+    @GetMapping("/me/encargos")
+    public ResponseEntity<List<EncargoResponse>> getEncargosPropios(
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        List<EncargoResponse> encargos = encargoService
+                .getEncargosByArtista(perfilPropio.getId(), usuarioLogueado).stream()
+                .map(EncargoResponse::fromEntity)
+                .toList();
+        return ResponseEntity.ok(encargos);
     }
 }
