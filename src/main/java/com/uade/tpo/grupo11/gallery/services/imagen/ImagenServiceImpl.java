@@ -12,6 +12,7 @@ import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -58,6 +59,7 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Crea la imagen con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
+    @Transactional
     public Imagen createImagen(ImagenRequest request, Usuario usuarioActual) throws IOException {
 
         // El archivo no se valida con anotaciones en el Request: @NotNull no detecta
@@ -72,9 +74,19 @@ public class ImagenServiceImpl implements ImagenService {
 
         OwnershipGuard.verificar(usuarioActual, obra.getArtista().getUsuario().getId());
 
+        List<Imagen> galeria = repoImagen.findByObraIdOrdenadas(obra.getId());
+        int posicion = resolverPosicionAlta(request.getOrden_imagen(), galeria.size());
+
+        // Hacen lugar: las que estaban desde esa posicion en adelante se corren una lugar.
+        for (Imagen existente : galeria) {
+            if (existente.getOrden_imagen() >= posicion) {
+                existente.setOrden_imagen(existente.getOrden_imagen() + 1);
+            }
+        }
+
         Imagen imagen = Imagen.builder()
                 .obra(obra)
-                .orden_imagen(calcularOrden(request, obra.getId()))
+                .orden_imagen(posicion)
                 // getBytes() pasa el archivo subido a byte[], que es lo que espera la columna BLOB.
                 .contenido_imagen(request.getArchivo().getBytes())
                 .build();
@@ -85,6 +97,7 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Actualiza la imagen: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
+    @Transactional
     public Imagen updateImagen(Long imagenId, ImagenRequest request, Usuario usuarioActual) throws IOException {
 
         Imagen imagenExistente = getImagenById(imagenId);
@@ -93,7 +106,7 @@ public class ImagenServiceImpl implements ImagenService {
 
         // La obra de una imagen no se cambia: la imagen pertenece a la obra donde se subio.
         if (request.getOrden_imagen() != null) {
-            imagenExistente.setOrden_imagen(request.getOrden_imagen());
+            moverA(imagenExistente, request.getOrden_imagen());
         }
 
         if (request.getArchivo() != null && !request.getArchivo().isEmpty()) {
@@ -106,23 +119,68 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Elimina la imagen de la base.
     @Override
+    @Transactional
     public void deleteImagen(Long imagenId, Usuario usuarioActual) {
 
         Imagen imagen = getImagenById(imagenId);
 
         OwnershipGuard.verificar(usuarioActual, imagen.getObra().getArtista().getUsuario().getId());
 
+        int posicionBorrada = imagen.getOrden_imagen();
+        Long obraId = imagen.getObra().getId();
         repoImagen.delete(imagen);
+
+        // Cierran el hueco: las que venian despues bajan una posicion.
+        for (Imagen restante : repoImagen.findByObraIdOrdenadas(obraId)) {
+            if (restante.getOrden_imagen() > posicionBorrada) {
+                restante.setOrden_imagen(restante.getOrden_imagen() - 1);
+            }
+        }
     }
 
 
-    // Si el cliente no manda el orden, la imagen se agrega al final de la galeria de esa obra.
-    private int calcularOrden(ImagenRequest request, Long obraId) {
+    // Sin posicion pedida, la imagen va al final de la galeria. Con posicion, puede ir hasta el final (n + 1).
+    private int resolverPosicionAlta(Integer posicionPedida, int cantidadActual) {
 
-        if (request.getOrden_imagen() != null) {
-            return request.getOrden_imagen();
+        if (posicionPedida == null) {
+            return cantidadActual + 1;
         }
 
-        return repoImagen.findByObraIdOrdenadas(obraId).size() + 1;
+        if (posicionPedida < 1 || posicionPedida > cantidadActual + 1) {
+            throw new IllegalArgumentException(
+                    "La posicion tiene que estar entre 1 y " + (cantidadActual + 1));
+        }
+
+        return posicionPedida;
+    }
+
+    // Mueve la imagen a la nueva posicion y corre las demas para que la galeria siga siendo 1..n sin huecos ni repetidos.
+    private void moverA(Imagen imagen, int nuevaPosicion) {
+
+        List<Imagen> galeria = repoImagen.findByObraIdOrdenadas(imagen.getObra().getId());
+
+        if (nuevaPosicion < 1 || nuevaPosicion > galeria.size()) {
+            throw new IllegalArgumentException(
+                    "La posicion tiene que estar entre 1 y " + galeria.size());
+        }
+
+        int posicionActual = imagen.getOrden_imagen();
+        if (nuevaPosicion == posicionActual) {
+            return;
+        }
+
+        for (Imagen otra : galeria) {
+            if (otra.getId().equals(imagen.getId())) {
+                continue;
+            }
+            int orden = otra.getOrden_imagen();
+            if (nuevaPosicion < posicionActual && orden >= nuevaPosicion && orden < posicionActual) {
+                otra.setOrden_imagen(orden + 1);
+            } else if (nuevaPosicion > posicionActual && orden > posicionActual && orden <= nuevaPosicion) {
+                otra.setOrden_imagen(orden - 1);
+            }
+        }
+
+        imagen.setOrden_imagen(nuevaPosicion);
     }
 }
