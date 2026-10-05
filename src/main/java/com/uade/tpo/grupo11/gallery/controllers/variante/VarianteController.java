@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.variante;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.variante.VarianteService;
 import jakarta.validation.Valid;
@@ -26,17 +28,15 @@ public class VarianteController {
     // GET /variantes          -> todas
     // GET /variantes?obraId=1 -> las de una obra
     @GetMapping
-    public ResponseEntity<List<VarianteResponse>> getVariantes(
-            @RequestParam(required = false) Long obraId) {
+    public ResponseEntity<Page<VarianteResponse>> getVariantes(
+            @RequestParam(required = false) Long obraId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
 
-        List<VarianteResponse> result = (obraId != null
-                ? servicioVariante.getVariantesByObra(obraId)
-                : servicioVariante.getVariantes())
-                .stream()
-                .map(VarianteResponse::fromEntity)
-                .toList();
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok((obraId != null
+                ? servicioVariante.getVariantesByObra(obraId, Paginacion.de(page, size))
+                : servicioVariante.getVariantes(Paginacion.de(page, size)))
+                .map(VarianteResponse::fromEntity));
     }
 
 

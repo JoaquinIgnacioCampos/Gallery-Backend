@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.compra;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -29,17 +31,21 @@ public class CompraController {
 
     // GET - Obtener todas las compras
     @GetMapping
-    public ResponseEntity<List<CompraResponse>> getCompras(@AuthenticationPrincipal Usuario usuarioActual) {
-        List<CompraResponse> result = compraService.getCompras(usuarioActual).stream()
-                .map(CompraResponse::fromEntity).toList();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<CompraResponse>> getCompras(
+            @AuthenticationPrincipal Usuario usuarioActual,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(compraService.getCompras(usuarioActual, Paginacion.de(page, size))
+                .map(CompraResponse::fromEntity));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<CompraResponse>> getMisCompras(@AuthenticationPrincipal Usuario usuarioActual) {
-        List<CompraResponse> result = compraService.getMisCompras(usuarioActual).stream()
-                .map(CompraResponse::fromEntity).toList();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<CompraResponse>> getMisCompras(
+            @AuthenticationPrincipal Usuario usuarioActual,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(compraService.getMisCompras(usuarioActual, Paginacion.de(page, size))
+                .map(CompraResponse::fromEntity));
     }
 
     // GET - Obtener una compra por ID

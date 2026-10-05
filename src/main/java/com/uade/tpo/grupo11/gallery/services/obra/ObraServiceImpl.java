@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.obra;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.obra.ObraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Estilo;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
@@ -44,8 +46,8 @@ public class ObraServiceImpl implements ObraService {
 
     // Devuelve las obras.
     @Override
-    public List<Obra> getObras() {
-        List<Obra> obra = repoObra.findAll();
+    public Page<Obra> getObras(PageRequest pageable) {
+        Page<Obra> obra = repoObra.findAll(pageable);
 
         if (obra.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay ninguna obra cargada");
@@ -56,7 +58,7 @@ public class ObraServiceImpl implements ObraService {
 
     // Busca obras con filtros opcionales y combinables. Valida los precios antes de consultar.
     @Override
-    public List<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax) {
+    public Page<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax, PageRequest pageable) {
         if (precioMin != null && precioMin.signum() < 0) {
             throw new IllegalArgumentException("El precio minimo no puede ser negativo.");
         }
@@ -75,7 +77,7 @@ public class ObraServiceImpl implements ObraService {
             throw new RecursoNoEncontradoException("No existe el estilo con ID: " + estiloId);
         }
 
-        List<Obra> resultados = repoObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax);
+        Page<Obra> resultados = repoObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax, pageable);
 
         // Verificar si la consulta volvió vacía
         if (resultados.isEmpty()) {

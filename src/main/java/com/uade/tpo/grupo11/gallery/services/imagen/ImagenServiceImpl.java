@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.imagen;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.imagen.ImagenRequest;
 import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
@@ -31,8 +33,8 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Devuelve las imagenes.
     @Override
-    public List<Imagen> getImagenes() {
-        List<Imagen> imagenes = repoImagen.findAll();
+    public Page<Imagen> getImagenes(PageRequest pageable) {
+        Page<Imagen> imagenes = repoImagen.findAll(pageable);
         if (imagenes.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay imagenes registradas en el sistema");
         }
@@ -42,13 +44,13 @@ public class ImagenServiceImpl implements ImagenService {
 
     // Devuelve imagenes de la obra.
     @Override
-    public List<Imagen> getImagenesByObra(Long obraId) {
+    public Page<Imagen> getImagenesByObra(Long obraId, PageRequest pageable) {
 
         if (!obraRepository.existsById(obraId)) {
             throw new ObraNotFoundException(obraId);
         }
 
-        List<Imagen> imagenes = repoImagen.findByObraIdOrdenadas(obraId);
+        Page<Imagen> imagenes = repoImagen.findByObraIdOrdenadas(obraId, pageable);
         if (imagenes.isEmpty()) {
             throw new RecursoNoEncontradoException("La obra con id " + obraId + " no tiene imagenes");
         }

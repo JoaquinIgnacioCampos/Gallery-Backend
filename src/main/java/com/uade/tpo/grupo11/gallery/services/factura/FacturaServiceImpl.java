@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.factura;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaRequest;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
@@ -36,9 +38,9 @@ public class FacturaServiceImpl implements FacturaService {
 
     // Devuelve las facturas. Solo el ADMIN
     @Override
-    public List<Factura> getFacturas(Usuario usuarioLogueado) {
+    public Page<Factura> getFacturas(Usuario usuarioLogueado, PageRequest pageable) {
         OwnershipGuard.soloAdmin(usuarioLogueado);
-        List<Factura> facturas = facturaRepository.findAll();
+        Page<Factura> facturas = facturaRepository.findAll(pageable);
         if (facturas.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay facturas registradas en el sistema");
         }
@@ -48,13 +50,13 @@ public class FacturaServiceImpl implements FacturaService {
 
     // Devuelve las facturas de la compra. Solo el dueño de esa compra y los artistas que partcipan pueden acceder
     @Override
-    public List<Factura> getFacturasByCompra(Long compraId, Usuario usuarioLogueado) {
+    public Page<Factura> getFacturasByCompra(Long compraId, Usuario usuarioLogueado, PageRequest pageable) {
         Compra compra = compraRepository.findById(compraId)
                 .orElseThrow(() -> new CompraNotFoundException(compraId));
 
         OwnershipGuard.verificar(usuarioLogueado, compra.getUsuario().getId());
 
-        List<Factura> facturas = facturaRepository.findByCompraId(compraId);
+        Page<Factura> facturas = facturaRepository.findByCompraId(compraId, pageable);
         if (facturas.isEmpty()) {
             throw new RecursoNoEncontradoException("La compra con id " + compraId + " no tiene facturas");
         }

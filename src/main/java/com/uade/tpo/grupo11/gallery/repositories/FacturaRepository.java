@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.repositories;
 
 import com.uade.tpo.grupo11.gallery.entities.Factura;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +14,9 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
 
     // Busca por el id de la compra. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Factura> findByCompraId(Long compraId);
+    Page<Factura> findByCompraId(Long compraId, Pageable pageable);
 
     // Las facturas emitidas a nombre de un artista: son sus ventas.
     List<Factura> findByArtistaId(Long artistaId);
+    Page<Factura> findByArtistaId(Long artistaId, Pageable pageable);
 }

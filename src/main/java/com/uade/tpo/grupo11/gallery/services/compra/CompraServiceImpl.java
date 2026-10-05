@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.compra;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.compra.CompraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -33,10 +35,10 @@ public class CompraServiceImpl implements CompraService {
 
     // Devuelve las compras.
     @Override
-    public List<Compra> getCompras(Usuario usuarioActual) {
+    public Page<Compra> getCompras(Usuario usuarioActual, PageRequest pageable) {
         OwnershipGuard.soloAdmin(usuarioActual);
 
-        List<Compra> compras = compraRepository.findAll();
+        Page<Compra> compras = compraRepository.findAll(pageable);
         if (compras.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay compras registradas en el sistema");
         }
@@ -66,8 +68,8 @@ public class CompraServiceImpl implements CompraService {
 
     // Atajo para "mis compras", igual que /me en Usuario.
     @Override
-    public List<Compra> getMisCompras(Usuario usuarioActual) {
-        List<Compra> compras = compraRepository.findByUsuarioId(usuarioActual.getId());
+    public Page<Compra> getMisCompras(Usuario usuarioActual, PageRequest pageable) {
+        Page<Compra> compras = compraRepository.findByUsuarioId(usuarioActual.getId(), pageable);
         if (compras.isEmpty()) {
             throw new RecursoNoEncontradoException("No tenés compras registradas todavía");
         }
@@ -126,13 +128,13 @@ public class CompraServiceImpl implements CompraService {
 
     // Devuelve las compras del usuario.
     @Override
-    public List<Compra> getComprasByUsuario(Long usuarioId, Usuario usuarioActual) {
+    public Page<Compra> getComprasByUsuario(Long usuarioId, Usuario usuarioActual, PageRequest pageable) {
         usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
 
         OwnershipGuard.verificar(usuarioActual, usuarioId);
 
-        List<Compra> compras = compraRepository.findByUsuarioId(usuarioId);
+        Page<Compra> compras = compraRepository.findByUsuarioId(usuarioId, pageable);
         if (compras.isEmpty()) {
             throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no tiene compras registradas");
         }

@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.encargo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
 import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
@@ -45,13 +47,13 @@ public class EncargoServiceImpl implements EncargoService {
 
     // Devuelve los encargos del artista. Solo el propio artista (o ADMIN) puede listarlos.
     @Override
-    public List<Encargo> getEncargosByArtista(Long artistaId, Usuario usuarioLogueado) {
+    public Page<Encargo> getEncargosByArtista(Long artistaId, Usuario usuarioLogueado, PageRequest pageable) {
         PerfilArtista artista = artistaRepository.findById(artistaId)
                 .orElseThrow(() -> new PerfilArtistaNotFoundException(artistaId));
 
         OwnershipGuard.verificar(usuarioLogueado, artista.getUsuario().getId());
 
-        List<Encargo> encargos = encargoRepository.findByArtistaId(artistaId);
+        Page<Encargo> encargos = encargoRepository.findByArtistaId(artistaId, pageable);
         if (encargos.isEmpty()) {
             throw new RecursoNoEncontradoException("El artista con id " + artistaId + " no tiene encargos registrados");
         }
@@ -60,13 +62,13 @@ public class EncargoServiceImpl implements EncargoService {
 
     // Devuelve los encargos del usuario. Solo el propio usuario (o ADMIN) puede listarlos.
     @Override
-    public List<Encargo> getEncargosByUsuario(Long usuarioId, Usuario usuarioLogueado) {
+    public Page<Encargo> getEncargosByUsuario(Long usuarioId, Usuario usuarioLogueado, PageRequest pageable) {
         usuarioRepository.findById(usuarioId)
                 .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
 
         OwnershipGuard.verificar(usuarioLogueado, usuarioId);
 
-        List<Encargo> encargos = encargoRepository.findByUsuarioId(usuarioId);
+        Page<Encargo> encargos = encargoRepository.findByUsuarioId(usuarioId, pageable);
         if (encargos.isEmpty()) {
             throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no tiene encargos registrados");
         }

@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.perfilartista;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
@@ -79,8 +81,8 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
 
     // Devuelve los perfiles de artista.
     @Override
-    public List<PerfilArtista> getPerfilArtistas() {
-        List<PerfilArtista> perfiles = perfilArtistaRepository.findAll();
+    public Page<PerfilArtista> getPerfilArtistas(PageRequest pageable) {
+        Page<PerfilArtista> perfiles = perfilArtistaRepository.findAll(pageable);
 
         if (perfiles.isEmpty()) {
             throw new RecursoNoEncontradoException("No se encontraron perfiles de artista registrados");
@@ -115,9 +117,9 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
 
     // Devuelve las obras del perfil de artista.
     @Override
-    public List<Obra> getObrasByPerfilArtista(Long perfilArtistaId) {
+    public Page<Obra> getObrasByPerfilArtista(Long perfilArtistaId, PageRequest pageable) {
         getPerfilArtistaById(perfilArtistaId);
-        List<Obra> obras = obraRepository.findByArtistaId(perfilArtistaId);
+        Page<Obra> obras = obraRepository.findByArtistaId(perfilArtistaId, pageable);
 
         if (obras.isEmpty()) {
             throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no tiene obras publicadas");
@@ -129,11 +131,11 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     // Devuelve las ventas del artista. Son datos de plata, asi que no alcanza con tener
     // el rol: hay que ser el dueño de ese perfil (o ADMIN), y eso lo decide el token.
     @Override
-    public List<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado) {
+    public Page<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable) {
         PerfilArtista perfil = getPerfilArtistaById(perfilArtistaId);
         OwnershipGuard.verificar(usuarioLogueado, perfil.getUsuario().getId());
 
-        List<Factura> facturas = facturaRepository.findByArtistaId(perfilArtistaId);
+        Page<Factura> facturas = facturaRepository.findByArtistaId(perfilArtistaId, pageable);
 
         if (facturas.isEmpty()) {
             throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no registra ventas ni facturas");

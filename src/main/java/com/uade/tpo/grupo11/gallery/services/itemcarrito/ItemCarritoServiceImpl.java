@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.itemcarrito;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
@@ -37,11 +39,11 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
     // Devuelve los items del carrito.
     @Override
-    public List<ItemCarrito> getItemsCarrito(Usuario usuarioActual) {
+    public Page<ItemCarrito> getItemsCarrito(Usuario usuarioActual, PageRequest pageable) {
         // Ver todos los items de todos los carritos es una vista administrativa.
         OwnershipGuard.soloAdmin(usuarioActual);
 
-        List<ItemCarrito> items = itemCarritoRepository.findAll();
+        Page<ItemCarrito> items = itemCarritoRepository.findAll(pageable);
         if (items.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay items de carrito registrados en el sistema");
         }

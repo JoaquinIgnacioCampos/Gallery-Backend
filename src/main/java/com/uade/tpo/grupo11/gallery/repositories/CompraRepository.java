@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.repositories;
 
 import com.uade.tpo.grupo11.gallery.entities.Compra;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +14,5 @@ public interface CompraRepository extends JpaRepository<Compra, Long> {
 
     // Busca por el id del usuario. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Compra> findByUsuarioId(Long usuarioId);
+    Page<Compra> findByUsuarioId(Long usuarioId, Pageable pageable);
 }

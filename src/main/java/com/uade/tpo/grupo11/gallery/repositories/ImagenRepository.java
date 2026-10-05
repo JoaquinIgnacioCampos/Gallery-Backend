@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.repositories;
 
 import com.uade.tpo.grupo11.gallery.entities.Imagen;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -16,4 +18,8 @@ public interface ImagenRepository extends JpaRepository<Imagen, Long> {
     // Va escrita a mano porque el campo lleva guion bajo y los query methods esperan camelCase.
     @Query("SELECT i FROM Imagen i WHERE i.obra.id = :obraId ORDER BY i.orden_imagen ASC")
     List<Imagen> findByObraIdOrdenadas(@Param("obraId") Long obraId);
+
+    @Query(value = "SELECT i FROM Imagen i WHERE i.obra.id = :obraId ORDER BY i.orden_imagen ASC",
+           countQuery = "SELECT COUNT(i) FROM Imagen i WHERE i.obra.id = :obraId")
+    Page<Imagen> findByObraIdOrdenadas(@Param("obraId") Long obraId, Pageable pageable);
 }
