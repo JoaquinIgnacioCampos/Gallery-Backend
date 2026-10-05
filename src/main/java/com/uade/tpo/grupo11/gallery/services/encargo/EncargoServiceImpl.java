@@ -224,6 +224,10 @@ public class EncargoServiceImpl implements EncargoService {
         }
 
         encargo.setPrecio_aceptado(true);
+        // Aceptar el precio es el "dale, arrancá" del cliente: el encargo pasa a produccion.
+        if (encargo.getEstado_encargo() == EstadoEncargo.PENDIENTE) {
+            encargo.setEstado_encargo(EstadoEncargo.EN_PROCESO);
+        }
         return encargoRepository.save(encargo);
     }
 
