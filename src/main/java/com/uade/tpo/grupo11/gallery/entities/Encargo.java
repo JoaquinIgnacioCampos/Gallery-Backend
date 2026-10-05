@@ -5,6 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoLienzo;
 import com.uade.tpo.grupo11.gallery.entities.enums.TipoPintura;
 import jakarta.persistence.*;
 import lombok.Data;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -52,6 +53,12 @@ public class Encargo {
 
     @Column(name = "descripcion_encargo")
     private String descripcion_encargo;
+
+    @Column(name = "precio_acordado")
+    private BigDecimal precio_acordado;
+
+    @Column(name = "precio_aceptado", nullable = false)
+    private boolean precio_aceptado;
 
     @Column(name = "fecha_creacion_encargo", nullable = false, updatable = false)
     private LocalDateTime fecha_creacion_encargo;
