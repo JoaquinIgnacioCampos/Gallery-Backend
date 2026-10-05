@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.perfilartista;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
@@ -20,7 +22,7 @@ public interface PerfilArtistaService {
     PerfilArtista createPerfilArtista(Usuario usuarioLogueado, PerfilArtistaRequest request);
 
     // Devuelve los perfiles de artista.
-    List<PerfilArtista> getPerfilArtistas();
+    Page<PerfilArtista> getPerfilArtistas(PageRequest pageable);
 
     // Busca el perfil de artista por id. Si no existe, se lanza la excepcion y el handler responde 404.
     PerfilArtista getPerfilArtistaById(Long perfilArtistaId);
@@ -29,10 +31,10 @@ public interface PerfilArtistaService {
     PerfilArtista updatePerfilArtista(Long perfilArtistaId, PerfilArtistaUpdateRequest request, Usuario usuarioLogueado);
 
     // Devuelve las obras del perfil de artista.
-    List<Obra> getObrasByPerfilArtista(Long perfilArtistaId);
+    Page<Obra> getObrasByPerfilArtista(Long perfilArtistaId, PageRequest pageable);
 
     // Devuelve las ventas del artista: las facturas emitidas a su nombre.
-    List<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado);
+    Page<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable);
 
     Optional<PerfilArtista> getPerfilArtistaByUsuarioOptional(Long usuarioId);
 }

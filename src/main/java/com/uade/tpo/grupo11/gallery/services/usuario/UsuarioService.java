@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.usuario;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.usuario.UsuarioRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
@@ -11,7 +13,7 @@ import java.util.List;
 @Service
 public interface UsuarioService {
     // Devuelve los usuarios.
-    List<Usuario> getUsuarios(Usuario usuarioActual);
+    Page<Usuario> getUsuarios(Usuario usuarioActual, PageRequest pageable);
     // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     Usuario createUsuario(UsuarioRequest usuarioRequest);
     // Busca el usuario por id. Si no existe, se lanza la excepcion y el handler responde 404.

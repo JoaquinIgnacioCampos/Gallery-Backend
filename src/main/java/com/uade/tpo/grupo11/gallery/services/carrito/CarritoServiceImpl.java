@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.services.carrito;
 
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
@@ -36,11 +38,11 @@ public class CarritoServiceImpl implements CarritoService {
 
     // Devuelve los carritos.
     @Override
-    public List<Carrito> getCarritos(Usuario usuarioActual) {
+    public Page<Carrito> getCarritos(Usuario usuarioActual, PageRequest pageable) {
         // Ver todos los carritos es una vista administrativa: no es de nadie en particular.
         OwnershipGuard.soloAdmin(usuarioActual);
 
-        List<Carrito> carritos = carritoRepository.findAll();
+        Page<Carrito> carritos = carritoRepository.findAll(pageable);
         if (carritos.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay carritos registrados en el sistema");
         }
@@ -98,7 +100,7 @@ public class CarritoServiceImpl implements CarritoService {
 
     // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @Override
-    public List<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual) {
+    public Page<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual, PageRequest pageable) {
 
         Carrito carrito = carritoRepository
                 .findById(carritoId)
@@ -106,7 +108,7 @@ public class CarritoServiceImpl implements CarritoService {
 
         OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
-        List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId);
+        Page<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId, pageable);
 
         if (items.isEmpty()) {
             throw new CarritoVacioException(carritoId);

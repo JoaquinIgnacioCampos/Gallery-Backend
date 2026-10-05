@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.carrito;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +27,12 @@ public class    CarritoController {
 
     // GET - Obtener todos los carritos
     @GetMapping
-    public List<CarritoResponse> getCarritos(@AuthenticationPrincipal Usuario usuarioActual) {
-        return carritoService.getCarritos(usuarioActual).stream()
-                .map(CarritoResponse::fromEntity)
-                .toList();
+    public ResponseEntity<Page<CarritoResponse>> getCarritos(
+            @AuthenticationPrincipal Usuario usuarioActual,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(carritoService.getCarritos(usuarioActual, Paginacion.de(page, size))
+                .map(CarritoResponse::fromEntity));
     }
 
 
@@ -71,13 +75,14 @@ public class    CarritoController {
 
     // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @GetMapping("/{carritoId}/items")
-    public List<ItemCarritoResponse> getItemsByCarrito(
+    public ResponseEntity<Page<ItemCarritoResponse>> getItemsByCarrito(
             @PathVariable Long carritoId,
-            @AuthenticationPrincipal Usuario usuarioActual) {
+            @AuthenticationPrincipal Usuario usuarioActual,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
 
-        return carritoService.getItemsByCarrito(carritoId, usuarioActual).stream()
-                .map(ItemCarritoResponse::fromEntity)
-                .toList();
+        return ResponseEntity.ok(carritoService.getItemsByCarrito(carritoId, usuarioActual, Paginacion.de(page, size))
+                .map(ItemCarritoResponse::fromEntity));
     }
 
 

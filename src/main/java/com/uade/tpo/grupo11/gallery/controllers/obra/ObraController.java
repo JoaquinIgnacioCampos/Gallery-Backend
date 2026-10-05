@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.obra;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.obra.ObraService;
 import jakarta.validation.Valid;
@@ -27,21 +29,19 @@ public class ObraController {
 
     // GET /api/obras: filtros opcionales y combinables, con limites inclusivos.
     @GetMapping
-    public ResponseEntity<List<ObraResponse>> getObras(
+    public ResponseEntity<Page<ObraResponse>> getObras(
             @RequestParam(required = false) Long artistaId,
             @Parameter(description = "Categoria de la obra: ID del estilo. Opcional.")
             @RequestParam(required = false) Long estiloId,
             @Parameter(description = "Precio base minimo de una variante, inclusive; sin marco ni descuentos.")
             @RequestParam(required = false) BigDecimal precioMin,
             @Parameter(description = "Precio base maximo de la misma variante, inclusive; sin marco ni descuentos.")
-            @RequestParam(required = false) BigDecimal precioMax) {
+            @RequestParam(required = false) BigDecimal precioMax,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
 
-        List<ObraResponse> result = servicioObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax)
-                .stream()
-                .map(ObraResponse::fromEntity)
-                .toList();
-
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(servicioObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax, Paginacion.de(page, size))
+                .map(ObraResponse::fromEntity));
     }
 
 

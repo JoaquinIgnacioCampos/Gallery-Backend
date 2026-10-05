@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.usuario;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.usuario.UsuarioRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
@@ -30,10 +32,10 @@ public class UsuarioServiceImpl implements UsuarioService {
     private CarritoService carritoService;
 
     @Override
-    public List<Usuario> getUsuarios(Usuario usuarioActual) {
+    public Page<Usuario> getUsuarios(Usuario usuarioActual, PageRequest pageable) {
         OwnershipGuard.soloAdmin(usuarioActual);
 
-        List<Usuario> usuarios = usuarioRepository.findAll();
+        Page<Usuario> usuarios = usuarioRepository.findAll(pageable);
         if (usuarios.isEmpty()) {
             throw new RecursoNoEncontradoException("No se encontraron usuarios registrados en el sistema");
         }

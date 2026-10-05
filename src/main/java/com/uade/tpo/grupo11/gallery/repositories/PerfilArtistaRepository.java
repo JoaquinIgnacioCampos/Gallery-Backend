@@ -2,6 +2,8 @@ package com.uade.tpo.grupo11.gallery.repositories;
 
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -18,7 +20,7 @@ public interface PerfilArtistaRepository extends JpaRepository<PerfilArtista, Lo
     // Sobrescribimos el metodo de JpaRepository para traer tambien el usuario en la misma consulta.
     @Override
     @EntityGraph(attributePaths = "usuario")
-    List<PerfilArtista> findAll();
+    Page<PerfilArtista> findAll(Pageable pageable);
 
     // Sobrescribimos el metodo de JpaRepository para traer tambien el usuario en la misma consulta.
     @Override

@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.variante;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.variante.VarianteRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
@@ -10,9 +12,9 @@ import java.util.List;
 public interface VarianteService {
 
     // Devuelve las variantes.
-    List<Variante> getVariantes();
+    Page<Variante> getVariantes(PageRequest pageable);
     // Devuelve las variantes de la obra.
-    List<Variante> getVariantesByObra(Long obraId);
+    Page<Variante> getVariantesByObra(Long obraId, PageRequest pageable);
     // Busca la variante por id. Si no existe, se lanza la excepcion y el handler responde 404.
     Variante getVarianteById(Long varianteId);
     Variante createVariante(VarianteRequest request, Usuario usuarioActual);

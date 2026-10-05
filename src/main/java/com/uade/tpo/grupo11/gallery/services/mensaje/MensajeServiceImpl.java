@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.mensaje;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -43,14 +45,14 @@ public class MensajeServiceImpl implements MensajeService {
 
     // Devuelve los mensajes del encargo. Solo el cliente y el artista del encargo.
     @Override
-    public List<Mensaje> getMensajesByEncargo(Long encargoId, Usuario usuarioLogueado) {
+    public Page<Mensaje> getMensajesByEncargo(Long encargoId, Usuario usuarioLogueado, PageRequest pageable) {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
         OwnershipGuard.verificar(usuarioLogueado,
                 encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
 
-        List<Mensaje> mensajes = mensajeRepository.findByEncargoIdOrderByFecha_creacion_mensajeDesc(encargoId);
+        Page<Mensaje> mensajes = mensajeRepository.findByEncargoIdOrderByFecha_creacion_mensajeDesc(encargoId, pageable);
         if (mensajes.isEmpty()) {
             throw new RecursoNoEncontradoException("El encargo con id " + encargoId + " todavía no tiene mensajes");
         }
@@ -59,12 +61,12 @@ public class MensajeServiceImpl implements MensajeService {
 
     // Devuelve los mensajes enviados por el usuario. Solo el propio usuario (o ADMIN).
     @Override
-    public List<Mensaje> getMensajesByUsuario(Long usuarioId, Usuario usuarioLogueado) {
+    public Page<Mensaje> getMensajesByUsuario(Long usuarioId, Usuario usuarioLogueado, PageRequest pageable) {
         usuarioRepository.findById(usuarioId).orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
 
         OwnershipGuard.verificar(usuarioLogueado, usuarioId);
 
-        List<Mensaje> mensajes = mensajeRepository.findByEmisorId(usuarioId);
+        Page<Mensaje> mensajes = mensajeRepository.findByEmisorId(usuarioId, pageable);
         if (mensajes.isEmpty()) {
             throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no envió mensajes todavía");
         }

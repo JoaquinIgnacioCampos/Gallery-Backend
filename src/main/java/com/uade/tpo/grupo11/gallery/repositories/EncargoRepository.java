@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.repositories;
 
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +14,9 @@ public interface EncargoRepository extends JpaRepository<Encargo, Long> {
 
     // Busca por el id del artista. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Encargo> findByArtistaId(Long artistaId);
+    Page<Encargo> findByArtistaId(Long artistaId, Pageable pageable);
 
     // Busca por el id del usuario. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Encargo> findByUsuarioId(Long usuarioId);
+    Page<Encargo> findByUsuarioId(Long usuarioId, Pageable pageable);
 }

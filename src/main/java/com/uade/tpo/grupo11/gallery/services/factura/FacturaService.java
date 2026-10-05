@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.factura;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaRequest;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -10,10 +12,10 @@ import java.util.List;
 public interface FacturaService {
 
     // Devuelve las facturas.
-    List<Factura> getFacturas(Usuario usuarioLogueado);
+    Page<Factura> getFacturas(Usuario usuarioLogueado, PageRequest pageable);
 
     // Devuelve las facturas de la compra.
-    List<Factura> getFacturasByCompra(Long compraId, Usuario usuarioLogueado);
+    Page<Factura> getFacturasByCompra(Long compraId, Usuario usuarioLogueado, PageRequest pageable);
 
     // Busca la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
     Factura getFacturaById(Long facturaId, Usuario usuarioLogueado);

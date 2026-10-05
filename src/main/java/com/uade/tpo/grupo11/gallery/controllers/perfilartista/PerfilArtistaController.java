@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.perfilartista;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
@@ -27,11 +29,11 @@ public class PerfilArtistaController {
 
     // Devuelve los perfiles de artista.
     @GetMapping
-    public ResponseEntity<List<PerfilArtistaResponse>> getPerfilArtistas() {
-        List<PerfilArtistaResponse> perfiles = perfilArtistaService.getPerfilArtistas().stream()
-                .map(PerfilArtistaResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(perfiles);
+    public ResponseEntity<Page<PerfilArtistaResponse>> getPerfilArtistas(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(perfilArtistaService.getPerfilArtistas(Paginacion.de(page, size))
+                .map(PerfilArtistaResponse::fromEntity));
     }
 
     // Busca el perfil de artista por id. Si no existe, se lanza la excepcion y el handler responde 404.
@@ -54,54 +56,54 @@ public class PerfilArtistaController {
 
     // Devuelve las obras del perfil de artista.
     @GetMapping("/{perfilArtistaId}/obras")
-    public ResponseEntity<List<PerfilArtistaObraResponse>> getObrasByPerfilArtista(
-            @PathVariable Long perfilArtistaId
+    public ResponseEntity<Page<PerfilArtistaObraResponse>> getObrasByPerfilArtista(
+            @PathVariable Long perfilArtistaId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
-        List<PerfilArtistaObraResponse> obras = perfilArtistaService.getObrasByPerfilArtista(perfilArtistaId).stream()
-                .map(PerfilArtistaObraResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(obras);
+        return ResponseEntity.ok(perfilArtistaService.getObrasByPerfilArtista(perfilArtistaId, Paginacion.de(page, size))
+                .map(PerfilArtistaObraResponse::fromEntity));
     }
 
     // Las ventas del artista: una fila por factura emitida a su nombre. El service
     // verifica que quien pregunta sea el dueño del perfil, no cualquier artista.
     @GetMapping("/{perfilArtistaId}/facturas")
-    public ResponseEntity<List<FacturaResponse>> getFacturasByPerfilArtista(
+    public ResponseEntity<Page<FacturaResponse>> getFacturasByPerfilArtista(
             @PathVariable Long perfilArtistaId,
-            @AuthenticationPrincipal Usuario usuarioLogueado
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
-        List<FacturaResponse> facturas = perfilArtistaService
-                .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado).stream()
-                .map(FacturaResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(facturas);
+        return ResponseEntity.ok(perfilArtistaService
+                .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado, Paginacion.de(page, size))
+                .map(FacturaResponse::fromEntity));
     }
 
     // Los encargos que le pidieron al artista. El service verifica que quien pregunta
     // sea el dueño del perfil (o ADMIN), no cualquier artista.
     @GetMapping("/{perfilArtistaId}/encargos")
-    public ResponseEntity<List<EncargoResponse>> getEncargosByPerfilArtista(
+    public ResponseEntity<Page<EncargoResponse>> getEncargosByPerfilArtista(
             @PathVariable Long perfilArtistaId,
-            @AuthenticationPrincipal Usuario usuarioLogueado
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
-        List<EncargoResponse> encargos = encargoService
-                .getEncargosByArtista(perfilArtistaId, usuarioLogueado).stream()
-                .map(EncargoResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(encargos);
+        return ResponseEntity.ok(encargoService
+                .getEncargosByArtista(perfilArtistaId, usuarioLogueado, Paginacion.de(page, size))
+                .map(EncargoResponse::fromEntity));
     }
 
     // Los encargos propios, resolviendo el perfil desde la identidad del token: no hace
     // falta que el artista sepa (ni mande) el id de su propio perfil.
     @GetMapping("/me/encargos")
-    public ResponseEntity<List<EncargoResponse>> getEncargosPropios(
-            @AuthenticationPrincipal Usuario usuarioLogueado
+    public ResponseEntity<Page<EncargoResponse>> getEncargosPropios(
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
     ) {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
-        List<EncargoResponse> encargos = encargoService
-                .getEncargosByArtista(perfilPropio.getId(), usuarioLogueado).stream()
-                .map(EncargoResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(encargos);
+        return ResponseEntity.ok(encargoService
+                .getEncargosByArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))
+                .map(EncargoResponse::fromEntity));
     }
 }

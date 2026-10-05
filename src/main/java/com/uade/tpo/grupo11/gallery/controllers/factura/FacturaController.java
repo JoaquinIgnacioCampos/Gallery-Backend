@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.factura;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
@@ -24,11 +26,12 @@ public class FacturaController {
 
     // GET - Obtener todas las facturas
     @GetMapping
-    public ResponseEntity<List<FacturaResponse>> getFacturas(@AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<FacturaResponse> result = facturaService.getFacturas(usuarioLogueado).stream()
-                .map(FacturaResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<FacturaResponse>> getFacturas(
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(facturaService.getFacturas(usuarioLogueado, Paginacion.de(page, size))
+                .map(FacturaResponse::fromEntity));
     }
 
 
@@ -44,13 +47,13 @@ public class FacturaController {
     //GET - Obtiene la factura por una compra especifica (el id de la compra)
     //Solo el que hizo la compra, no el que vendio la obra
     @GetMapping("/compra/{compraId}")
-    public ResponseEntity<List<FacturaResponse>> getFacturasByCompra(
+    public ResponseEntity<Page<FacturaResponse>> getFacturasByCompra(
             @PathVariable Long compraId,
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<FacturaResponse> result = facturaService.getFacturasByCompra(compraId, usuarioLogueado).stream()
-                .map(FacturaResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(facturaService.getFacturasByCompra(compraId, usuarioLogueado, Paginacion.de(page, size))
+                .map(FacturaResponse::fromEntity));
     }
 
     // POST - Crear factura

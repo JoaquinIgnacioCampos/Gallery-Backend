@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.usuario;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoResponse;
@@ -43,11 +45,12 @@ public class UsuarioController {
 
     // Devuelve los usuarios.
     @GetMapping
-    public ResponseEntity<List<UsuarioResponse>> getUsuarios(@AuthenticationPrincipal Usuario usuarioActual) {
-        List<UsuarioResponse> result = usuarioService.getUsuarios(usuarioActual).stream()
-                .map(UsuarioResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<UsuarioResponse>> getUsuarios(
+            @AuthenticationPrincipal Usuario usuarioActual,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(usuarioService.getUsuarios(usuarioActual, Paginacion.de(page, size))
+                .map(UsuarioResponse::fromEntity));
     }
 
     // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
@@ -118,12 +121,13 @@ public class UsuarioController {
     // Devuelve los usuarios.
     // solo devuelve a quien hizo la compra a quien le copraron y al ADMIN
     @GetMapping("/{usuario_id}/compras")
-    public ResponseEntity<List<CompraResponse>> getCompras(
+    public ResponseEntity<Page<CompraResponse>> getCompras(
             @PathVariable("usuario_id") Long usuario_id,
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<CompraResponse> result = compraService.getComprasByUsuario(usuario_id, usuarioLogueado).stream()
-                .map(CompraResponse::fromEntity).toList();
-        return ResponseEntity.ok(result);
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(compraService.getComprasByUsuario(usuario_id, usuarioLogueado, Paginacion.de(page, size))
+                .map(CompraResponse::fromEntity));
     }
 
     @PostMapping("/{usuario_id}/compras")
@@ -134,36 +138,36 @@ public class UsuarioController {
 
     // Devuelve los mensajes enviados por el usuario.
     @GetMapping("/{usuario_id}/mensajes")
-    public ResponseEntity<List<MensajeResponse>> getMensajes(
+    public ResponseEntity<Page<MensajeResponse>> getMensajes(
             @PathVariable("usuario_id") Long usuario_id,
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<MensajeResponse> result = mensajeService.getMensajesByUsuario(usuario_id, usuarioLogueado).stream()
-                .map(MensajeResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(mensajeService.getMensajesByUsuario(usuario_id, usuarioLogueado, Paginacion.de(page, size))
+                .map(MensajeResponse::fromEntity));
     }
 
 
     // Devuelve los encargos que pidio el usuario (como cliente). Solo el propio usuario (o ADMIN).
     @GetMapping("/{usuario_id}/encargos")
-    public ResponseEntity<List<EncargoResponse>> getEncargos(
+    public ResponseEntity<Page<EncargoResponse>> getEncargos(
             @PathVariable("usuario_id") Long usuario_id,
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<EncargoResponse> result = encargoService.getEncargosByUsuario(usuario_id, usuarioLogueado).stream()
-                .map(EncargoResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(encargoService.getEncargosByUsuario(usuario_id, usuarioLogueado, Paginacion.de(page, size))
+                .map(EncargoResponse::fromEntity));
     }
 
     // Los encargos propios: el id sale del token, no hace falta que el cliente lo sepa.
     @GetMapping("/me/encargos")
-    public ResponseEntity<List<EncargoResponse>> getEncargosPropios(
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<EncargoResponse> result = encargoService
-                .getEncargosByUsuario(usuarioLogueado.getId(), usuarioLogueado).stream()
-                .map(EncargoResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<EncargoResponse>> getEncargosPropios(
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(encargoService
+                .getEncargosByUsuario(usuarioLogueado.getId(), usuarioLogueado, Paginacion.de(page, size))
+                .map(EncargoResponse::fromEntity));
     }
 
 

@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.encargo;
 
+import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
+import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -48,13 +50,13 @@ public class EncargoController {
     }
     // Devuelve los mensajes del encargo. Solo el cliente y el artista del encargo.
     @GetMapping("/{encargoId}/mensajes")
-    public ResponseEntity<List<MensajeResponse>> getMensajesByEncargo(
+    public ResponseEntity<Page<MensajeResponse>> getMensajesByEncargo(
             @PathVariable Long encargoId,
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<MensajeResponse> result = mensajeService.getMensajesByEncargo(encargoId, usuarioLogueado).stream()
-                .map(MensajeResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(mensajeService.getMensajesByEncargo(encargoId, usuarioLogueado, Paginacion.de(page, size))
+                .map(MensajeResponse::fromEntity));
     }
 
     // Solo el artista DUENIO del encargo puede moverle el estado.

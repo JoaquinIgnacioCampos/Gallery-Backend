@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.repositories;
 
 import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +14,5 @@ public interface ItemFacturaRepository extends JpaRepository<ItemFactura, Long> 
 
     // Busca por el id de la factura. Spring arma la consulta sola leyendo el nombre del metodo.
     List<ItemFactura> findByFacturaId(Long facturaId);
+    Page<ItemFactura> findByFacturaId(Long facturaId, Pageable pageable);
 }

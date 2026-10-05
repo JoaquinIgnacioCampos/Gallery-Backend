@@ -1,6 +1,8 @@
 package com.uade.tpo.grupo11.gallery.repositories;
 
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,9 +20,15 @@ public interface MensajeRepository extends JpaRepository<Mensaje, Long> {
     // Busca por el id del emisor. Spring arma la consulta sola leyendo el nombre del metodo.
     List<Mensaje> findByEmisorId(Long usuarioId);
 
+    Page<Mensaje> findByEmisorId(Long usuarioId, Pageable pageable);
+
     // El nombre del campo en la entidad ya tiene guiones bajos (fecha_creacion_mensaje), asi que
     // un metodo derivado (findBy...OrderBy...) los interpreta como separadores de propiedad anidada
     // y falla. Se usa @Query explicita para evitar esa ambiguedad. Del mas nuevo al mas antiguo, para cargar la conversacion desde lo ultimo.
     @Query("SELECT m FROM Mensaje m WHERE m.encargo.id = :encargoId ORDER BY m.fecha_creacion_mensaje DESC")
     List<Mensaje> findByEncargoIdOrderByFecha_creacion_mensajeDesc(@Param("encargoId") Long encargoId);
+
+    @Query(value = "SELECT m FROM Mensaje m WHERE m.encargo.id = :encargoId ORDER BY m.fecha_creacion_mensaje DESC",
+           countQuery = "SELECT COUNT(m) FROM Mensaje m WHERE m.encargo.id = :encargoId")
+    Page<Mensaje> findByEncargoIdOrderByFecha_creacion_mensajeDesc(@Param("encargoId") Long encargoId, Pageable pageable);
 }

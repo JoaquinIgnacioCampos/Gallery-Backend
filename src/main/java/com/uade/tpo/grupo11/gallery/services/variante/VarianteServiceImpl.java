@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.variante;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.variante.VarianteRequest;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
@@ -36,8 +38,8 @@ public class VarianteServiceImpl implements VarianteService {
 
     // Devuelve las variantes.
     @Override
-    public List<Variante> getVariantes() {
-        List<Variante> variantes = repoVariante.findAll();
+    public Page<Variante> getVariantes(PageRequest pageable) {
+        Page<Variante> variantes = repoVariante.findAll(pageable);
 
         if (variantes.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay variantes registradas en el catálogo");
@@ -48,12 +50,12 @@ public class VarianteServiceImpl implements VarianteService {
 
     // Devuelve las variantes de la obra.
     @Override
-    public List<Variante> getVariantesByObra(Long obraId) {
+    public Page<Variante> getVariantesByObra(Long obraId, PageRequest pageable) {
         if (!obraRepository.existsById(obraId)) {
             throw new ObraNotFoundException(obraId);
         }
 
-        List<Variante> variantes = repoVariante.findByObraId(obraId);
+        Page<Variante> variantes = repoVariante.findByObraId(obraId, pageable);
 
         if (variantes.isEmpty()) {
             throw new RecursoNoEncontradoException("La obra con ID " + obraId + " no posee variantes asociadas");

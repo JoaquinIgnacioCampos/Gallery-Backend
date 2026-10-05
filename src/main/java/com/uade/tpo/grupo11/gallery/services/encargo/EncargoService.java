@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.encargo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
@@ -13,9 +15,9 @@ public interface EncargoService {
     // Busca el encargo por id. Solo lo pueden ver el cliente y el artista involucrados.
     Encargo getEncargoById(Long id, Usuario usuarioLogueado);
     // Devuelve los encargos del artista. Solo el propio artista (o ADMIN) puede pedirlos.
-    List<Encargo> getEncargosByArtista(Long artistaId, Usuario usuarioLogueado);
+    Page<Encargo> getEncargosByArtista(Long artistaId, Usuario usuarioLogueado, PageRequest pageable);
     // Devuelve los encargos del usuario. Solo el propio usuario (o ADMIN) puede pedirlos.
-    List<Encargo> getEncargosByUsuario(Long usuarioId, Usuario usuarioLogueado);
+    Page<Encargo> getEncargosByUsuario(Long usuarioId, Usuario usuarioLogueado, PageRequest pageable);
     // Crea el encargo con los datos del request. El cliente sale del usuario logueado.
     Encargo createEncargo(EncargoRequest request, Usuario usuarioLogueado);
     // Recibe al usuario logueado para verificar que el encargo sea suyo.
