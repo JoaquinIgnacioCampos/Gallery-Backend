@@ -124,7 +124,8 @@ public class EncargoServiceImpl implements EncargoService {
             OwnershipGuard.soloAdmin(usuarioLogueado);
         }
 
-        if (encargo.getEstado_encargo() != EstadoEncargo.TERMINADO) {
+        if (encargo.getEstado_encargo() != EstadoEncargo.EN_PROCESO
+                && encargo.getEstado_encargo() != EstadoEncargo.TERMINADO) {
             throw new EncargoNoTerminadoException(encargoId);
         }
 
@@ -155,6 +156,7 @@ public class EncargoServiceImpl implements EncargoService {
         factura = facturaRepository.save(factura);
 
         encargo.setFactura(factura);
+        encargo.setEstado_encargo(EstadoEncargo.TERMINADO);
         encargoRepository.save(encargo);
 
         return factura;
