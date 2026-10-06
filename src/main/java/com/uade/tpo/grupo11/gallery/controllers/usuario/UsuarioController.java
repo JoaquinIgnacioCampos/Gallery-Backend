@@ -53,13 +53,6 @@ public class UsuarioController {
                 .map(UsuarioResponse::fromEntity));
     }
 
-    // Crea el usuario con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
-    @PostMapping
-    public ResponseEntity<UsuarioResponse> createUsuario(@Valid @RequestBody UsuarioRequest usuario_request) {
-        Usuario result = usuarioService.createUsuario(usuario_request);
-        return ResponseEntity.created(URI.create("/api/usuarios/" + result.getId()))
-                .body(UsuarioResponse.fromEntity(result));
-    }
 
     // Devuelve el usuario dueño del token. El front lo necesita apenas se loguea: el token
     // solo lleva el email, pero para pedir su carrito o sus compras hace falta el id.
