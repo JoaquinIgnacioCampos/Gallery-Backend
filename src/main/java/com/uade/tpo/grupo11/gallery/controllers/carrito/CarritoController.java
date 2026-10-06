@@ -112,11 +112,13 @@ public class    CarritoController {
 
     // Las lineas del propio carrito: el id sale del token.
     @GetMapping("/me/items")
-    public List<ItemCarritoResponse> getItemsByCarritoPropio(@AuthenticationPrincipal Usuario usuarioActual) {
+    public ResponseEntity<Page<ItemCarritoResponse>> getItemsByCarritoPropio(
+            @AuthenticationPrincipal Usuario usuarioActual,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
         Carrito propio = carritoService.getOrCreateCarritoByUsuario(usuarioActual.getId(), usuarioActual);
-        return carritoService.getItemsByCarrito(propio.getId(), usuarioActual).stream()
-                .map(ItemCarritoResponse::fromEntity)
-                .toList();
+        return ResponseEntity.ok(carritoService.getItemsByCarrito(propio.getId(), usuarioActual, Paginacion.de(page, size))
+                .map(ItemCarritoResponse::fromEntity));
     }
 
 

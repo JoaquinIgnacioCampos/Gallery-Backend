@@ -166,13 +166,13 @@ public class UsuarioController {
 
     // Los propios mensajes: el id sale del token, no hace falta que el cliente lo sepa.
     @GetMapping("/me/mensajes")
-    public ResponseEntity<List<MensajeResponse>> getMensajesPropios(
-            @AuthenticationPrincipal Usuario usuarioLogueado) {
-        List<MensajeResponse> result = mensajeService
-                .getMensajesByUsuario(usuarioLogueado.getId(), usuarioLogueado).stream()
-                .map(MensajeResponse::fromEntity)
-                .toList();
-        return ResponseEntity.ok(result);
+    public ResponseEntity<Page<MensajeResponse>> getMensajesPropios(
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(mensajeService
+                .getMensajesByUsuario(usuarioLogueado.getId(), usuarioLogueado, Paginacion.de(page, size))
+                .map(MensajeResponse::fromEntity));
     }
 
 
