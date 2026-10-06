@@ -42,8 +42,6 @@ public class SecurityConfig {
                         // La documentacion de la API es publica: sin esto Swagger devuelve 401.
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
 
-                        // Registrarse es publico: todavia no hay usuario ni token.
-                        .requestMatchers(HttpMethod.POST, "/api/usuarios").permitAll()
 
                         // Las ventas y los encargos de un artista son privados: van ANTES de la
                         // regla publica del catalogo, porque gana la primera que coincide y
