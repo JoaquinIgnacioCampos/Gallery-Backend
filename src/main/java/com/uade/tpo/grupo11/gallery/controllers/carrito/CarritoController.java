@@ -99,26 +99,24 @@ public class    CarritoController {
 
     // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @GetMapping("/{carritoId}/items")
-    public ResponseEntity<Page<ItemCarritoResponse>> getItemsByCarrito(
+    public ResponseEntity<List<ItemCarritoResponse>> getItemsByCarrito(
             @PathVariable Long carritoId,
-            @AuthenticationPrincipal Usuario usuarioActual,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return ResponseEntity.ok(carritoService.getItemsByCarrito(carritoId, usuarioActual, Paginacion.de(page, size))
-                .map(ItemCarritoResponse::fromEntity));
+        return ResponseEntity.ok(carritoService.getItemsByCarrito(carritoId, usuarioActual).stream()
+                .map(ItemCarritoResponse::fromEntity)
+                .toList());
     }
 
 
     // Las lineas del propio carrito: el id sale del token.
     @GetMapping("/me/items")
-    public ResponseEntity<Page<ItemCarritoResponse>> getItemsByCarritoPropio(
-            @AuthenticationPrincipal Usuario usuarioActual,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+    public ResponseEntity<List<ItemCarritoResponse>> getItemsByCarritoPropio(
+            @AuthenticationPrincipal Usuario usuarioActual) {
         Carrito propio = carritoService.getOrCreateCarritoByUsuario(usuarioActual.getId(), usuarioActual);
-        return ResponseEntity.ok(carritoService.getItemsByCarrito(propio.getId(), usuarioActual, Paginacion.de(page, size))
-                .map(ItemCarritoResponse::fromEntity));
+        return ResponseEntity.ok(carritoService.getItemsByCarrito(propio.getId(), usuarioActual).stream()
+                .map(ItemCarritoResponse::fromEntity)
+                .toList());
     }
 
 

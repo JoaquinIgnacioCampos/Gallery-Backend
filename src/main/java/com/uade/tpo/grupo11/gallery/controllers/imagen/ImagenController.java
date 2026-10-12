@@ -1,7 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.imagen;
 
-import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
-import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.imagen.ImagenService;
 import jakarta.validation.Valid;
@@ -29,15 +27,15 @@ public class ImagenController {
     // GET /imagenes          -> todas
     // GET /imagenes?obraId=1 -> las de una obra, ordenadas
     @GetMapping
-    public ResponseEntity<Page<ImagenResponse>> getImagenes(
-            @RequestParam(required = false) Long obraId,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+    public ResponseEntity<List<ImagenResponse>> getImagenes(
+            @RequestParam(required = false) Long obraId) {
 
         return ResponseEntity.ok((obraId != null
-                ? servicioImagen.getImagenesByObra(obraId, Paginacion.de(page, size))
-                : servicioImagen.getImagenes(Paginacion.de(page, size)))
-                .map(ImagenResponse::fromEntity));
+                ? servicioImagen.getImagenesByObra(obraId)
+                : servicioImagen.getImagenes())
+                .stream()
+                .map(ImagenResponse::fromEntity)
+                .toList());
     }
 
 
