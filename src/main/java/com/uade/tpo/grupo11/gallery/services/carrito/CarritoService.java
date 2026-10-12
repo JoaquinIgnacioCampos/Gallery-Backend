@@ -20,7 +20,7 @@ public interface CarritoService {
 
     Carrito updateCarrito(Long carritoId, CarritoRequest request, Usuario usuarioActual);
 
-    Page<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual, PageRequest pageable);
+    List<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual);
 
     void vaciarCarrito(Long carritoId, Usuario usuarioActual);
 

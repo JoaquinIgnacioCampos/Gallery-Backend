@@ -1,7 +1,5 @@
 package com.uade.tpo.grupo11.gallery.services.itemfactura;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.itemfactura.ItemFacturaRequest;
 import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
@@ -50,7 +48,7 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
 
     // Devuelve los items de la factura de la factura.
     @Override
-    public Page<ItemFactura> getItemFacturasByFactura(Long facturaId, Usuario usuarioActual, PageRequest pageable) {
+    public List<ItemFactura> getItemFacturasByFactura(Long facturaId, Usuario usuarioActual) {
         Factura factura = facturaRepository.findById(facturaId)
                 .orElseThrow(() -> new FacturaNotFoundException(facturaId));
 
@@ -58,7 +56,7 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
                 factura.getArtista().getUsuario().getId(),
                 factura.getCompra().getUsuario().getId());
 
-        Page<ItemFactura> items = itemFacturaRepository.findByFacturaId(facturaId, pageable);
+        List<ItemFactura> items = itemFacturaRepository.findByFacturaId(facturaId);
         if (items.isEmpty()) {
             throw new RecursoNoEncontradoException("La factura con id " + facturaId + " no tiene items cargados");
         }

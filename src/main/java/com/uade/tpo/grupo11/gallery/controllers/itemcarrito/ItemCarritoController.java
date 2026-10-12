@@ -1,7 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.itemcarrito;
 
-import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
-import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.itemcarrito.ItemCarritoService;
@@ -26,13 +24,12 @@ public class ItemCarritoController {
 
     // GET - Obtener todos los items
     @GetMapping
-    public ResponseEntity<Page<ItemCarritoResponse>> getItemsCarrito(
-            @AuthenticationPrincipal Usuario usuarioActual,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
+    public ResponseEntity<List<ItemCarritoResponse>> getItemsCarrito(
+            @AuthenticationPrincipal Usuario usuarioActual) {
 
-        return ResponseEntity.ok(itemCarritoService.getItemsCarrito(usuarioActual, Paginacion.de(page, size))
-                .map(ItemCarritoResponse::fromEntity));
+        return ResponseEntity.ok(itemCarritoService.getItemsCarrito(usuarioActual).stream()
+                .map(ItemCarritoResponse::fromEntity)
+                .toList());
     }
 
 
