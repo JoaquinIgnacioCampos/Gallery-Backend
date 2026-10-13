@@ -75,7 +75,7 @@ public class ObraController {
     }
 
 
-    // Elimina la obra de la base.
+    // Da de baja la obra: queda marcada como eliminada, no se borra la fila.
     @DeleteMapping("/{obraId}")
     public ResponseEntity<Void> deleteObra(
             @PathVariable Long obraId,

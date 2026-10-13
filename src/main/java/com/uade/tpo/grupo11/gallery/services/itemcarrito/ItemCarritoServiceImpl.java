@@ -82,6 +82,8 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
                 .findById(request.getVariante_id())
                 .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
 
+        validarObraVigente(variante);
+
         // No se puede comprar la propia obra: seria una autoventa.
         if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
             throw new CompraPropiaException(variante.getId());
@@ -128,6 +130,8 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
                 .findById(request.getVariante_id())
                 .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
 
+        validarObraVigente(variante);
+
         // No se puede comprar la propia obra: seria una autoventa.
         if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
             throw new CompraPropiaException(variante.getId());
@@ -155,6 +159,13 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         OwnershipGuard.verificar(usuarioActual, itemCarrito.getCarrito().getUsuario().getId());
 
         itemCarritoRepository.delete(itemCarrito);
+    }
+
+    // Una obra dada de baja ya no se vende: no se puede agregar al carrito.
+    private void validarObraVigente(Variante variante) {
+        if (variante.getObra().isEliminada()) {
+            throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
+        }
     }
 
     // Lo que ya hay en el carrito para la misma variante (sin contar el item que se edita) mas lo pedido no puede superar el stock.

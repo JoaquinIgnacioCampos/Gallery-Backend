@@ -20,6 +20,9 @@ public interface VarianteRepository extends JpaRepository<Variante, Long> {
     List<Variante> findByObraId(Long obraId);
     Page<Variante> findByObraId(Long obraId, Pageable pageable);
 
+    // El listado general: las variantes de obras eliminadas quedan afuera.
+    Page<Variante> findByObraEliminadaFalse(Pageable pageable);
+
     // Resta el stock de forma atomica: la condicion "stock >= cantidad" se evalua en la
     // misma sentencia SQL, asi que dos compras simultaneas de la ultima unidad no pueden
     // pisarse (una leeria el valor viejo si primero se hace un SELECT y despues un UPDATE

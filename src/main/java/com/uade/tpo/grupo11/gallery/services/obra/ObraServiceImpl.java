@@ -9,10 +9,8 @@ import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.EstiloRepository;
-import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
-import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,18 +34,11 @@ public class ObraServiceImpl implements ObraService {
     @Autowired
     private EstiloRepository estiloRepository;
 
-    // Los usamos solo para saber si la obra tiene hijos antes de borrarla.
-    @Autowired
-    private VarianteRepository varianteRepository;
-
-    @Autowired
-    private ImagenRepository imagenRepository;
-
 
     // Devuelve las obras.
     @Override
     public Page<Obra> getObras(PageRequest pageable) {
-        Page<Obra> obra = repoObra.findAll(pageable);
+        Page<Obra> obra = repoObra.findByEliminadaFalse(pageable);
 
         if (obra.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay ninguna obra cargada");
@@ -95,7 +86,7 @@ public class ObraServiceImpl implements ObraService {
             throw new PerfilArtistaNotFoundException(artistaId);
         }
 
-        List<Obra> obras = repoObra.findByArtistaId(artistaId);
+        List<Obra> obras = repoObra.findByArtistaIdAndEliminadaFalse(artistaId);
 
         if (obras.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay obras publicadas por el artista" + artistaId);
@@ -106,6 +97,7 @@ public class ObraServiceImpl implements ObraService {
 
 
     // Busca la obra por id. Si no existe, se lanza la excepcion y el handler responde 404.
+    // Las eliminadas tambien se devuelven: una compra vieja puede necesitar mostrarla.
     @Override
     public Obra getObraById(Long obraId) {
         return repoObra.findById(obraId)
@@ -143,6 +135,10 @@ public class ObraServiceImpl implements ObraService {
 
         OwnershipGuard.verificar(usuarioLogueado, obraExistente.getArtista().getUsuario().getId());
 
+        if (obraExistente.isEliminada()) {
+            throw new ObraEliminadaException(obraExistente.getId());
+        }
+
         obraExistente.setNombre_obra(request.getNombre_obra());
         obraExistente.setDescripcion_obra(request.getDescripcion_obra());
         obraExistente.setEn_venta(Boolean.TRUE.equals(request.getEn_venta()));
@@ -157,7 +153,8 @@ public class ObraServiceImpl implements ObraService {
     }
 
 
-    // Elimina la obra de la base.
+    // Da de baja la obra sin borrar la fila: sus variantes pueden estar en facturas o carritos.
+    // Queda fuera del catalogo y de la venta, se sigue pudiendo consultar por id y no se modifica mas.
     @Override
     public void deleteObra(Long obraId, Usuario usuarioLogueado) {
 
@@ -165,16 +162,15 @@ public class ObraServiceImpl implements ObraService {
 
         OwnershipGuard.verificar(usuarioLogueado, obra.getArtista().getUsuario().getId());
 
-        // Si la obra todavia tiene variantes o imagenes, la base rechazaria el borrado
-        // por la clave foranea. Avisamos con un 409 y un mensaje claro.
-        boolean tieneVariantes = !varianteRepository.findByObraId(obraId).isEmpty();
-        boolean tieneImagenes = !imagenRepository.findByObraIdOrdenadas(obraId).isEmpty();
-
-        if (tieneVariantes || tieneImagenes) {
-            throw new ObraEnUsoException(obraId);
+        // Ya dada de baja: no hay nada mas que hacer con ella.
+        if (obra.isEliminada()) {
+            throw new ObraEliminadaException(obra.getId());
         }
 
-        repoObra.delete(obra);
+        obra.setEliminada(true);
+        obra.setEn_venta(false);
+
+        repoObra.save(obra);
     }
 
 

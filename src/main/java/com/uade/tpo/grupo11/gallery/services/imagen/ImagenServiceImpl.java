@@ -5,6 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.ImagenNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
@@ -80,6 +81,7 @@ public class ImagenServiceImpl implements ImagenService {
                 .orElseThrow(() -> new ObraNotFoundException(request.getObra_id()));
 
         OwnershipGuard.verificar(usuarioActual, obra.getArtista().getUsuario().getId());
+        validarObraVigente(obra);
 
         List<Imagen> galeria = repoImagen.findByObraIdOrdenadas(obra.getId());
         int posicion = resolverPosicionAlta(request.getOrden_imagen(), galeria.size());
@@ -110,6 +112,7 @@ public class ImagenServiceImpl implements ImagenService {
         Imagen imagenExistente = getImagenById(imagenId);
 
         OwnershipGuard.verificar(usuarioActual, imagenExistente.getObra().getArtista().getUsuario().getId());
+        validarObraVigente(imagenExistente.getObra());
 
         // La obra de una imagen no se cambia: la imagen pertenece a la obra donde se subio.
         if (request.getOrden_imagen() != null) {
@@ -132,6 +135,7 @@ public class ImagenServiceImpl implements ImagenService {
         Imagen imagen = getImagenById(imagenId);
 
         OwnershipGuard.verificar(usuarioActual, imagen.getObra().getArtista().getUsuario().getId());
+        validarObraVigente(imagen.getObra());
 
         int posicionBorrada = imagen.getOrden_imagen();
         Long obraId = imagen.getObra().getId();
@@ -142,6 +146,14 @@ public class ImagenServiceImpl implements ImagenService {
             if (restante.getOrden_imagen() > posicionBorrada) {
                 restante.setOrden_imagen(restante.getOrden_imagen() - 1);
             }
+        }
+    }
+
+
+    // Las imagenes de una obra eliminada quedan como registro: no se agregan, editan ni borran.
+    private void validarObraVigente(Obra obra) {
+        if (obra.isEliminada()) {
+            throw new ObraEliminadaException(obra.getId());
         }
     }
 

@@ -12,6 +12,7 @@ public record ObraResponse(
         String nombre_obra,
         String descripcion_obra,
         boolean en_venta,
+        boolean eliminada,
         Long artista_id,
         Set<Long> estilo_ids
 ) {
@@ -22,6 +23,7 @@ public record ObraResponse(
                 obra.getNombre_obra(),
                 obra.getDescripcion_obra(),
                 obra.isEn_venta(),
+                obra.isEliminada(),
                 obra.getArtista().getId(),
                 obra.getEstilos().stream().map(Estilo::getId).collect(Collectors.toSet())
         );

@@ -119,7 +119,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     @Override
     public Page<Obra> getObrasByPerfilArtista(Long perfilArtistaId, PageRequest pageable) {
         getPerfilArtistaById(perfilArtistaId);
-        Page<Obra> obras = obraRepository.findByArtistaId(perfilArtistaId, pageable);
+        Page<Obra> obras = obraRepository.findByArtistaIdAndEliminadaFalse(perfilArtistaId, pageable);
 
         if (obras.isEmpty()) {
             throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no tiene obras publicadas");
