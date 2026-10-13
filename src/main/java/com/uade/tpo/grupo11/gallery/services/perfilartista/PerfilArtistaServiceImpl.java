@@ -115,14 +115,27 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         return perfilArtistaRepository.save(perfilArtista);
     }
 
-    // Devuelve las obras del perfil de artista.
+    // Devuelve las obras del perfil de artista que ve el publico: solo las que estan en venta.
     @Override
     public Page<Obra> getObrasByPerfilArtista(Long perfilArtistaId, PageRequest pageable) {
+        getPerfilArtistaById(perfilArtistaId);
+        Page<Obra> obras = obraRepository.findDelCatalogoByArtistaId(perfilArtistaId, pageable);
+
+        if (obras.isEmpty()) {
+            throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no tiene obras en venta");
+        }
+
+        return obras;
+    }
+
+    // Devuelve las obras que gestiona el propio artista: incluye las que no estan en venta, no las eliminadas.
+    @Override
+    public Page<Obra> getObrasPropias(Long perfilArtistaId, PageRequest pageable) {
         getPerfilArtistaById(perfilArtistaId);
         Page<Obra> obras = obraRepository.findByArtistaIdAndEliminadaFalse(perfilArtistaId, pageable);
 
         if (obras.isEmpty()) {
-            throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no tiene obras publicadas");
+            throw new RecursoNoEncontradoException("Todavia no tenes obras publicadas");
         }
 
         return obras;

@@ -105,6 +105,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409: choca con el estado actual
     }
 
+    @ExceptionHandler(ObraNoEnVentaException.class)
+    public ResponseEntity<String> handleObraNoEnVenta(ObraNoEnVentaException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409: choca con el estado actual
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<String> handleDatosInvalidos(IllegalArgumentException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  // 400: el cliente mando datos invalidos

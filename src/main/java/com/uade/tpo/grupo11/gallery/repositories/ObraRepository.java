@@ -14,23 +14,31 @@ import java.util.List;
 @Repository
 public interface ObraRepository extends JpaRepository<Obra, Long> {
 
-    // Las obras que no fueron dadas de baja. Spring arma la consulta sola leyendo el nombre del metodo.
-    Page<Obra> findByEliminadaFalse(Pageable pageable);
+    // El catalogo publico: solo obras en venta y no eliminadas. Va con @Query porque el
+    // guion bajo de "en_venta" Spring lo leeria como navegacion de una relacion.
+    @Query("SELECT o FROM Obra o WHERE o.eliminada = false AND o.en_venta = true")
+    Page<Obra> findDelCatalogo(Pageable pageable);
 
-    // Las obras vigentes de un artista: las eliminadas no se listan.
-    List<Obra> findByArtistaIdAndEliminadaFalse(Long artistaId);
+    // Las obras de un artista que ve el publico: en venta y no eliminadas.
+    @Query("SELECT o FROM Obra o WHERE o.artista.id = :artistaId AND o.eliminada = false AND o.en_venta = true")
+    List<Obra> findDelCatalogoByArtistaId(@Param("artistaId") Long artistaId);
+    @Query("SELECT o FROM Obra o WHERE o.artista.id = :artistaId AND o.eliminada = false AND o.en_venta = true")
+    Page<Obra> findDelCatalogoByArtistaId(@Param("artistaId") Long artistaId, Pageable pageable);
+
+    // Las obras que gestiona el propio artista: tambien las que no estan en venta, pero no las eliminadas.
     Page<Obra> findByArtistaIdAndEliminadaFalse(Long artistaId, Pageable pageable);
 
     // Busqueda del catalogo con filtros OPCIONALES y combinables. El patron
     // ":param IS NULL OR condicion" hace que cada filtro se ignore si no vino.
     // Los dos limites de precio se evaluan sobre la MISMA variante (mismo LEFT JOIN),
     // y DISTINCT evita que una obra aparezca repetida por tener varias variantes o estilos.
-    // Las obras eliminadas nunca entran en la busqueda.
+    // Solo entran las obras en venta y no eliminadas.
     @Query(value = """
         SELECT DISTINCT o FROM Obra o
         LEFT JOIN o.variantes v
         LEFT JOIN o.estilos e
         WHERE o.eliminada = false
+          AND o.en_venta = true
           AND (:artistaId IS NULL OR o.artista.id = :artistaId)
           AND (:estiloId IS NULL OR e.id = :estiloId)
           AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)
@@ -41,6 +49,7 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
         LEFT JOIN o.variantes v
         LEFT JOIN o.estilos e
         WHERE o.eliminada = false
+          AND o.en_venta = true
           AND (:artistaId IS NULL OR o.artista.id = :artistaId)
           AND (:estiloId IS NULL OR e.id = :estiloId)
           AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)

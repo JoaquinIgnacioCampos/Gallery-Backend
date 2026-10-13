@@ -75,7 +75,7 @@ public class PerfilArtistaController {
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
     }
 
-    // Devuelve las obras del perfil de artista.
+    // Devuelve las obras en venta del perfil de artista.
     @GetMapping("/{perfilArtistaId}/obras")
     public ResponseEntity<Page<PerfilArtistaObraResponse>> getObrasByPerfilArtista(
             @PathVariable Long perfilArtistaId,
@@ -87,6 +87,7 @@ public class PerfilArtistaController {
     }
 
     // Las propias obras: el id sale del token, no hace falta que el artista lo sepa.
+    // Incluye las que no estan en venta, porque el artista las sigue gestionando.
     @GetMapping("/me/obras")
     public ResponseEntity<Page<PerfilArtistaObraResponse>> getObrasPropias(
             @AuthenticationPrincipal Usuario usuarioLogueado,
@@ -95,7 +96,7 @@ public class PerfilArtistaController {
     ) {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
         return ResponseEntity.ok(perfilArtistaService
-                .getObrasByPerfilArtista(perfilPropio.getId(), Paginacion.de(page, size))
+                .getObrasPropias(perfilPropio.getId(), Paginacion.de(page, size))
                 .map(PerfilArtistaObraResponse::fromEntity));
     }
 

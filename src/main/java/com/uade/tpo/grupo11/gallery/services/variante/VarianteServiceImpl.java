@@ -37,11 +37,11 @@ public class VarianteServiceImpl implements VarianteService {
     private TamanioLienzoRepository tamanioLienzoRepository;
 
 
-    // Devuelve las variantes de las obras vigentes. Las de una obra eliminada solo se
-    // consultan por id o filtrando por esa obra.
+    // Devuelve las variantes de las obras en venta. Las de una obra fuera de venta o eliminada
+    // solo se consultan por id o filtrando por esa obra.
     @Override
     public Page<Variante> getVariantes(PageRequest pageable) {
-        Page<Variante> variantes = repoVariante.findByObraEliminadaFalse(pageable);
+        Page<Variante> variantes = repoVariante.findDelCatalogo(pageable);
 
         if (variantes.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay variantes registradas en el catálogo");
