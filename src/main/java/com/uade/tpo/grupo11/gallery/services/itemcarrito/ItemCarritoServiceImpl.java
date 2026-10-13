@@ -161,10 +161,13 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         itemCarritoRepository.delete(itemCarrito);
     }
 
-    // Una obra dada de baja ya no se vende: no se puede agregar al carrito.
+    // Solo se agregan al carrito obras que se venden: ni dadas de baja ni sacadas de la venta.
     private void validarObraVigente(Variante variante) {
         if (variante.getObra().isEliminada()) {
             throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
+        }
+        if (!variante.getObra().isEn_venta()) {
+            throw new ObraNoEnVentaException(variante.getId(), variante.getObra().getId());
         }
     }
 

@@ -38,7 +38,7 @@ public class ObraServiceImpl implements ObraService {
     // Devuelve las obras.
     @Override
     public Page<Obra> getObras(PageRequest pageable) {
-        Page<Obra> obra = repoObra.findByEliminadaFalse(pageable);
+        Page<Obra> obra = repoObra.findDelCatalogo(pageable);
 
         if (obra.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay ninguna obra cargada");
@@ -86,7 +86,7 @@ public class ObraServiceImpl implements ObraService {
             throw new PerfilArtistaNotFoundException(artistaId);
         }
 
-        List<Obra> obras = repoObra.findByArtistaIdAndEliminadaFalse(artistaId);
+        List<Obra> obras = repoObra.findDelCatalogoByArtistaId(artistaId);
 
         if (obras.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay obras publicadas por el artista" + artistaId);
