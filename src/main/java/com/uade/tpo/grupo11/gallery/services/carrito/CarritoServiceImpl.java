@@ -111,7 +111,9 @@ public class CarritoServiceImpl implements CarritoService {
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId);
 
         if (items.isEmpty()) {
-            throw new CarritoVacioException(carritoId);
+            throw OwnershipGuard.esPropio(usuarioActual, carrito.getUsuario().getId())
+                    ? new CarritoVacioException()
+                    : new CarritoVacioException(carritoId);
         }
 
         return items;

@@ -113,7 +113,8 @@ public class ObraServiceImpl implements ObraService {
         // podria publicar a nombre de otro. 404 si todavia no creo su perfil de artista.
         PerfilArtista artista = perfilArtistaRepository
                 .findByUsuarioId(usuarioLogueado.getId())
-                .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioLogueado.getId()));
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(
+                        "Para publicar obras primero tenés que crear tu perfil de artista"));
 
         Obra obra = Obra.builder()
                 .nombre_obra(request.getNombre_obra())

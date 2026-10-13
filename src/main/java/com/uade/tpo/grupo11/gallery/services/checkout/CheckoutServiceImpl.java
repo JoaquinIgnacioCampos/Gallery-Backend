@@ -75,7 +75,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carrito.getId());
 
         if (items.isEmpty()) {
-            throw new CarritoVacioException(carrito.getId());
+            throw new CarritoVacioException();
         }
 
         // 1.5) Si eligió envío a domicilio, necesita tener una dirección cargada.

@@ -59,7 +59,7 @@ public class PerfilArtistaController {
     public ResponseEntity<PerfilArtistaResponse> getPerfilArtistaPropio(
             @AuthenticationPrincipal Usuario usuarioLogueado
     ) {
-        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilPropio));
     }
 
@@ -69,7 +69,7 @@ public class PerfilArtistaController {
             @Valid @RequestBody PerfilArtistaUpdateRequest request,
             @AuthenticationPrincipal Usuario usuarioLogueado
     ) {
-        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         PerfilArtista perfilArtista = perfilArtistaService
                 .updatePerfilArtista(perfilPropio.getId(), request, usuarioLogueado);
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(perfilArtista));
@@ -94,7 +94,7 @@ public class PerfilArtistaController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(perfilArtistaService
                 .getObrasPropias(perfilPropio.getId(), Paginacion.de(page, size))
                 .map(PerfilArtistaObraResponse::fromEntity));
@@ -121,7 +121,7 @@ public class PerfilArtistaController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(perfilArtistaService
                 .getFacturasByPerfilArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))
                 .map(FacturaResponse::fromEntity));
@@ -149,7 +149,7 @@ public class PerfilArtistaController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(encargoService
                 .getEncargosByArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))
                 .map(EncargoResponse::fromEntity));
