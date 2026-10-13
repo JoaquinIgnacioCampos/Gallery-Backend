@@ -11,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
 import com.uade.tpo.grupo11.gallery.exceptions.DireccionRequeridaException;
+import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
@@ -98,9 +99,13 @@ public class CheckoutServiceImpl implements CheckoutService {
             costoEnvio = BigDecimal.ZERO;
         }
 
-        // 2) Validamos el stock de TODO antes de tocar nada.
+        // 2) Validamos el stock de TODO antes de tocar nada. Si una obra se dio de baja
+        //    despues de agregarla al carrito, se rechaza la compra entera.
         for (ItemCarrito item : items) {
             Variante variante = item.getVariante();
+            if (variante.getObra().isEliminada()) {
+                throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
+            }
             if (variante.getStock_variante() < item.getCantidad()) {
                 throw new StockInsuficienteException(
                         variante.getId(), item.getCantidad(), variante.getStock_variante());
