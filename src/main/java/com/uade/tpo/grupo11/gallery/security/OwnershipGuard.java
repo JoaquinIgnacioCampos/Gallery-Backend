@@ -25,6 +25,11 @@ public class OwnershipGuard {
         }
     }
 
+    // Si el recurso es del propio usuario: sirve para hablarle de "tu carrito" en vez de "el carrito con id X".
+    public static boolean esPropio(Usuario usuarioActual, Long propietarioId) {
+        return propietarioId != null && propietarioId.equals(usuarioActual.getId());
+    }
+
     public static void soloAdmin(Usuario usuarioActual) {
         if (usuarioActual.getRol_usuario() != Rol.ADMIN) {
             throw new AccesoDenegadoException("Esta accion requiere rol ADMIN");

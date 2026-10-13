@@ -68,7 +68,9 @@ public class MensajeServiceImpl implements MensajeService {
 
         Page<Mensaje> mensajes = mensajeRepository.findByEmisorId(usuarioId, pageable);
         if (mensajes.isEmpty()) {
-            throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no envió mensajes todavía");
+            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, usuarioId)
+                    ? "Todavía no enviaste mensajes"
+                    : "El usuario con id " + usuarioId + " no envió mensajes todavía");
         }
         return mensajes;
     }

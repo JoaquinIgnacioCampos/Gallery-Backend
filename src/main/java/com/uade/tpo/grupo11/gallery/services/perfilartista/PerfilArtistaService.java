@@ -18,6 +18,9 @@ public interface PerfilArtistaService {
     // Devuelve los perfiles de artista del usuario.
     PerfilArtista getPerfilArtistaByUsuario(Long usuarioId);
 
+    // El perfil de artista del usuario logueado, con un mensaje pensado para los endpoints /me.
+    PerfilArtista getPerfilArtistaPropio(Usuario usuarioLogueado);
+
     // Crea el perfil exclusivamente para el usuario autenticado.
     PerfilArtista createPerfilArtista(Usuario usuarioLogueado, PerfilArtistaRequest request);
 

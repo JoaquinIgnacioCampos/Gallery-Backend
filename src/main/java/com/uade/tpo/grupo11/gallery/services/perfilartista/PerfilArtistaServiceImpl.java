@@ -39,7 +39,15 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     @Override
     public PerfilArtista getPerfilArtistaByUsuario(Long usuarioId) {
         return perfilArtistaRepository.findByUsuarioId(usuarioId)
-                .orElseThrow(() -> new PerfilArtistaNotFoundException(usuarioId));
+                .orElseThrow(() -> new PerfilArtistaNotFoundException(
+                        "El usuario con id " + usuarioId + " no tiene perfil de artista"));
+    }
+
+    // El perfil de artista del usuario logueado, para los endpoints /me.
+    @Override
+    public PerfilArtista getPerfilArtistaPropio(Usuario usuarioLogueado) {
+        return perfilArtistaRepository.findByUsuarioId(usuarioLogueado.getId())
+                .orElseThrow(() -> new PerfilArtistaNotFoundException("Todavía no creaste tu perfil de artista"));
     }
 
     //no tira excepcion si no existe,
@@ -58,11 +66,11 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
                 .orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
 
         if (usuario.getRol_usuario() == Rol.ADMIN) {
-            throw new AccesoDenegadoException("ya tiene permisos para hacer todo");
+            throw new AccesoDenegadoException("Como administrador ya tenés todos los permisos: no necesitás un perfil de artista");
         }
 
         if (perfilArtistaRepository.findByUsuarioId(usuarioId).isPresent()) {
-            throw new DuplicatePerfilArtistaException(usuarioId);
+            throw new DuplicatePerfilArtistaException();
         }
 
         PerfilArtista perfilArtista = new PerfilArtista();
@@ -135,7 +143,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         Page<Obra> obras = obraRepository.findByArtistaIdAndEliminadaFalse(perfilArtistaId, pageable);
 
         if (obras.isEmpty()) {
-            throw new RecursoNoEncontradoException("Todavia no tenes obras publicadas");
+            throw new RecursoNoEncontradoException("Todavía no tenés obras publicadas");
         }
 
         return obras;
@@ -151,7 +159,9 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         Page<Factura> facturas = facturaRepository.findByArtistaId(perfilArtistaId, pageable);
 
         if (facturas.isEmpty()) {
-            throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no registra ventas ni facturas");
+            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, perfil.getUsuario().getId())
+                    ? "Todavía no tenés ventas registradas"
+                    : "El artista con ID " + perfilArtistaId + " no registra ventas ni facturas");
         }
 
         return facturas;

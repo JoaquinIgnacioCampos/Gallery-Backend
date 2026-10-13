@@ -114,7 +114,7 @@ public class UsuarioController {
     @GetMapping("/me/perfil-artista")
     public ResponseEntity<PerfilArtistaResponse> getPerfilArtistaPropio(
             @AuthenticationPrincipal Usuario usuarioLogueado) {
-        PerfilArtista result = perfilArtistaService.getPerfilArtistaByUsuario(usuarioLogueado.getId());
+        PerfilArtista result = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(PerfilArtistaResponse.fromEntity(result));
     }
 
