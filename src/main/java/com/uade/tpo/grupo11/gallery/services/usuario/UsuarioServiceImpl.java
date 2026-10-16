@@ -141,4 +141,38 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         return usuarioRepository.save(usuario);
     }
+
+    @Override
+    public void cambiarContrasenia(
+            Usuario usuarioLogueado,
+            String contraseniaActual,
+            String contraseniaNueva
+    ) {
+
+        Usuario usuario = usuarioRepository.findById(usuarioLogueado.getId())
+                .orElseThrow(() ->
+                        new UsuarioNotFoundException(usuarioLogueado.getId())
+                );
+
+        if (!passwordEncoder.matches(
+                contraseniaActual,
+                usuario.getContrasenia_usuario()
+        )) {
+            throw new IllegalArgumentException(
+                    "La contraseña actual es incorrecta"
+            );
+        }
+
+        if (contraseniaNueva == null || contraseniaNueva.isBlank()) {
+            throw new IllegalArgumentException(
+                    "La nueva contraseña es obligatoria"
+            );
+        }
+
+        usuario.setContrasenia_usuario(
+                passwordEncoder.encode(contraseniaNueva)
+        );
+
+        usuarioRepository.save(usuario);
+    }
 }

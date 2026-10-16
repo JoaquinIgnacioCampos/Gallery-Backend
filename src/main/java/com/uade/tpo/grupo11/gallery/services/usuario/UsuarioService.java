@@ -25,4 +25,11 @@ public interface UsuarioService {
 
     // Administracion de cuentas (solo ADMIN): asignar permisos.
     Usuario asignarRol(Long usuarioId, Rol nuevoRol);
+
+    // Cambia la contraseña del usuario logueado validando primero la contraseña actual.
+    void cambiarContrasenia(
+            Usuario usuarioLogueado,
+            String contraseniaActual,
+            String contraseniaNueva
+    );
 }
