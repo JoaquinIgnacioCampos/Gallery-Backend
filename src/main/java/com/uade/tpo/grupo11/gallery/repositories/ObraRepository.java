@@ -35,7 +35,7 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
     // Solo entran las obras en venta y no eliminadas.
     @Query(value = """
         SELECT DISTINCT o FROM Obra o
-        LEFT JOIN o.variantes v
+        JOIN o.variantes v
         LEFT JOIN o.estilos e
         WHERE o.eliminada = false
           AND o.en_venta = true
@@ -46,7 +46,7 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
         """,
            countQuery = """
         SELECT COUNT(DISTINCT o) FROM Obra o
-        LEFT JOIN o.variantes v
+        JOIN o.variantes v
         LEFT JOIN o.estilos e
         WHERE o.eliminada = false
           AND o.en_venta = true
