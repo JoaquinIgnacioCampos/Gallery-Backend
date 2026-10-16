@@ -57,6 +57,10 @@ public class SecurityConfig {
                         // "/api/artistas/**" las dejaria abiertas. Que sea SU artista lo verifica el service.
                         .requestMatchers(HttpMethod.GET, "/api/artistas/*/facturas", "/api/artistas/*/encargos")
                                 .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
+                        // El propio perfil de artista sale del token: sin login no hay "me".
+                        // Tambien va antes del catalogo para que "/api/artistas/**" no lo deje publico.
+                        .requestMatchers(HttpMethod.GET, "/api/artistas/me", "/api/artistas/me/**")
+                                .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
                         // El catalogo se puede mirar sin loguearse, pero solo mirar.
                         .requestMatchers(HttpMethod.GET,
