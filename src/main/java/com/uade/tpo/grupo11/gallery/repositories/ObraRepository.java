@@ -23,23 +23,25 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
     // Los dos limites de precio se evaluan sobre la MISMA variante (mismo LEFT JOIN),
     // y DISTINCT evita que una obra aparezca repetida por tener varias variantes o estilos.
     @Query(value = """
-        SELECT DISTINCT o FROM Obra o
-        LEFT JOIN o.variantes v
-        LEFT JOIN o.estilos e
-        WHERE (:artistaId IS NULL OR o.artista.id = :artistaId)
-          AND (:estiloId IS NULL OR e.id = :estiloId)
-          AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)
-          AND (:precioMax IS NULL OR v.precio_variante <= :precioMax)
-        """,
-           countQuery = """
-        SELECT COUNT(DISTINCT o) FROM Obra o
-        LEFT JOIN o.variantes v
-        LEFT JOIN o.estilos e
-        WHERE (:artistaId IS NULL OR o.artista.id = :artistaId)
-          AND (:estiloId IS NULL OR e.id = :estiloId)
-          AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)
-          AND (:precioMax IS NULL OR v.precio_variante <= :precioMax)
-        """)
+    SELECT DISTINCT o FROM Obra o
+    JOIN o.variantes v
+    LEFT JOIN o.estilos e
+    WHERE o.en_venta = true
+      AND (:artistaId IS NULL OR o.artista.id = :artistaId)
+      AND (:estiloId IS NULL OR e.id = :estiloId)
+      AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)
+      AND (:precioMax IS NULL OR v.precio_variante <= :precioMax)
+    """,
+            countQuery = """
+    SELECT COUNT(DISTINCT o) FROM Obra o
+    JOIN o.variantes v
+    LEFT JOIN o.estilos e
+    WHERE o.en_venta = true
+      AND (:artistaId IS NULL OR o.artista.id = :artistaId)
+      AND (:estiloId IS NULL OR e.id = :estiloId)
+      AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)
+      AND (:precioMax IS NULL OR v.precio_variante <= :precioMax)
+    """)
     Page<Obra> buscarConFiltros(
             @Param("artistaId") Long artistaId,
             @Param("estiloId") Long estiloId,
