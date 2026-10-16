@@ -94,6 +94,21 @@ public class UsuarioController {
         return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
 
+    @PatchMapping("/me/contrasenia")
+    public ResponseEntity<Void> cambiarContrasenia(
+            @Valid @RequestBody CambiarContraseniaRequest request,
+            @AuthenticationPrincipal Usuario usuarioLogueado
+    ) {
+
+        usuarioService.cambiarContrasenia(
+                usuarioLogueado,
+                request.getContrasenia_actual(),
+                request.getContrasenia_nueva()
+        );
+
+        return ResponseEntity.noContent().build();
+    }
+
     // Devuelve los usuarios.
     @GetMapping("/{usuario_id}/carrito")
     public ResponseEntity<CarritoResponse> getCarrito(
