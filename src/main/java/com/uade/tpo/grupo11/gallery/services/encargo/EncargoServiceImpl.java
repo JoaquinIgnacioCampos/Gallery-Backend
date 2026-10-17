@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.encargo;
 
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
@@ -55,7 +57,7 @@ public class EncargoServiceImpl implements EncargoService {
 
         Page<Encargo> encargos = encargoRepository.findByArtistaId(artistaId, pageable);
         if (encargos.isEmpty()) {
-            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, artista.getUsuario().getId())
+            throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioLogueado, artista.getUsuario().getId())
                     ? "Todavía no recibiste encargos"
                     : "El artista con id " + artistaId + " no tiene encargos registrados");
         }
@@ -72,7 +74,7 @@ public class EncargoServiceImpl implements EncargoService {
 
         Page<Encargo> encargos = encargoRepository.findByUsuarioId(usuarioId, pageable);
         if (encargos.isEmpty()) {
-            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, usuarioId)
+            throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioLogueado, usuarioId)
                     ? "Todavía no hiciste encargos"
                     : "El usuario con id " + usuarioId + " no tiene encargos registrados");
         }

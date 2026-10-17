@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
@@ -43,7 +44,7 @@ public class CarritoServiceImpl implements CarritoService {
 
         Page<Carrito> carritos = carritoRepository.findAll(pageable);
         if (carritos.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay carritos registrados en el sistema");
+            throw new ListaVaciaException("No hay carritos registrados en el sistema");
         }
         return carritos;
     }
@@ -109,9 +110,15 @@ public class CarritoServiceImpl implements CarritoService {
 
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId);
 
-        // Un carrito vacio no es un error: es una lista sin elementos. El 409 por
-        // carrito vacio corresponde al checkout, que no puede comprar nada; listarlo
-        // tiene que devolver la lista vacia para que el front muestre su estado vacio.
+        // Un carrito vacio no es un error: es una lista sin elementos. El 409 por carrito vacio
+        // corresponde al checkout, que no puede comprar nada. Listarlo responde 204 No Content
+        // (sin cuerpo) y el front muestra su estado vacio; el 404 queda para un carrito que no existe.
+        if (items.isEmpty()) {
+            throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioActual, carrito.getUsuario().getId())
+                    ? "Tu carrito está vacío"
+                    : "El carrito con id " + carritoId + " esta vacio");
+        }
+
         return items;
     }
 

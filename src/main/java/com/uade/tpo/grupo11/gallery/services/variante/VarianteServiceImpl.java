@@ -9,7 +9,7 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
@@ -44,7 +44,7 @@ public class VarianteServiceImpl implements VarianteService {
         Page<Variante> variantes = repoVariante.findDelCatalogo(pageable);
 
         if (variantes.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay variantes registradas en el catálogo");
+            throw new ListaVaciaException("No hay variantes registradas en el catálogo");
         }
 
         return variantes;
@@ -60,7 +60,7 @@ public class VarianteServiceImpl implements VarianteService {
         Page<Variante> variantes = repoVariante.findByObraId(obraId, pageable);
 
         if (variantes.isEmpty()) {
-            throw new RecursoNoEncontradoException("La obra con ID " + obraId + " no posee variantes asociadas");
+            throw new ListaVaciaException("La obra con ID " + obraId + " no posee variantes asociadas");
         }
 
         return variantes;

@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.itemfactura;
 
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
+
 import com.uade.tpo.grupo11.gallery.controllers.itemfactura.ItemFacturaRequest;
 import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
@@ -58,7 +60,7 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
 
         List<ItemFactura> items = itemFacturaRepository.findByFacturaId(facturaId);
         if (items.isEmpty()) {
-            throw new RecursoNoEncontradoException("La factura con id " + facturaId + " no tiene items cargados");
+            throw new ListaVaciaException("La factura con id " + facturaId + " no tiene items cargados");
         }
         return items;
     }

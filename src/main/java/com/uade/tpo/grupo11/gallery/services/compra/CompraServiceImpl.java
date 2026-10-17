@@ -6,7 +6,7 @@ import com.uade.tpo.grupo11.gallery.controllers.compra.CompraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
@@ -40,7 +40,7 @@ public class CompraServiceImpl implements CompraService {
 
         Page<Compra> compras = compraRepository.findAll(pageable);
         if (compras.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay compras registradas en el sistema");
+            throw new ListaVaciaException("No hay compras registradas en el sistema");
         }
         return compras;
     }
@@ -71,7 +71,7 @@ public class CompraServiceImpl implements CompraService {
     public Page<Compra> getMisCompras(Usuario usuarioActual, PageRequest pageable) {
         Page<Compra> compras = compraRepository.findByUsuarioId(usuarioActual.getId(), pageable);
         if (compras.isEmpty()) {
-            throw new RecursoNoEncontradoException("No tenés compras registradas todavía");
+            throw new ListaVaciaException("No tenés compras registradas todavía");
         }
         return compras;
     }
@@ -136,7 +136,7 @@ public class CompraServiceImpl implements CompraService {
 
         Page<Compra> compras = compraRepository.findByUsuarioId(usuarioId, pageable);
         if (compras.isEmpty()) {
-            throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no tiene compras registradas");
+            throw new ListaVaciaException("El usuario con id " + usuarioId + " no tiene compras registradas");
         }
         return compras;
     }

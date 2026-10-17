@@ -7,7 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUserMailException;
 import com.uade.tpo.grupo11.gallery.exceptions.DuplicateUsernameException;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
@@ -37,7 +37,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         Page<Usuario> usuarios = usuarioRepository.findAll(pageable);
         if (usuarios.isEmpty()) {
-            throw new RecursoNoEncontradoException("No se encontraron usuarios registrados en el sistema");
+            throw new ListaVaciaException("No se encontraron usuarios registrados en el sistema");
         }
         return usuarios;
     }

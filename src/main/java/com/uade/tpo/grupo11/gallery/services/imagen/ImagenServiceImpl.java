@@ -7,7 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.ImagenNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
@@ -35,7 +35,7 @@ public class ImagenServiceImpl implements ImagenService {
     public List<Imagen> getImagenes() {
         List<Imagen> imagenes = repoImagen.findAll();
         if (imagenes.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay imagenes registradas en el sistema");
+            throw new ListaVaciaException("No hay imagenes registradas en el sistema");
         }
         return imagenes;
     }
@@ -51,7 +51,7 @@ public class ImagenServiceImpl implements ImagenService {
 
         List<Imagen> imagenes = repoImagen.findByObraIdOrdenadas(obraId);
         if (imagenes.isEmpty()) {
-            throw new RecursoNoEncontradoException("La obra con id " + obraId + " no tiene imagenes");
+            throw new ListaVaciaException("La obra con id " + obraId + " no tiene imagenes");
         }
         return imagenes;
     }

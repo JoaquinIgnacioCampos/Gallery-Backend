@@ -221,6 +221,12 @@ public class GlobalExceptionHandler {
                 .body("El valor '" + e.getValue() + "' no es valido para el parametro '" + e.getName() + "'");
     }
 
+    // Una lista vacia no es un error: 204 No Content, sin cuerpo. El 404 queda para lo que no existe.
+    @ExceptionHandler(ListaVaciaException.class)
+    public ResponseEntity<Void> handleListaVacia(ListaVaciaException ex) {
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<Map<String, String>> handleRecursoNoEncontrado(RecursoNoEncontradoException ex) {
         Map<String, String> respuesta = new HashMap<>();
