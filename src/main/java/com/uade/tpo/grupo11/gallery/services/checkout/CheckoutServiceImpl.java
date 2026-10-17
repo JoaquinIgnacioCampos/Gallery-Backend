@@ -11,8 +11,6 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
 import com.uade.tpo.grupo11.gallery.exceptions.DireccionRequeridaException;
-import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
-import com.uade.tpo.grupo11.gallery.exceptions.ObraNoEnVentaException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
@@ -75,20 +73,15 @@ public class CheckoutServiceImpl implements CheckoutService {
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carrito.getId());
 
         if (items.isEmpty()) {
-            throw new CarritoVacioException();
+            throw new CarritoVacioException(carrito.getId());
         }
 
         // 1.5) Si eligió envío a domicilio, necesita tener una dirección cargada.
-        // Si no se especifica tipo de entrega (o se pide retiro), se defaultea a
-        // retiro por sucursal sin costo, sin importar si el carrito tiene dirección o no.
-        TipoEntrega tipoEntrega = tipoEntregaElegido == TipoEntrega.ENVIO_DOMICILIO
-                ? TipoEntrega.ENVIO_DOMICILIO
-                : TipoEntrega.RETIRO_LOCAL;
-
+        // Si eligió retiro, no importa si tiene dirección o no.
         String direccionEntrega;
         BigDecimal costoEnvio;
 
-        if (tipoEntrega == TipoEntrega.ENVIO_DOMICILIO) {
+        if (tipoEntregaElegido == TipoEntrega.ENVIO_DOMICILIO) {
             if (carrito.getDireccion_cliente() == null || carrito.getDireccion_cliente().isBlank()) {
                 throw new DireccionRequeridaException(
                         "Para elegir envío a domicilio primero tenés que cargar tu dirección");
@@ -100,16 +93,9 @@ public class CheckoutServiceImpl implements CheckoutService {
             costoEnvio = BigDecimal.ZERO;
         }
 
-        // 2) Validamos el stock de TODO antes de tocar nada. Si una obra se dio de baja o se
-        //    saco de la venta despues de agregarla al carrito, se rechaza la compra entera.
+        // 2) Validamos el stock de TODO antes de tocar nada.
         for (ItemCarrito item : items) {
             Variante variante = item.getVariante();
-            if (variante.getObra().isEliminada()) {
-                throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
-            }
-            if (!variante.getObra().isEn_venta()) {
-                throw new ObraNoEnVentaException(variante.getId(), variante.getObra().getId());
-            }
             if (variante.getStock_variante() < item.getCantidad()) {
                 throw new StockInsuficienteException(
                         variante.getId(), item.getCantidad(), variante.getStock_variante());
@@ -123,6 +109,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             itemsPorArtista.computeIfAbsent(artista, a -> new java.util.ArrayList<>()).add(item);
         }
 
+
         // 4) La Compra: la "bolsa" del cliente. Una sola, sin importar cuantos artistas haya.
         Compra compra = Compra.builder()
                 .usuario(carrito.getUsuario())
@@ -130,7 +117,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .total_compra(BigDecimal.ZERO)
                 .direccion_entrega(direccionEntrega)
                 .tipo_entrega(tipoEntrega)
-                .costo_envio(costoEnvio)
+                .costo_envio(costoEnvio)     // nuevo campo
                 .build();
         compra = compraRepository.save(compra);
 

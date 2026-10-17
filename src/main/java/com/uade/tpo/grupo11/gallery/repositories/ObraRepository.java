@@ -10,46 +10,43 @@ import java.math.BigDecimal;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
-// Habla con la base. Al extender JpaRepository, el CRUD basico ya viene hecho.
 @Repository
 public interface ObraRepository extends JpaRepository<Obra, Long> {
 
-    // El catalogo publico: solo obras en venta y no eliminadas. Va con @Query porque el
-    // guion bajo de "en_venta" Spring lo leeria como navegacion de una relacion.
-    @Query("SELECT o FROM Obra o WHERE o.eliminada = false AND o.en_venta = true")
+    // Regla única de "obra publicada": en venta, no eliminada, con al menos
+    // una variante y al menos una imagen. Todas las consultas públicas la usan.
+    String PUBLICADA = " o.eliminada = false AND o.en_venta = true "
+            + "AND EXISTS (SELECT 1 FROM Variante vp WHERE vp.obra = o) "
+            + "AND EXISTS (SELECT 1 FROM Imagen ip WHERE ip.obra = o)";
+
+    @Query("SELECT o FROM Obra o WHERE " + PUBLICADA)
     Page<Obra> findDelCatalogo(Pageable pageable);
 
-    // Las obras de un artista que ve el publico: en venta y no eliminadas.
-    @Query("SELECT o FROM Obra o WHERE o.artista.id = :artistaId AND o.eliminada = false AND o.en_venta = true")
+    @Query("SELECT o FROM Obra o WHERE o.artista.id = :artistaId AND " + PUBLICADA)
     List<Obra> findDelCatalogoByArtistaId(@Param("artistaId") Long artistaId);
-    @Query("SELECT o FROM Obra o WHERE o.artista.id = :artistaId AND o.eliminada = false AND o.en_venta = true")
+
+    @Query("SELECT o FROM Obra o WHERE o.artista.id = :artistaId AND " + PUBLICADA)
     Page<Obra> findDelCatalogoByArtistaId(@Param("artistaId") Long artistaId, Pageable pageable);
 
-    // Las obras que gestiona el propio artista: tambien las que no estan en venta, pero no las eliminadas.
+    // Las obras que gestiona el propio artista: SIN la regla. Si no, no vería
+    // la obra recién creada para cargarle las fotos y las variantes.
     Page<Obra> findByArtistaIdAndEliminadaFalse(Long artistaId, Pageable pageable);
 
-    // Busqueda del catalogo con filtros OPCIONALES y combinables. El patron
-    // ":param IS NULL OR condicion" hace que cada filtro se ignore si no vino.
-    // Los dos limites de precio se evaluan sobre la MISMA variante (mismo LEFT JOIN),
-    // y DISTINCT evita que una obra aparezca repetida por tener varias variantes o estilos.
-    // Solo entran las obras en venta y no eliminadas.
     @Query(value = """
         SELECT DISTINCT o FROM Obra o
         JOIN o.variantes v
         LEFT JOIN o.estilos e
-        WHERE o.eliminada = false
-          AND o.en_venta = true
+        WHERE """ + PUBLICADA + """
           AND (:artistaId IS NULL OR o.artista.id = :artistaId)
           AND (:estiloId IS NULL OR e.id = :estiloId)
           AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)
           AND (:precioMax IS NULL OR v.precio_variante <= :precioMax)
         """,
-           countQuery = """
+            countQuery = """
         SELECT COUNT(DISTINCT o) FROM Obra o
         JOIN o.variantes v
         LEFT JOIN o.estilos e
-        WHERE o.eliminada = false
-          AND o.en_venta = true
+        WHERE """ + PUBLICADA + """
           AND (:artistaId IS NULL OR o.artista.id = :artistaId)
           AND (:estiloId IS NULL OR e.id = :estiloId)
           AND (:precioMin IS NULL OR v.precio_variante >= :precioMin)
