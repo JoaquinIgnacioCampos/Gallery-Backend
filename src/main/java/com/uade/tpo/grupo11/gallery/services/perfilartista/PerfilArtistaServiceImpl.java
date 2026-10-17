@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.perfilartista;
 
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
@@ -93,7 +95,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         Page<PerfilArtista> perfiles = perfilArtistaRepository.findAll(pageable);
 
         if (perfiles.isEmpty()) {
-            throw new RecursoNoEncontradoException("No se encontraron perfiles de artista registrados");
+            throw new ListaVaciaException("No se encontraron perfiles de artista registrados");
         }
 
         return perfiles;
@@ -130,7 +132,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         Page<Obra> obras = obraRepository.findDelCatalogoByArtistaId(perfilArtistaId, pageable);
 
         if (obras.isEmpty()) {
-            throw new RecursoNoEncontradoException("El artista con ID " + perfilArtistaId + " no tiene obras en venta");
+            throw new ListaVaciaException("El artista con ID " + perfilArtistaId + " no tiene obras en venta");
         }
 
         return obras;
@@ -143,7 +145,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         Page<Obra> obras = obraRepository.findByArtistaIdAndEliminadaFalse(perfilArtistaId, pageable);
 
         if (obras.isEmpty()) {
-            throw new RecursoNoEncontradoException("Todavía no tenés obras publicadas");
+            throw new ListaVaciaException("Todavía no tenés obras publicadas");
         }
 
         return obras;
@@ -159,7 +161,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         Page<Factura> facturas = facturaRepository.findByArtistaId(perfilArtistaId, pageable);
 
         if (facturas.isEmpty()) {
-            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, perfil.getUsuario().getId())
+            throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioLogueado, perfil.getUsuario().getId())
                     ? "Todavía no tenés ventas registradas"
                     : "El artista con ID " + perfilArtistaId + " no registra ventas ni facturas");
         }

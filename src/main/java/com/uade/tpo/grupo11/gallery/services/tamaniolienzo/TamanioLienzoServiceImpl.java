@@ -2,7 +2,7 @@ package com.uade.tpo.grupo11.gallery.services.tamaniolienzo;
 
 import com.uade.tpo.grupo11.gallery.controllers.tamaniolienzo.TamanioLienzoRequest;
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,7 @@ public class TamanioLienzoServiceImpl implements TamanioLienzoService {
         List<TamanioLienzo> tamaniolienzo = tamanioLienzoRepository.findAll();
 
         if (tamaniolienzo.isEmpty()) {
-            throw new RecursoNoEncontradoException("No se cargaron tamanios de lienzo");
+            throw new ListaVaciaException("No se cargaron tamanios de lienzo");
         }
 
         return tamaniolienzo;

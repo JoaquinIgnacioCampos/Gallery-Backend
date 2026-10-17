@@ -5,7 +5,7 @@ import com.uade.tpo.grupo11.gallery.entities.Estilo;
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
 import com.uade.tpo.grupo11.gallery.exceptions.EstiloDuplicadoException;
 import com.uade.tpo.grupo11.gallery.exceptions.EstiloNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.repositories.EstiloRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,7 +35,7 @@ public class EstiloServiceImpl implements EstiloService {
         List<Estilo> estilo = estiloRepository.findAll();
 
         if (estilo.isEmpty()) {
-            throw new RecursoNoEncontradoException("No se cargaron Estilos");
+            throw new ListaVaciaException("No se cargaron Estilos");
         }
 
         return estilo;

@@ -8,7 +8,7 @@ import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.FacturaNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.PerfilArtistaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
@@ -42,7 +42,7 @@ public class FacturaServiceImpl implements FacturaService {
         OwnershipGuard.soloAdmin(usuarioLogueado);
         Page<Factura> facturas = facturaRepository.findAll(pageable);
         if (facturas.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay facturas registradas en el sistema");
+            throw new ListaVaciaException("No hay facturas registradas en el sistema");
         }
         return facturas;
     }
@@ -58,7 +58,7 @@ public class FacturaServiceImpl implements FacturaService {
 
         Page<Factura> facturas = facturaRepository.findByCompraId(compraId, pageable);
         if (facturas.isEmpty()) {
-            throw new RecursoNoEncontradoException("La compra con id " + compraId + " no tiene facturas");
+            throw new ListaVaciaException("La compra con id " + compraId + " no tiene facturas");
         }
         return facturas;
     }

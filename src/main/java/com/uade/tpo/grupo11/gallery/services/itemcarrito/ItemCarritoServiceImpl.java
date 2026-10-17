@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.itemcarrito;
 
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
+
 import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
@@ -43,7 +45,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
         List<ItemCarrito> items = itemCarritoRepository.findAll();
         if (items.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay items de carrito registrados en el sistema");
+            throw new ListaVaciaException("No hay items de carrito registrados en el sistema");
         }
         return items;
     }

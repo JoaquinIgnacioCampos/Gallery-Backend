@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.obra;
 
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.obra.ObraRequest;
@@ -41,7 +43,7 @@ public class ObraServiceImpl implements ObraService {
         Page<Obra> obra = repoObra.findDelCatalogo(pageable);
 
         if (obra.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay ninguna obra cargada");
+            throw new ListaVaciaException("No hay ninguna obra cargada");
         }
 
         return obra;
@@ -72,7 +74,7 @@ public class ObraServiceImpl implements ObraService {
 
         // Verificar si la consulta volvió vacía
         if (resultados.isEmpty()) {
-            throw new RecursoNoEncontradoException("No se encontraron obras que coincidan con los filtros aplicados.");
+            throw new ListaVaciaException("No se encontraron obras que coincidan con los filtros aplicados.");
         }
 
         return resultados;
@@ -89,7 +91,7 @@ public class ObraServiceImpl implements ObraService {
         List<Obra> obras = repoObra.findDelCatalogoByArtistaId(artistaId);
 
         if (obras.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay obras publicadas por el artista" + artistaId);
+            throw new ListaVaciaException("No hay obras publicadas por el artista" + artistaId);
         }
 
         return obras;

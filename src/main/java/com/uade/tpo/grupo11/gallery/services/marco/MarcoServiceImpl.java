@@ -3,7 +3,7 @@ package com.uade.tpo.grupo11.gallery.services.marco;
 import com.uade.tpo.grupo11.gallery.controllers.marco.MarcoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.exceptions.MarcoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class MarcoServiceImpl implements MarcoService {
         List<Marco> marco = marcoRepository.findAll();
 
         if (marco.isEmpty()) {
-            throw new RecursoNoEncontradoException("No hay marcos cargados cargados");
+            throw new ListaVaciaException("No hay marcos cargados cargados");
         }
 
         return marco;

@@ -1,5 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.mensaje;
 
+import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
@@ -54,7 +56,7 @@ public class MensajeServiceImpl implements MensajeService {
 
         Page<Mensaje> mensajes = mensajeRepository.findByEncargoIdOrderByFecha_creacion_mensajeDesc(encargoId, pageable);
         if (mensajes.isEmpty()) {
-            throw new RecursoNoEncontradoException("El encargo con id " + encargoId + " todavía no tiene mensajes");
+            throw new ListaVaciaException("El encargo con id " + encargoId + " todavía no tiene mensajes");
         }
         return mensajes;
     }
@@ -68,7 +70,7 @@ public class MensajeServiceImpl implements MensajeService {
 
         Page<Mensaje> mensajes = mensajeRepository.findByEmisorId(usuarioId, pageable);
         if (mensajes.isEmpty()) {
-            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, usuarioId)
+            throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioLogueado, usuarioId)
                     ? "Todavía no enviaste mensajes"
                     : "El usuario con id " + usuarioId + " no envió mensajes todavía");
         }
