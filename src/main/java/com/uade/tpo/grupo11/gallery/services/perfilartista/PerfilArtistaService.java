@@ -18,6 +18,9 @@ public interface PerfilArtistaService {
     // Devuelve los perfiles de artista del usuario.
     PerfilArtista getPerfilArtistaByUsuario(Long usuarioId);
 
+    // El perfil de artista del usuario logueado, con un mensaje pensado para los endpoints /me.
+    PerfilArtista getPerfilArtistaPropio(Usuario usuarioLogueado);
+
     // Crea el perfil exclusivamente para el usuario autenticado.
     PerfilArtista createPerfilArtista(Usuario usuarioLogueado, PerfilArtistaRequest request);
 
@@ -30,8 +33,11 @@ public interface PerfilArtistaService {
     // Actualiza el perfil de artista: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     PerfilArtista updatePerfilArtista(Long perfilArtistaId, PerfilArtistaUpdateRequest request, Usuario usuarioLogueado);
 
-    // Devuelve las obras del perfil de artista.
+    // Devuelve las obras del perfil de artista que ve el publico: solo las que estan en venta.
     Page<Obra> getObrasByPerfilArtista(Long perfilArtistaId, PageRequest pageable);
+
+    // Devuelve las obras que gestiona el propio artista, esten o no en venta.
+    Page<Obra> getObrasPropias(Long perfilArtistaId, PageRequest pageable);
 
     // Devuelve las ventas del artista: las facturas emitidas a su nombre.
     Page<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable);

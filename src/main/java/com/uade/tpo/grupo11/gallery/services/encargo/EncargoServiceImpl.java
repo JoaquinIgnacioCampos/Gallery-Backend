@@ -55,7 +55,9 @@ public class EncargoServiceImpl implements EncargoService {
 
         Page<Encargo> encargos = encargoRepository.findByArtistaId(artistaId, pageable);
         if (encargos.isEmpty()) {
-            throw new RecursoNoEncontradoException("El artista con id " + artistaId + " no tiene encargos registrados");
+            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, artista.getUsuario().getId())
+                    ? "Todavía no recibiste encargos"
+                    : "El artista con id " + artistaId + " no tiene encargos registrados");
         }
         return encargos;
     }
@@ -70,7 +72,9 @@ public class EncargoServiceImpl implements EncargoService {
 
         Page<Encargo> encargos = encargoRepository.findByUsuarioId(usuarioId, pageable);
         if (encargos.isEmpty()) {
-            throw new RecursoNoEncontradoException("El usuario con id " + usuarioId + " no tiene encargos registrados");
+            throw new RecursoNoEncontradoException(OwnershipGuard.esPropio(usuarioLogueado, usuarioId)
+                    ? "Todavía no hiciste encargos"
+                    : "El usuario con id " + usuarioId + " no tiene encargos registrados");
         }
         return encargos;
     }

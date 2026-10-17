@@ -39,6 +39,11 @@ public class Obra {
     @Column(name = "en_venta", nullable = false)
     private boolean en_venta;
 
+    // Borrado logico: la obra deja de aparecer en el catalogo y no se puede comprar, pero la fila
+    // queda porque las facturas y los carritos apuntan a sus variantes.
+    @Column(name = "eliminada", nullable = false)
+    private boolean eliminada;
+
     // Muchas obras pertenecen a un artista. La FK vive en esta tabla.
     @ManyToOne
     @JoinColumn(name = "artista_id", nullable = false)

@@ -25,7 +25,7 @@ public record VarianteResponse(
                 variante.getTamanio().getNombre_tamanio(),
                 variante.getPrecio_variante(),
                 variante.getStock_variante(),
-                variante.getPorcentaje_descuento(),
+                variante.getPorcentajeDescuentoVigente() > 0 ? variante.getPorcentajeDescuentoVigente() : null,
                 variante.getDescuento_hasta()
         );
     }

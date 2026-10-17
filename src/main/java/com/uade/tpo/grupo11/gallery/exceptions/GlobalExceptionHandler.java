@@ -100,8 +100,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409
     }
 
-    @ExceptionHandler(ObraEnUsoException.class)
-    public ResponseEntity<String> handleObraEnUso(ObraEnUsoException e) {
+    @ExceptionHandler(ObraEliminadaException.class)
+    public ResponseEntity<String> handleObraEliminada(ObraEliminadaException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409: choca con el estado actual
+    }
+
+    @ExceptionHandler(ObraNoEnVentaException.class)
+    public ResponseEntity<String> handleObraNoEnVenta(ObraNoEnVentaException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409: choca con el estado actual
     }
 

@@ -7,6 +7,7 @@ import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.TamanioLienzo;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
+import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
@@ -36,10 +37,11 @@ public class VarianteServiceImpl implements VarianteService {
     private TamanioLienzoRepository tamanioLienzoRepository;
 
 
-    // Devuelve las variantes.
+    // Devuelve las variantes de las obras en venta. Las de una obra fuera de venta o eliminada
+    // solo se consultan por id o filtrando por esa obra.
     @Override
     public Page<Variante> getVariantes(PageRequest pageable) {
-        Page<Variante> variantes = repoVariante.findAll(pageable);
+        Page<Variante> variantes = repoVariante.findDelCatalogo(pageable);
 
         if (variantes.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay variantes registradas en el catálogo");
@@ -82,6 +84,7 @@ public class VarianteServiceImpl implements VarianteService {
                 .orElseThrow(() -> new ObraNotFoundException(request.getObra_id()));
 
         OwnershipGuard.verificar(usuarioActual, obra.getArtista().getUsuario().getId());
+        validarObraVigente(obra);
 
         TamanioLienzo tamanio = tamanioLienzoRepository
                 .findById(request.getId_tamanio())
@@ -111,6 +114,7 @@ public class VarianteServiceImpl implements VarianteService {
         Variante varianteExistente = getVarianteById(varianteId);
 
         OwnershipGuard.verificar(usuarioActual, varianteExistente.getObra().getArtista().getUsuario().getId());
+        validarObraVigente(varianteExistente.getObra());
 
         TamanioLienzo tamanio = tamanioLienzoRepository
                 .findById(request.getId_tamanio())
@@ -138,6 +142,7 @@ public class VarianteServiceImpl implements VarianteService {
         Variante variante = getVarianteById(varianteId);
 
         OwnershipGuard.verificar(usuarioActual, variante.getObra().getArtista().getUsuario().getId());
+        validarObraVigente(variante.getObra());
 
         validarStock(nuevoStock);
 
@@ -154,8 +159,17 @@ public class VarianteServiceImpl implements VarianteService {
         Variante variante = getVarianteById(varianteId);
 
         OwnershipGuard.verificar(usuarioActual, variante.getObra().getArtista().getUsuario().getId());
+        validarObraVigente(variante.getObra());
 
         repoVariante.delete(variante);
+    }
+
+
+    // Las variantes de una obra eliminada quedan como registro: no se agregan, editan ni borran.
+    private void validarObraVigente(Obra obra) {
+        if (obra.isEliminada()) {
+            throw new ObraEliminadaException(obra.getId());
+        }
     }
 
 

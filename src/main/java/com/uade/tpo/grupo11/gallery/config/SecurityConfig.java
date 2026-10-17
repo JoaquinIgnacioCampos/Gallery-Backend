@@ -27,6 +27,12 @@ public class SecurityConfig {
     @Autowired
     private AuthenticationProvider authenticationProvider;
 
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    @Autowired
+    private AccesoDenegadoHandler accesoDenegadoHandler;
+
     // Define que rutas son publicas, cuales exigen estar logueado y cuales exigen un rol.
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,12 +47,19 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         // La documentacion de la API es publica: sin esto Swagger devuelve 401.
                         .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                        // La pagina de error de Spring tiene que ser publica: si no, una excepcion
+                        // no manejada se veria como un 401 y el front pediria login sin motivo.
+                        .requestMatchers("/error").permitAll()
 
 
                         // Las ventas y los encargos de un artista son privados: van ANTES de la
                         // regla publica del catalogo, porque gana la primera que coincide y
                         // "/api/artistas/**" las dejaria abiertas. Que sea SU artista lo verifica el service.
                         .requestMatchers(HttpMethod.GET, "/api/artistas/*/facturas", "/api/artistas/*/encargos")
+                                .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
+                        // El propio perfil de artista sale del token: sin login no hay "me".
+                        // Tambien va antes del catalogo para que "/api/artistas/**" no lo deje publico.
+                        .requestMatchers(HttpMethod.GET, "/api/artistas/me", "/api/artistas/me/**")
                                 .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
                         // El catalogo se puede mirar sin loguearse, pero solo mirar.
@@ -137,6 +150,11 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 // STATELESS: el servidor no guarda sesiones. Cada peticion se identifica
                 // sola con su token, que es lo que permite escalar sin estado compartido.
+                // Sin token valido en una ruta que exige login: 401, el front pide volver a ingresar.
+                // Logueado pero sin el rol necesario: 403, volver a ingresar no lo soluciona.
+                .exceptionHandling(ex -> ex
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(accesoDenegadoHandler))
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
                 // Nuestro filtro de JWT corre antes que el de usuario y contrasenia de Spring,
