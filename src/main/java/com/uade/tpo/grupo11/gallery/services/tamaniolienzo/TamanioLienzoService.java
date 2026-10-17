@@ -13,4 +13,11 @@ public interface TamanioLienzoService {
     List<TamanioLienzo> getTamanioLienzos();
     // Crea el tamanio de lienzo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     TamanioLienzo createTamanioLienzo(TamanioLienzoRequest request);
+
+    TamanioLienzo updateTamanioLienzo(
+            Long id,
+            TamanioLienzoRequest request
+    );
+
+    void deleteTamanioLienzo(Long id);
 }

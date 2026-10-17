@@ -99,7 +99,7 @@ public class CarritoServiceImpl implements CarritoService {
 
     // Devuelve las lineas del carrito: que variante, cuantas unidades y con que marco.
     @Override
-    public Page<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual, PageRequest pageable) {
+    public List<ItemCarrito> getItemsByCarrito(Long carritoId, Usuario usuarioActual) {
 
         Carrito carrito = carritoRepository
                 .findById(carritoId)
@@ -107,12 +107,11 @@ public class CarritoServiceImpl implements CarritoService {
 
         OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
-        Page<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId, pageable);
+        List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId);
 
         // Un carrito vacio no es un error: es una lista sin elementos. El 409 por
         // carrito vacio corresponde al checkout, que no puede comprar nada; listarlo
         // tiene que devolver la lista vacia para que el front muestre su estado vacio.
-
         return items;
     }
 

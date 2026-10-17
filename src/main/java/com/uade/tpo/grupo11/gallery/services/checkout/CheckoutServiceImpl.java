@@ -1,5 +1,4 @@
 package com.uade.tpo.grupo11.gallery.services.checkout;
-
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
@@ -11,6 +10,8 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
 import com.uade.tpo.grupo11.gallery.exceptions.DireccionRequeridaException;
+import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
+import com.uade.tpo.grupo11.gallery.exceptions.ObraNoEnVentaException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
@@ -19,16 +20,16 @@ import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 import com.uade.tpo.grupo11.gallery.services.PrecioVigente;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+
 
 // Logica de negocio de checkout: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -73,7 +74,7 @@ public class CheckoutServiceImpl implements CheckoutService {
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carrito.getId());
 
         if (items.isEmpty()) {
-            throw new CarritoVacioException(carrito.getId());
+            throw new CarritoVacioException();
         }
 
         // 1.5) Si eligió envío a domicilio, necesita tener una dirección cargada.
@@ -98,14 +99,22 @@ public class CheckoutServiceImpl implements CheckoutService {
             costoEnvio = BigDecimal.ZERO;
         }
 
-        // 2) Validamos el stock de TODO antes de tocar nada.
+        // 2) Validamos el stock de TODO antes de tocar nada. Si una obra se dio de baja o se
+        //    saco de la venta despues de agregarla al carrito, se rechaza la compra entera.
         for (ItemCarrito item : items) {
             Variante variante = item.getVariante();
+            if (variante.getObra().isEliminada()) {
+                throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
+            }
+            if (!variante.getObra().isEn_venta()) {
+                throw new ObraNoEnVentaException(variante.getId(), variante.getObra().getId());
+            }
             if (variante.getStock_variante() < item.getCantidad()) {
                 throw new StockInsuficienteException(
                         variante.getId(), item.getCantidad(), variante.getStock_variante());
             }
         }
+
 
         // 3) Agrupamos los items por artista, siguiendo variante -> obra -> artista.
         Map<PerfilArtista, List<ItemCarrito>> itemsPorArtista = new LinkedHashMap<>();
@@ -113,6 +122,7 @@ public class CheckoutServiceImpl implements CheckoutService {
             PerfilArtista artista = item.getVariante().getObra().getArtista();
             itemsPorArtista.computeIfAbsent(artista, a -> new java.util.ArrayList<>()).add(item);
         }
+
 
         // 4) La Compra: la "bolsa" del cliente. Una sola, sin importar cuantos artistas haya.
         Compra compra = Compra.builder()

@@ -1,7 +1,5 @@
 package com.uade.tpo.grupo11.gallery.controllers.itemfactura;
 
-import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
-import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.itemfactura.ItemFacturaService;
@@ -33,13 +31,12 @@ public class ItemFacturaController {
 
     // Devuelve los items de la factura de la factura.
     @GetMapping("/factura/{facturaId}")
-    public ResponseEntity<Page<ItemFacturaResponse>> getItemFacturasByFactura(
+    public ResponseEntity<List<ItemFacturaResponse>> getItemFacturasByFactura(
             @PathVariable Long facturaId,
-            @AuthenticationPrincipal Usuario usuarioActual,
-            @RequestParam(required = false) Integer page,
-            @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(itemFacturaService.getItemFacturasByFactura(facturaId, usuarioActual, Paginacion.de(page, size))
-                .map(ItemFacturaResponse::fromEntity));
+            @AuthenticationPrincipal Usuario usuarioActual) {
+        return ResponseEntity.ok(itemFacturaService.getItemFacturasByFactura(facturaId, usuarioActual).stream()
+                .map(ItemFacturaResponse::fromEntity)
+                .toList());
     }
 
     // Crea el item de la factura con los datos del request. Las relaciones llegan como ids y se resuelven en el service.

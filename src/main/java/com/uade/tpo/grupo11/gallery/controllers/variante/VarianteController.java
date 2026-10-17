@@ -25,7 +25,7 @@ public class VarianteController {
     }
 
 
-    // GET /variantes          -> todas
+    // GET /variantes          -> las de obras en venta
     // GET /variantes?obraId=1 -> las de una obra
     @GetMapping
     public ResponseEntity<Page<VarianteResponse>> getVariantes(

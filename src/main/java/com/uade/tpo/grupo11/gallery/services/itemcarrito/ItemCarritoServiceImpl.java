@@ -1,7 +1,5 @@
 package com.uade.tpo.grupo11.gallery.services.itemcarrito;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
@@ -39,11 +37,11 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
     // Devuelve los items del carrito.
     @Override
-    public Page<ItemCarrito> getItemsCarrito(Usuario usuarioActual, PageRequest pageable) {
+    public List<ItemCarrito> getItemsCarrito(Usuario usuarioActual) {
         // Ver todos los items de todos los carritos es una vista administrativa.
         OwnershipGuard.soloAdmin(usuarioActual);
 
-        Page<ItemCarrito> items = itemCarritoRepository.findAll(pageable);
+        List<ItemCarrito> items = itemCarritoRepository.findAll();
         if (items.isEmpty()) {
             throw new RecursoNoEncontradoException("No hay items de carrito registrados en el sistema");
         }
@@ -83,6 +81,8 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         Variante variante = varianteRepository
                 .findById(request.getVariante_id())
                 .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
+
+        validarObraVigente(variante);
 
         // No se puede comprar la propia obra: seria una autoventa.
         if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
@@ -130,6 +130,8 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
                 .findById(request.getVariante_id())
                 .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
 
+        validarObraVigente(variante);
+
         // No se puede comprar la propia obra: seria una autoventa.
         if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
             throw new CompraPropiaException(variante.getId());
@@ -157,6 +159,16 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         OwnershipGuard.verificar(usuarioActual, itemCarrito.getCarrito().getUsuario().getId());
 
         itemCarritoRepository.delete(itemCarrito);
+    }
+
+    // Solo se agregan al carrito obras que se venden: ni dadas de baja ni sacadas de la venta.
+    private void validarObraVigente(Variante variante) {
+        if (variante.getObra().isEliminada()) {
+            throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
+        }
+        if (!variante.getObra().isEn_venta()) {
+            throw new ObraNoEnVentaException(variante.getId(), variante.getObra().getId());
+        }
     }
 
     // Lo que ya hay en el carrito para la misma variante (sin contar el item que se edita) mas lo pedido no puede superar el stock.
