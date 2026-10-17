@@ -5,7 +5,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
-import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
 import com.uade.tpo.grupo11.gallery.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
@@ -110,12 +109,9 @@ public class CarritoServiceImpl implements CarritoService {
 
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carritoId);
 
-        if (items.isEmpty()) {
-            throw OwnershipGuard.esPropio(usuarioActual, carrito.getUsuario().getId())
-                    ? new CarritoVacioException()
-                    : new CarritoVacioException(carritoId);
-        }
-
+        // Un carrito vacio no es un error: es una lista sin elementos. El 409 por
+        // carrito vacio corresponde al checkout, que no puede comprar nada; listarlo
+        // tiene que devolver la lista vacia para que el front muestre su estado vacio.
         return items;
     }
 
