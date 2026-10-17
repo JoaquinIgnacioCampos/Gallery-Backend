@@ -1,5 +1,4 @@
 package com.uade.tpo.grupo11.gallery.services.checkout;
-
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
@@ -11,6 +10,8 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
 import com.uade.tpo.grupo11.gallery.exceptions.DireccionRequeridaException;
+import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
+import com.uade.tpo.grupo11.gallery.exceptions.ObraNoEnVentaException;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
@@ -19,16 +20,16 @@ import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 import com.uade.tpo.grupo11.gallery.services.PrecioVigente;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+
 
 // Logica de negocio de checkout: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -73,15 +74,20 @@ public class CheckoutServiceImpl implements CheckoutService {
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carrito.getId());
 
         if (items.isEmpty()) {
-            throw new CarritoVacioException(carrito.getId());
+            throw new CarritoVacioException();
         }
 
         // 1.5) Si eligió envío a domicilio, necesita tener una dirección cargada.
-        // Si eligió retiro, no importa si tiene dirección o no.
+        // Si no se especifica tipo de entrega (o se pide retiro), se defaultea a
+        // retiro por sucursal sin costo, sin importar si el carrito tiene dirección o no.
+        TipoEntrega tipoEntrega = tipoEntregaElegido == TipoEntrega.ENVIO_DOMICILIO
+                ? TipoEntrega.ENVIO_DOMICILIO
+                : TipoEntrega.RETIRO_LOCAL;
+
         String direccionEntrega;
         BigDecimal costoEnvio;
 
-        if (tipoEntregaElegido == TipoEntrega.ENVIO_DOMICILIO) {
+        if (tipoEntrega == TipoEntrega.ENVIO_DOMICILIO) {
             if (carrito.getDireccion_cliente() == null || carrito.getDireccion_cliente().isBlank()) {
                 throw new DireccionRequeridaException(
                         "Para elegir envío a domicilio primero tenés que cargar tu dirección");
@@ -93,14 +99,22 @@ public class CheckoutServiceImpl implements CheckoutService {
             costoEnvio = BigDecimal.ZERO;
         }
 
-        // 2) Validamos el stock de TODO antes de tocar nada.
+        // 2) Validamos el stock de TODO antes de tocar nada. Si una obra se dio de baja o se
+        //    saco de la venta despues de agregarla al carrito, se rechaza la compra entera.
         for (ItemCarrito item : items) {
             Variante variante = item.getVariante();
+            if (variante.getObra().isEliminada()) {
+                throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
+            }
+            if (!variante.getObra().isEn_venta()) {
+                throw new ObraNoEnVentaException(variante.getId(), variante.getObra().getId());
+            }
             if (variante.getStock_variante() < item.getCantidad()) {
                 throw new StockInsuficienteException(
                         variante.getId(), item.getCantidad(), variante.getStock_variante());
             }
         }
+
 
         // 3) Agrupamos los items por artista, siguiendo variante -> obra -> artista.
         Map<PerfilArtista, List<ItemCarrito>> itemsPorArtista = new LinkedHashMap<>();
@@ -117,7 +131,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 .total_compra(BigDecimal.ZERO)
                 .direccion_entrega(direccionEntrega)
                 .tipo_entrega(tipoEntrega)
-                .costo_envio(costoEnvio)     // nuevo campo
+                .costo_envio(costoEnvio)
                 .build();
         compra = compraRepository.save(compra);
 
