@@ -8,6 +8,7 @@ import com.uade.tpo.grupo11.gallery.repositories.MarcoRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 import com.uade.tpo.grupo11.gallery.exceptions.RecursoEnUsoException;
 import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
+import com.uade.tpo.grupo11.gallery.services.imagen.AlmacenamientoImagenes;
 
 // Logica de negocio de los marcos: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -22,6 +24,9 @@ public class MarcoServiceImpl implements MarcoService {
 
     @Autowired
     private MarcoRepository marcoRepository;
+
+    @Autowired
+    private AlmacenamientoImagenes almacenamiento;
 
 
     // Devuelve los marcos.
@@ -49,16 +54,24 @@ public class MarcoServiceImpl implements MarcoService {
 
     // Crea el marco con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
+    @Transactional
     public Marco createMarco(MarcoRequest request) throws IOException {
 
         if (request.getArchivo() == null || request.getArchivo().isEmpty()) {
             throw new IllegalArgumentException("El archivo de la imagen del marco es obligatorio");
         }
+        almacenamiento.validarImagen(request.getArchivo());
+
+        // La foto se sube a Cloudinary (carpeta de marcos); si la transaccion se revierte, se borra.
+        AlmacenamientoImagenes.ImagenSubida subida =
+                almacenamiento.subir(request.getArchivo(), AlmacenamientoImagenes.CARPETA_MARCOS);
+        almacenamiento.borrarSiSeRevierte(subida.publicId());
 
         Marco marco = Marco.builder()
                 .nombre_marco(request.getNombre_marco())
                 .color_marco(request.getColor_marco())
-                .imagen_marco(request.getArchivo().getBytes())
+                .url_marco(subida.url())
+                .public_id_marco(subida.publicId())
                 .precio_marco(request.getPrecio_marco())
                 .build();
 
@@ -68,6 +81,7 @@ public class MarcoServiceImpl implements MarcoService {
 
     // Actualiza el marco: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     @Override
+    @Transactional
     public Marco updateMarco(
             Long marcoId,
             MarcoRequest request) throws IOException {
@@ -80,8 +94,17 @@ public class MarcoServiceImpl implements MarcoService {
         marco.setColor_marco(request.getColor_marco());
         marco.setPrecio_marco(request.getPrecio_marco());
 
+        // Una foto nueva reemplaza a la anterior: la vieja se borra de Cloudinary despues del commit.
         if (request.getArchivo() != null && !request.getArchivo().isEmpty()) {
-            marco.setImagen_marco(request.getArchivo().getBytes());
+            almacenamiento.validarImagen(request.getArchivo());
+
+            AlmacenamientoImagenes.ImagenSubida subida =
+                    almacenamiento.subir(request.getArchivo(), AlmacenamientoImagenes.CARPETA_MARCOS);
+            almacenamiento.borrarSiSeRevierte(subida.publicId());
+            almacenamiento.borrarDespuesDelCommit(marco.getPublic_id_marco());
+
+            marco.setUrl_marco(subida.url());
+            marco.setPublic_id_marco(subida.publicId());
         }
 
         return marcoRepository.save(marco);
@@ -90,6 +113,7 @@ public class MarcoServiceImpl implements MarcoService {
 
     // Elimina el marco de la base.
     @Override
+    @Transactional
     public void deleteMarco(Long marcoId) {
 
         Marco marco = marcoRepository
@@ -108,6 +132,9 @@ public class MarcoServiceImpl implements MarcoService {
         }
 
         marcoRepository.delete(marco);
+
+        // La foto se borra de Cloudinary recien cuando la transaccion se confirma.
+        almacenamiento.borrarDespuesDelCommit(marco.getPublic_id_marco());
     }
 
     @Autowired

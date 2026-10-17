@@ -221,6 +221,12 @@ public class GlobalExceptionHandler {
                 .body("El valor '" + e.getValue() + "' no es valido para el parametro '" + e.getName() + "'");
     }
 
+    // El servicio de imagenes (Cloudinary) fallo o no esta configurado: 502, no es culpa del cliente.
+    @ExceptionHandler(AlmacenamientoImagenException.class)
+    public ResponseEntity<String> handleAlmacenamientoImagen(AlmacenamientoImagenException e) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(e.getMessage());
+    }
+
     // Una lista vacia no es un error: 204 No Content, sin cuerpo. El 404 queda para lo que no existe.
     @ExceptionHandler(ListaVaciaException.class)
     public ResponseEntity<Void> handleListaVacia(ListaVaciaException ex) {

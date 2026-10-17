@@ -10,3 +10,6 @@ spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
 application.security.jwt.secretKey=cambiar_por_una_clave_hexadecimal_larga_y_aleatoria
 application.security.jwt.expiration=86400000
+# Cloudinary (fotos de las obras). Formato: cloudinary://<api_key>:<api_secret>@<cloud_name>
+# Sale del panel de Cloudinary. El api_secret NO va al repositorio: application.properties no se versiona.
+cloudinary.url=cloudinary://tu_api_key:tu_api_secret@tu_cloud_name
