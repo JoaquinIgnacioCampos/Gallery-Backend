@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoEnUsoException;
+import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
+import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 
 // Logica de negocio de los estilos: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -50,5 +53,62 @@ public class EstiloServiceImpl implements EstiloService {
         estilo.setNombreEstilo(request.getNombreEstilo());
 
         return estiloRepository.save(estilo);
+    }
+
+    @Autowired
+    private ObraRepository obraRepository;
+
+    @Autowired
+    private PerfilArtistaRepository perfilArtistaRepository;
+
+    @Override
+    public Estilo actualizarEstilo(
+            Long id,
+            EstiloRequest request
+    ) {
+
+        Estilo estilo = estiloRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new EstiloNotFoundException(id)
+                );
+
+        estiloRepository
+                .findByNombreEstilo(request.getNombreEstilo())
+                .ifPresent(existente -> {
+
+                    if (!existente.getId().equals(id)) {
+                        throw new EstiloDuplicadoException(
+                                request.getNombreEstilo()
+                        );
+                    }
+                });
+
+        estilo.setNombreEstilo(
+                request.getNombreEstilo()
+        );
+
+        return estiloRepository.save(estilo);
+    }
+
+    @Override
+    public void eliminarEstilo(Long id) {
+
+        Estilo estilo = estiloRepository
+                .findById(id)
+                .orElseThrow(() ->
+                        new EstiloNotFoundException(id)
+                );
+
+        if (
+                obraRepository.existsByEstilosId(id) ||
+                        perfilArtistaRepository.existsByEstilosId(id)
+        ) {
+            throw new RecursoEnUsoException(
+                    "No se puede eliminar el estilo porque está siendo utilizado."
+            );
+        }
+
+        estiloRepository.delete(estilo);
     }
 }

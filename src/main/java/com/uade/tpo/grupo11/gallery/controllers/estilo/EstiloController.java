@@ -40,4 +40,31 @@ public class EstiloController {
         return ResponseEntity.created(URI.create("/api/estilos/" + result.getId()))
                 .body(EstiloResponse.fromEntity(result));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<EstiloResponse> actualizarEstilo(
+            @PathVariable Long id,
+            @Valid @RequestBody EstiloRequest request
+    ) {
+
+        Estilo estilo =
+                estiloService.actualizarEstilo(
+                        id,
+                        request
+                );
+
+        return ResponseEntity.ok(
+                EstiloResponse.fromEntity(estilo)
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> eliminarEstilo(
+            @PathVariable Long id
+    ) {
+
+        estiloService.eliminarEstilo(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

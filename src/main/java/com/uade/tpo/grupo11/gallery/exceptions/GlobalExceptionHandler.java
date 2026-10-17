@@ -246,4 +246,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+    @ExceptionHandler(RecursoEnUsoException.class)
+    public ResponseEntity<String> handleRecursoEnUso(
+            RecursoEnUsoException e
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(e.getMessage());
+    }
 }

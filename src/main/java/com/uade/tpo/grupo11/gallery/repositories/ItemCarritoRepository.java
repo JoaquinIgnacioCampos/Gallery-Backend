@@ -15,4 +15,8 @@ public interface ItemCarritoRepository extends JpaRepository<ItemCarrito, Long> 
 
     // Elimina el item del carrito de la base.
     void deleteByCarritoId(Long carritoId);
+
+
+    // Utilizado para vista de admincatalogo del front
+    boolean existsByMarcoId(Long marcoId);
 }

@@ -13,4 +13,11 @@ public interface EstiloService {
     List<Estilo> obtenerTodos();
     // Crea el estilo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     Estilo crearEstilo(EstiloRequest request);
+
+    Estilo actualizarEstilo(
+            Long id,
+            EstiloRequest request
+    );
+
+    void eliminarEstilo(Long id);
 }
