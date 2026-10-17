@@ -33,4 +33,8 @@ public interface VarianteRepository extends JpaRepository<Variante, Long> {
     @Query("UPDATE Variante v SET v.stock_variante = v.stock_variante - :cantidad " +
             "WHERE v.id = :id AND v.stock_variante >= :cantidad")
     int descontarStock(@Param("id") Long id, @Param("cantidad") int cantidad);
+
+
+    // Utilizado para vista de admincatalogo del front
+    boolean existsByTamanioId(Long tamanioId);
 }

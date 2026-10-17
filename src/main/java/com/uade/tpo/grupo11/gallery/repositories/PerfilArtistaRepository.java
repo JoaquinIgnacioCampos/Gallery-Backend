@@ -26,4 +26,7 @@ public interface PerfilArtistaRepository extends JpaRepository<PerfilArtista, Lo
     @Override
     @EntityGraph(attributePaths = "usuario")
     Optional<PerfilArtista> findById(Long id);
+
+    // Utilizado en vista de AdminCatalogo del front
+    boolean existsByEstilosId(Long estiloId);
 }

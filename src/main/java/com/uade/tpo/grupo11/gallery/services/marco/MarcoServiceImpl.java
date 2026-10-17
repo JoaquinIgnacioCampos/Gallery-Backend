@@ -12,6 +12,10 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.List;
 
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoEnUsoException;
+import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
+
 // Logica de negocio de los marcos: valida, resuelve las relaciones y coordina los repositorios.
 @Service
 public class MarcoServiceImpl implements MarcoService {
@@ -90,8 +94,25 @@ public class MarcoServiceImpl implements MarcoService {
 
         Marco marco = marcoRepository
                 .findById(marcoId)
-                .orElseThrow(() -> new MarcoNotFoundException(marcoId));
+                .orElseThrow(() ->
+                        new MarcoNotFoundException(marcoId)
+                );
+
+        if (
+                itemCarritoRepository.existsByMarcoId(marcoId) ||
+                        itemFacturaRepository.existsByMarcoId(marcoId)
+        ) {
+            throw new RecursoEnUsoException(
+                    "No se puede eliminar el marco porque está siendo utilizado."
+            );
+        }
 
         marcoRepository.delete(marco);
     }
+
+    @Autowired
+    private ItemCarritoRepository itemCarritoRepository;
+
+    @Autowired
+    private ItemFacturaRepository itemFacturaRepository;
 }

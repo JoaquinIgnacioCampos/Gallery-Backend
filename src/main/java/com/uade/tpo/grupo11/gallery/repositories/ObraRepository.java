@@ -58,4 +58,7 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
             @Param("precioMin") BigDecimal precioMin,
             @Param("precioMax") BigDecimal precioMax,
             Pageable pageable);
+
+    // Utilizado para vista de admincatalogo del front
+    boolean existsByEstilosId(Long estiloId);
 }

@@ -12,4 +12,8 @@ public interface ItemFacturaRepository extends JpaRepository<ItemFactura, Long> 
 
     // Busca por el id de la factura. Spring arma la consulta sola leyendo el nombre del metodo.
     List<ItemFactura> findByFacturaId(Long facturaId);
+
+
+    // Utilizado para vista de admincatalogo del front
+    boolean existsByMarcoId(Long marcoId);
 }

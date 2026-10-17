@@ -39,4 +39,32 @@ public class TamanioLienzoController {
                 .created(URI.create("/api/tamanios-lienzo/" + nuevoTamanio.getId()))
                 .body(nuevoTamanio);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TamanioLienzo> updateTamanioLienzo(
+            @PathVariable Long id,
+            @Valid @RequestBody TamanioLienzoRequest request
+    ) {
+
+        return ResponseEntity.ok(
+                tamanioLienzoService
+                        .updateTamanioLienzo(
+                                id,
+                                request
+                        )
+        );
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTamanioLienzo(
+            @PathVariable Long id
+    ) {
+
+        tamanioLienzoService
+                .deleteTamanioLienzo(id);
+
+        return ResponseEntity
+                .noContent()
+                .build();
+    }
 }
