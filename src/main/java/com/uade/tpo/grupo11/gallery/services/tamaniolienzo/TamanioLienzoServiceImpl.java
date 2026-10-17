@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import com.uade.tpo.grupo11.gallery.exceptions.RecursoEnUsoException;
+import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 
 // Logica de negocio de los tamanios de lienzo: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -45,5 +47,61 @@ public class TamanioLienzoServiceImpl implements TamanioLienzoService {
         tamanio.setLargo_lienzo(request.getLargo_lienzo());
 
         return tamanioLienzoRepository.save(tamanio);
+    }
+
+    @Autowired
+    private VarianteRepository varianteRepository;
+
+    @Override
+    public TamanioLienzo updateTamanioLienzo(
+            Long id,
+            TamanioLienzoRequest request
+    ) {
+
+        TamanioLienzo tamanio =
+                tamanioLienzoRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new TamanioLienzoNotFoundException(id)
+                        );
+
+        tamanio.setNombre_tamanio(
+                request.getNombre_tamanio()
+        );
+
+        tamanio.setAncho_lienzo(
+                request.getAncho_lienzo()
+        );
+
+        tamanio.setLargo_lienzo(
+                request.getLargo_lienzo()
+        );
+
+        return tamanioLienzoRepository.save(
+                tamanio
+        );
+    }
+
+    @Override
+    public void deleteTamanioLienzo(Long id) {
+
+        TamanioLienzo tamanio =
+                tamanioLienzoRepository
+                        .findById(id)
+                        .orElseThrow(() ->
+                                new TamanioLienzoNotFoundException(id)
+                        );
+
+        if (
+                varianteRepository.existsByTamanioId(id)
+        ) {
+            throw new RecursoEnUsoException(
+                    "No se puede eliminar el tamaño porque está siendo utilizado por una variante."
+            );
+        }
+
+        tamanioLienzoRepository.delete(
+                tamanio
+        );
     }
 }
