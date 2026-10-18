@@ -18,6 +18,8 @@ import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashSet;
 import java.math.BigDecimal;
 import java.util.List;
@@ -49,9 +51,10 @@ public class ObraServiceImpl implements ObraService {
         return obra;
     }
 
-    // Busca obras con filtros opcionales y combinables. Valida los precios antes de consultar.
+    // Busca obras con filtros opcionales y combinables. Valida los datos antes de consultar.
     @Override
-    public Page<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax, PageRequest pageable) {
+    public Page<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax,
+                                       String q, String orden, PageRequest pageable) {
         if (precioMin != null && precioMin.signum() < 0) {
             throw new IllegalArgumentException("El precio minimo no puede ser negativo.");
         }
@@ -62,6 +65,28 @@ public class ObraServiceImpl implements ObraService {
             throw new IllegalArgumentException("El precio minimo no puede superar al maximo.");
         }
 
+        // Orden: recientes (por defecto), menor-precio o mayor-precio.
+        int signo;
+        if (orden == null || orden.isBlank() || orden.equals("recientes")) {
+            signo = 0;
+        } else if (orden.equals("menor-precio")) {
+            signo = 1;
+        } else if (orden.equals("mayor-precio")) {
+            signo = -1;
+        } else {
+            throw new IllegalArgumentException("Orden invalido: usar recientes, menor-precio o mayor-precio.");
+        }
+
+        // Texto: sin espacios sobrantes, en minuscula, y con % _ ! escapados para que se busquen literalmente.
+        String patron = null;
+        if (q != null && !q.isBlank()) {
+            String limpio = q.trim().toLowerCase()
+                    .replace("!", "!!")
+                    .replace("%", "!%")
+                    .replace("_", "!_");
+            patron = "%" + limpio + "%";
+        }
+
         // Verificar existencia de entidades si se envían los IDs
         if (artistaId != null && !perfilArtistaRepository.existsById(artistaId)) {
             throw new PerfilArtistaNotFoundException(artistaId);
@@ -70,9 +95,13 @@ public class ObraServiceImpl implements ObraService {
             throw new RecursoNoEncontradoException("No existe el estilo con ID: " + estiloId);
         }
 
-        Page<Obra> resultados = repoObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax, pageable);
+        // "Hoy" en Argentina: un descuento vence al terminar su ultimo dia.
+        LocalDate hoy = LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires"));
 
-        // Verificar si la consulta volvió vacía
+        Page<Obra> resultados = repoObra.buscarConFiltros(
+                artistaId, estiloId, precioMin, precioMax, patron, hoy, signo, pageable);
+
+        // Verificar si la consulta volvió vacía (el handler responde 204)
         if (resultados.isEmpty()) {
             throw new ListaVaciaException("No se encontraron obras que coincidan con los filtros aplicados.");
         }

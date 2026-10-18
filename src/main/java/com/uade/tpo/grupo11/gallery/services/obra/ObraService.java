@@ -15,8 +15,9 @@ import java.util.Set;
 public interface ObraService {
     // Devuelve las obras.
     Page<Obra> getObras(PageRequest pageable);
-    // Busca obras con filtros opcionales y combinables. Valida los precios antes de consultar.
-    Page<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax, PageRequest pageable);
+    // Busca obras con filtros opcionales y combinables, por texto (q) y con orden. Valida los datos antes de consultar.
+    Page<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax,
+                                String q, String orden, PageRequest pageable);
     // Devuelve las obras del artista.
     List<Obra> getObrasByArtista(Long artistaId);
     // Busca la obra por id. Si no existe, se lanza la excepcion y el handler responde 404.
