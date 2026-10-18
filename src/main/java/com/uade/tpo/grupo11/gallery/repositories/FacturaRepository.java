@@ -4,6 +4,8 @@ import com.uade.tpo.grupo11.gallery.entities.Factura;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,5 +20,12 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
 
     // Las facturas emitidas a nombre de un artista: son sus ventas.
     List<Factura> findByArtistaId(Long artistaId);
-    Page<Factura> findByArtistaId(Long artistaId, Pageable pageable);
+
+    // Las ventas de un artista, de la mas nueva a la mas vieja. Con el id como desempate (varias facturas
+    // pueden tener la misma fecha) para que las paginas no repitan ni omitan ventas.
+    // Va escrita a mano porque los campos llevan guion bajo y el Sort de Spring los tomaria como rutas.
+    @Query(value = "SELECT f FROM Factura f WHERE f.artista.id = :artistaId "
+            + "ORDER BY f.fecha_creacion_factura DESC, f.id DESC",
+            countQuery = "SELECT COUNT(f) FROM Factura f WHERE f.artista.id = :artistaId")
+    Page<Factura> findByArtistaIdOrdenadas(@Param("artistaId") Long artistaId, Pageable pageable);
 }
