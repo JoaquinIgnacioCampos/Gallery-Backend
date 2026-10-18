@@ -7,7 +7,7 @@ public record ImagenResponse(
         Long id,
         Long obra_id,
         int orden_imagen,
-        byte[] contenido_imagen
+        String url
 ) {
     // Traduce la entidad a lo que ve el cliente. Manda ids en vez de objetos anidados.
     public static ImagenResponse fromEntity(Imagen imagen) {
@@ -15,7 +15,7 @@ public record ImagenResponse(
                 imagen.getId(),
                 imagen.getObra().getId(),
                 imagen.getOrden_imagen(),
-                imagen.getContenido_imagen()
+                imagen.getUrl_imagen()
         );
     }
 }

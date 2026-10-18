@@ -23,41 +23,41 @@ public class MarcoController {
 
     // GET - Obtener todos los marcos
     @GetMapping
-    public List<Marco> getMarcos() {
+    public List<MarcoResponse> getMarcos() {
 
-        return marcoService.getMarcos();
+        return marcoService.getMarcos().stream().map(MarcoResponse::fromEntity).toList();
     }
 
 
     // GET - Obtener un marco por ID
     @GetMapping("/{marcoId}")
-    public Marco getMarcoById(
+    public MarcoResponse getMarcoById(
             @PathVariable Long marcoId) {
 
-        return marcoService.getMarcoById(marcoId);
+        return MarcoResponse.fromEntity(marcoService.getMarcoById(marcoId));
     }
 
 
     // POST - Crear marco
     @PostMapping(consumes = "multipart/form-data")
-    public ResponseEntity<Marco> createMarco(
+    public ResponseEntity<MarcoResponse> createMarco(
             @Valid MarcoRequest request) throws IOException {
 
         Marco result = marcoService.createMarco(request);
-        return ResponseEntity.created(URI.create("/api/marcos/" + result.getId())).body(result);
+        return ResponseEntity.created(URI.create("/api/marcos/" + result.getId())).body(MarcoResponse.fromEntity(result));
     }
 
 
     // PUT - Modificar marco
     @PutMapping(value = "/{marcoId}", consumes = "multipart/form-data")
-    public Marco updateMarco(
+    public MarcoResponse updateMarco(
             @PathVariable Long marcoId,
             @Valid MarcoRequest request) throws IOException {
 
-        return marcoService.updateMarco(
+        return MarcoResponse.fromEntity(marcoService.updateMarco(
                 marcoId,
                 request
-        );
+        ));
     }
 
 

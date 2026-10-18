@@ -11,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
+import com.uade.tpo.grupo11.gallery.services.almacenamiento.AlmacenamientoService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,9 @@ public class ImagenServiceImpl implements ImagenService {
 
     @Autowired
     private ObraRepository obraRepository;
+
+    @Autowired
+    private AlmacenamientoService almacenamiento;
 
 
     // Devuelve las imagenes.
@@ -75,6 +79,7 @@ public class ImagenServiceImpl implements ImagenService {
         if (request.getArchivo() == null || request.getArchivo().isEmpty()) {
             throw new IllegalArgumentException("El archivo de la imagen es obligatorio");
         }
+        almacenamiento.validarImagen(request.getArchivo());
 
         Obra obra = obraRepository
                 .findById(request.getObra_id())
@@ -93,11 +98,16 @@ public class ImagenServiceImpl implements ImagenService {
             }
         }
 
+        // El archivo se sube a Cloudinary; en la base queda su URL. Si la transaccion se revierte,
+        // el archivo recien subido se borra para que no quede huerfano.
+        AlmacenamientoService.ImagenSubida subida = almacenamiento.subir(request.getArchivo(), AlmacenamientoService.CARPETA_OBRAS);
+        almacenamiento.borrarSiSeRevierte(subida.publicId());
+
         Imagen imagen = Imagen.builder()
                 .obra(obra)
                 .orden_imagen(posicion)
-                // getBytes() pasa el archivo subido a byte[], que es lo que espera la columna BLOB.
-                .contenido_imagen(request.getArchivo().getBytes())
+                .url_imagen(subida.url())
+                .public_id_imagen(subida.publicId())
                 .build();
 
         return repoImagen.save(imagen);
@@ -119,8 +129,17 @@ public class ImagenServiceImpl implements ImagenService {
             moverA(imagenExistente, request.getOrden_imagen());
         }
 
+        // Una foto nueva reemplaza a la anterior: se sube la nueva y la vieja se borra de Cloudinary
+        // recien cuando la transaccion se confirma.
         if (request.getArchivo() != null && !request.getArchivo().isEmpty()) {
-            imagenExistente.setContenido_imagen(request.getArchivo().getBytes());
+            almacenamiento.validarImagen(request.getArchivo());
+
+            AlmacenamientoService.ImagenSubida subida = almacenamiento.subir(request.getArchivo(), AlmacenamientoService.CARPETA_OBRAS);
+            almacenamiento.borrarSiSeRevierte(subida.publicId());
+            almacenamiento.borrarDespuesDelCommit(imagenExistente.getPublic_id_imagen());
+
+            imagenExistente.setUrl_imagen(subida.url());
+            imagenExistente.setPublic_id_imagen(subida.publicId());
         }
 
         return repoImagen.save(imagenExistente);
@@ -140,6 +159,9 @@ public class ImagenServiceImpl implements ImagenService {
         int posicionBorrada = imagen.getOrden_imagen();
         Long obraId = imagen.getObra().getId();
         repoImagen.delete(imagen);
+
+        // El archivo se borra de Cloudinary recien cuando la transaccion se confirma.
+        almacenamiento.borrarDespuesDelCommit(imagen.getPublic_id_imagen());
 
         // Cierran el hueco: las que venian despues bajan una posicion.
         for (Imagen restante : repoImagen.findByObraIdOrdenadas(obraId)) {
