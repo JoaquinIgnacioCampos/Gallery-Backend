@@ -35,3 +35,6 @@ build/
 ### CONFIG ###
 /src/main/resources/application.properties
 /informes/Pruebas_API_Gallery.docx
+
+### Demo: cache local (fotos ya subidas a Cloudinary, lista de huerfanas) ###
+demo/.cache/

@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Reset demo (completo)" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.uade.tpo.grupo11.gallery.demo.ResetDemo" />
+    <module name="Gallery" />
+    <option name="PROGRAM_PARAMETERS" value="--completo" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
