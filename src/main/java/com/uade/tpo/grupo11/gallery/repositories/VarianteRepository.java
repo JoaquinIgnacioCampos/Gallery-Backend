@@ -20,6 +20,20 @@ public interface VarianteRepository extends JpaRepository<Variante, Long> {
     List<Variante> findByObraId(Long obraId);
     Page<Variante> findByObraId(Long obraId, Pageable pageable);
 
+    // Cuantas variantes tiene cada obra y cuantas estan sin stock, en una sola consulta.
+    // Una obra sin variantes no aparece en el resultado.
+    @Query("SELECT v.obra.id AS obraId, COUNT(v) AS cantidad, "
+            + "SUM(CASE WHEN v.stock_variante = 0 THEN 1 ELSE 0 END) AS sinStock "
+            + "FROM Variante v WHERE v.obra.id IN :obraIds GROUP BY v.obra.id")
+    List<ResumenDeVariantes> resumirPorObras(@Param("obraIds") List<Long> obraIds);
+
+    // Una fila de resumirPorObras.
+    interface ResumenDeVariantes {
+        Long getObraId();
+        Long getCantidad();
+        Long getSinStock();
+    }
+
     // El listado general: solo las variantes de obras en venta y no eliminadas.
     @Query("SELECT v FROM Variante v WHERE v.obra.eliminada = false AND v.obra.en_venta = true")
     Page<Variante> findDelCatalogo(Pageable pageable);
