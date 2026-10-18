@@ -32,6 +32,10 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
     // la obra recién creada para cargarle las fotos y las variantes.
     Page<Obra> findByArtistaIdAndEliminadaFalse(Long artistaId, Pageable pageable);
 
+    // Los ids de los estilos de varias obras en una sola consulta: una fila por cada par (obra, estilo).
+    @Query("SELECT o.id AS obraId, e.id AS estiloId FROM Obra o JOIN o.estilos e WHERE o.id IN :obraIds")
+    List<EstiloDeObra> findEstilosDeObras(@Param("obraIds") List<Long> obraIds);
+
     @Query(value = """
         SELECT DISTINCT o FROM Obra o
         JOIN o.variantes v
