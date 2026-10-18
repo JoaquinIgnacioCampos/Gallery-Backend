@@ -158,7 +158,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         PerfilArtista perfil = getPerfilArtistaById(perfilArtistaId);
         OwnershipGuard.verificar(usuarioLogueado, perfil.getUsuario().getId());
 
-        Page<Factura> facturas = facturaRepository.findByArtistaId(perfilArtistaId, pageable);
+        Page<Factura> facturas = facturaRepository.findByArtistaIdOrdenadas(perfilArtistaId, pageable);
 
         if (facturas.isEmpty()) {
             throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioLogueado, perfil.getUsuario().getId())
