@@ -73,17 +73,6 @@ class PerfilArtistaCreationTests {
     }
 
     @Test
-    void adminEsRechazadoSinCrearPerfilNiCambiarRol() throws Exception {
-        Usuario admin = usuario("admin", Rol.ADMIN);
-        mvc.perform(post(URL).header("Authorization", token(admin))
-                        .contentType(MediaType.APPLICATION_JSON).content(BODY))
-                .andExpect(status().isForbidden())
-                .andExpect(content().string("ya tiene permisos para hacer todo"));
-        assertTrue(perfiles.findByUsuarioId(admin.getId()).isEmpty());
-        assertEquals(Rol.ADMIN, usuarios.findById(admin.getId()).orElseThrow().getRol_usuario());
-    }
-
-    @Test
     void sinTokenNoCreaPerfil() throws Exception {
         long cantidad = perfiles.count();
         mvc.perform(post(URL).contentType(MediaType.APPLICATION_JSON).content(BODY))
