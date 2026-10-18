@@ -87,9 +87,10 @@ public class PerfilArtistaController {
     }
 
     // Las propias obras: el id sale del token, no hace falta que el artista lo sepa.
-    // Incluye las que no estan en venta, porque el artista las sigue gestionando.
+    // Incluye las que no estan en venta, porque el artista las sigue gestionando. Cada obra trae el
+    // resumen que necesita la lista (estilos, portada y cantidad de variantes).
     @GetMapping("/me/obras")
-    public ResponseEntity<Page<PerfilArtistaObraResponse>> getObrasPropias(
+    public ResponseEntity<Page<MiObraResponse>> getObrasPropias(
             @AuthenticationPrincipal Usuario usuarioLogueado,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
@@ -97,7 +98,7 @@ public class PerfilArtistaController {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(perfilArtistaService
                 .getObrasPropias(perfilPropio.getId(), Paginacion.de(page, size))
-                .map(PerfilArtistaObraResponse::fromEntity));
+                .map(MiObraResponse::fromResumen));
     }
 
     // Las ventas del artista: una fila por factura emitida a su nombre. El service

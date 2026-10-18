@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
@@ -13,15 +14,21 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ResumenDeVariantes;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
+import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 // Logica de negocio de los perfiles de artista: valida, resuelve las relaciones y coordina los repositorios.
@@ -36,6 +43,10 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     private ObraRepository obraRepository;
     @Autowired
     private FacturaRepository facturaRepository;
+    @Autowired
+    private VarianteRepository varianteRepository;
+    @Autowired
+    private ImagenRepository imagenRepository;
 
     // Devuelve los perfiles de artista del usuario.
     @Override
@@ -139,16 +150,45 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     }
 
     // Devuelve las obras que gestiona el propio artista: incluye las que no estan en venta, no las eliminadas.
+    // Los estilos, la portada y las variantes de toda la pagina se piden de una vez (una consulta cada uno,
+    // con IN) y se reparten en memoria: no hay una consulta por obra. Una obra sin fotos o sin variantes
+    // no corta la lista (para eso no se usan los services de imagen y variante, que lanzan ListaVaciaException).
     @Override
-    public Page<Obra> getObrasPropias(Long perfilArtistaId, PageRequest pageable) {
+    @Transactional(readOnly = true)
+    public Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, PageRequest pageable) {
         getPerfilArtistaById(perfilArtistaId);
-        Page<Obra> obras = obraRepository.findByArtistaIdAndEliminadaFalse(perfilArtistaId, pageable);
+
+        // Sin un orden fijo la base puede repetir u omitir obras entre una pagina y otra.
+        PageRequest ordenado = pageable.withSort(Sort.by("id"));
+        Page<Obra> obras = obraRepository.findByArtistaIdAndEliminadaFalse(perfilArtistaId, ordenado);
 
         if (obras.isEmpty()) {
             throw new ListaVaciaException("Todavía no tenés obras publicadas");
         }
 
-        return obras;
+        List<Long> ids = new ArrayList<>();
+        obras.forEach(obra -> ids.add(obra.getId()));
+
+        Map<Long, List<Long>> estilosPorObra = new HashMap<>();
+        obraRepository.findEstilosDeObras(ids).forEach(fila ->
+                estilosPorObra.computeIfAbsent(fila.getObraId(), clave -> new ArrayList<>()).add(fila.getEstiloId()));
+
+        Map<Long, ResumenDeVariantes> variantesPorObra = new HashMap<>();
+        varianteRepository.resumirPorObras(ids).forEach(fila -> variantesPorObra.put(fila.getObraId(), fila));
+
+        Map<Long, String> portadaPorObra = new HashMap<>();
+        imagenRepository.findPortadasDeObras(ids).forEach(fila -> portadaPorObra.putIfAbsent(fila.getObraId(), fila.getUrl()));
+
+        return obras.map(obra -> {
+            ResumenDeVariantes variantes =variantesPorObra.get(obra.getId());
+            return new ObraPropiaResumen(
+                    obra,
+                    estilosPorObra.getOrDefault(obra.getId(), List.of()),
+                    portadaPorObra.get(obra.getId()),
+                    variantes == null ? 0 : variantes.getCantidad(),
+                    variantes == null ? 0 : variantes.getSinStock()
+            );
+        });
     }
 
     // Devuelve las ventas del artista. Son datos de plata, asi que no alcanza con tener

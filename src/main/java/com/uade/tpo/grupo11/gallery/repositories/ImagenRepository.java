@@ -16,4 +16,11 @@ public interface ImagenRepository extends JpaRepository<Imagen, Long> {
     // Va escrita a mano porque el campo lleva guion bajo y los query methods esperan camelCase.
     @Query("SELECT i FROM Imagen i WHERE i.obra.id = :obraId ORDER BY i.orden_imagen ASC")
     List<Imagen> findByObraIdOrdenadas(@Param("obraId") Long obraId);
+
+    // La URL de la portada (la imagen de menor orden) de varias obras en una sola consulta.
+    // Una obra sin imagenes no aparece en el resultado.
+    @Query("SELECT i.obra.id AS obraId, i.url_imagen AS url FROM Imagen i "
+            + "WHERE i.obra.id IN :obraIds "
+            + "AND i.orden_imagen = (SELECT MIN(i2.orden_imagen) FROM Imagen i2 WHERE i2.obra = i.obra)")
+    List<PortadaDeObra> findPortadasDeObras(@Param("obraIds") List<Long> obraIds);
 }
