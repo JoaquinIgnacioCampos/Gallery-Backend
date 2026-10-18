@@ -37,10 +37,15 @@ public class ObraController {
             @RequestParam(required = false) BigDecimal precioMin,
             @Parameter(description = "Precio base maximo de la misma variante, inclusive; sin marco ni descuentos.")
             @RequestParam(required = false) BigDecimal precioMax,
+            @Parameter(description = "Texto a buscar en el nombre de la obra o el nombre artistico. Opcional.")
+            @RequestParam(required = false) String q,
+            @Parameter(description = "Orden: recientes (por defecto), menor-precio o mayor-precio.")
+            @RequestParam(required = false) String orden,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
 
-        return ResponseEntity.ok(servicioObra.buscarConFiltros(artistaId, estiloId, precioMin, precioMax, Paginacion.de(page, size))
+        return ResponseEntity.ok(servicioObra
+                .buscarConFiltros(artistaId, estiloId, precioMin, precioMax, q, orden, Paginacion.de(page, size))
                 .map(ObraResponse::fromEntity));
     }
 
