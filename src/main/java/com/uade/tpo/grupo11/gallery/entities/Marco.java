@@ -27,11 +27,13 @@ public class Marco {
     @Column(name = "color_marco", nullable = false)
     private String color_marco;
 
-    // LONGBLOB explicito: sin esto Hibernate mapea byte[]+@Lob como TINYBLOB en MySQL
-    // (255 bytes), suficiente para un placeholder de prueba pero no para una foto real.
-    @Lob
-    @Column(name = "imagen_marco", columnDefinition = "LONGBLOB")
-    private byte[] imagen_marco;
+    // La foto vive en Cloudinary (carpeta gallery/marcos): en la base solo queda su direccion
+    // y su public_id, que hace falta para borrarla de alla.
+    @Column(name = "url_marco", length = 500)
+    private String url_marco;
+
+    @Column(name = "public_id_marco")
+    private String public_id_marco;
 
     @Column(name = "precio_marco", nullable = false)
     private BigDecimal precio_marco;
