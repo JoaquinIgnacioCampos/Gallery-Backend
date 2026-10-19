@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoRequest;
 import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
+import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.*;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
@@ -34,6 +35,19 @@ public class EncargoServiceImpl implements EncargoService {
     private FacturaRepository facturaRepository;
     @Autowired
     private CompraRepository compraRepository;
+
+    @Override
+    public Page<Encargo> getEncargos(Usuario usuarioLogueado, PageRequest pageable) {
+        OwnershipGuard.soloAdmin(usuarioLogueado);
+        return encargoRepository.findAll(pageable);
+    }
+
+    // La administracion consulta encargos, pero no opera en nombre de los participantes.
+    private void verificarEscritura(Usuario usuarioLogueado) {
+        if (usuarioLogueado.getRol_usuario() == Rol.ADMIN) {
+            throw new AccesoDenegadoException("La vista de administracion de encargos es de solo lectura");
+        }
+    }
 
     // Busca el encargo por id. Solo pueden verlo el cliente y el artista del encargo.
     @Override
@@ -89,6 +103,7 @@ public class EncargoServiceImpl implements EncargoService {
     // pero le debe aparecer al cliene una aviso de cuanto va a pagar antes de hacer la compra o algo por el estilo
     @Override
     public Encargo createEncargo(EncargoRequest request, Usuario usuarioLogueado) {
+        verificarEscritura(usuarioLogueado);
         PerfilArtista artista = artistaRepository.findById(request.getArtista_id())
                 .orElseThrow(() -> new PerfilArtistaNotFoundException(request.getArtista_id()));
 
@@ -123,6 +138,7 @@ public class EncargoServiceImpl implements EncargoService {
     @Override
     @Transactional
     public Encargo pagarEncargo(Long encargoId, Usuario usuarioLogueado) {
+        verificarEscritura(usuarioLogueado);
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
@@ -143,19 +159,19 @@ public class EncargoServiceImpl implements EncargoService {
     @Override
     @Transactional
     public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado) {
+        verificarEscritura(usuarioLogueado);
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
         boolean esArtistaDelEncargo = encargo.getArtista().getUsuario().getId().equals(usuarioLogueado.getId());
         boolean esClienteDelEncargo = encargo.getUsuario().getId().equals(usuarioLogueado.getId());
-        boolean esAdmin = usuarioLogueado.getRol_usuario() == com.uade.tpo.grupo11.gallery.entities.enums.Rol.ADMIN;
 
-        if (!esArtistaDelEncargo && !esClienteDelEncargo && !esAdmin) {
+        if (!esArtistaDelEncargo && !esClienteDelEncargo) {
             throw new AccesoDenegadoException("El encargo con id " + encargoId + " no te pertenece");
         }
 
-        // El cliente solo puede cancelar; el resto de las transiciones son privativas del artista (o ADMIN).
-        if (esClienteDelEncargo && !esArtistaDelEncargo && !esAdmin && nuevoEstado != EstadoEncargo.CANCELADO) {
+        // El cliente solo puede cancelar; el resto de las transiciones son privativas del artista.
+        if (esClienteDelEncargo && !esArtistaDelEncargo && nuevoEstado != EstadoEncargo.CANCELADO) {
             throw new AccesoDenegadoException("Solo el artista puede mover el encargo a este estado");
         }
 
@@ -172,15 +188,16 @@ public class EncargoServiceImpl implements EncargoService {
         return encargoRepository.save(encargo);
     }
 
-    // Solo el artista del encargo (o ADMIN) carga el precio, y solo mientras el encargo siga pendiente.
+    // Solo el artista del encargo carga el precio, y solo mientras el encargo siga pendiente.
     @Override
     public Encargo definirPrecio(Long encargoId, java.math.BigDecimal precio, Usuario usuarioLogueado) {
+        verificarEscritura(usuarioLogueado);
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
         boolean esArtistaDelEncargo = encargo.getArtista().getUsuario().getId().equals(usuarioLogueado.getId());
         if (!esArtistaDelEncargo) {
-            OwnershipGuard.soloAdmin(usuarioLogueado);
+            throw new AccesoDenegadoException("Solo el artista del encargo puede definir el precio");
         }
 
         verificarPrecioEditable(encargo);
@@ -193,6 +210,7 @@ public class EncargoServiceImpl implements EncargoService {
     // Aceptar aprueba el encargo y congela el precio.
     @Override
     public Encargo aceptarPrecio(Long encargoId, Usuario usuarioLogueado) {
+        verificarEscritura(usuarioLogueado);
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
