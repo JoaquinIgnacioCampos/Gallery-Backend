@@ -26,7 +26,7 @@ import java.time.ZoneId;
 @Table(name = "variante")
 public class Variante {
 
-    private static final ZoneId ZONA = ZoneId.of("America/Argentina/Buenos_Aires");
+    public static final ZoneId ZONA = ZoneId.of("America/Argentina/Buenos_Aires");
 
 
     @Id

@@ -55,6 +55,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
     }
 
+    @ExceptionHandler(VarianteDuplicadaException.class)
+    public ResponseEntity<String> handleVarianteDuplicada(VarianteDuplicadaException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409: ya hay una variante de ese tamaño
+    }
+
     @ExceptionHandler(CompraPropiaException.class)
     public ResponseEntity<String> handleCompraPropia(CompraPropiaException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

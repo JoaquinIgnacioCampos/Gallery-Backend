@@ -20,6 +20,11 @@ public interface VarianteRepository extends JpaRepository<Variante, Long> {
     List<Variante> findByObraId(Long obraId);
     Page<Variante> findByObraId(Long obraId, Pageable pageable);
 
+    // Si la obra ya tiene una variante de ese tamanio (una obra tiene como mucho una por tamanio).
+    // La segunda sirve al editar: ignora la propia variante.
+    boolean existsByObraIdAndTamanioId(Long obraId, Long tamanioId);
+    boolean existsByObraIdAndTamanioIdAndIdNot(Long obraId, Long tamanioId, Long varianteId);
+
     // Cuantas variantes tiene cada obra y cuantas estan sin stock, en una sola consulta.
     // Una obra sin variantes no aparece en el resultado.
     @Query("SELECT v.obra.id AS obraId, COUNT(v) AS cantidad, "
