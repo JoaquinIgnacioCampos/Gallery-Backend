@@ -8,6 +8,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.ImagenNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
+import com.uade.tpo.grupo11.gallery.repositories.ImagenPortada;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
@@ -18,7 +19,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // Logica de negocio de las imagenes: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -58,6 +62,30 @@ public class ImagenServiceImpl implements ImagenService {
             throw new ListaVaciaException("La obra con id " + obraId + " no tiene imagenes");
         }
         return imagenes;
+    }
+
+
+    // Devuelve la portada de cada obra (una sola imagen por obra, la de menor orden). Sin ids son las de todas
+    // las obras; con ids, solo las de esas: una obra sin imagenes simplemente no aparece.
+    @Override
+    public List<ImagenPortada> getPortadas(List<Long> obraIds) {
+        List<ImagenPortada> candidatas = (obraIds == null || obraIds.isEmpty())
+                ? repoImagen.findPortadas()
+                : repoImagen.findPortadasByObraIds(obraIds);
+
+        // Si dos fotos de una obra comparten el menor orden, se queda con la primera: una por obra.
+        List<ImagenPortada> portadas = new ArrayList<>();
+        Set<Long> yaVistas = new HashSet<>();
+        for (ImagenPortada imagen : candidatas) {
+            if (yaVistas.add(imagen.getObraId())) {
+                portadas.add(imagen);
+            }
+        }
+
+        if (portadas.isEmpty()) {
+            throw new ListaVaciaException("No hay portadas para las obras pedidas");
+        }
+        return portadas;
     }
 
 

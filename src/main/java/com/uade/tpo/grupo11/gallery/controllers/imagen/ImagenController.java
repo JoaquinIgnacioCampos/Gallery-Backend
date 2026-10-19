@@ -1,5 +1,6 @@
 package com.uade.tpo.grupo11.gallery.controllers.imagen;
 
+import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.imagen.ImagenService;
 import jakarta.validation.Valid;
@@ -24,18 +25,35 @@ public class ImagenController {
     }
 
 
-    // GET /imagenes          -> todas
-    // GET /imagenes?obraId=1 -> las de una obra, ordenadas
+    // GET /imagenes                                  -> todas
+    // GET /imagenes?obraId=1                         -> las de una obra, ordenadas
+    // GET /imagenes?portada=true                     -> solo la portada (la principal) de cada obra
+    // GET /imagenes?portada=true&obraId=1&obraId=2   -> la portada de esas obras, en un solo pedido
     @GetMapping
     public ResponseEntity<List<ImagenResponse>> getImagenes(
-            @RequestParam(required = false) Long obraId) {
+            @RequestParam(required = false) List<Long> obraId,
+            @RequestParam(defaultValue = "false") boolean portada) {
 
-        return ResponseEntity.ok((obraId != null
-                ? servicioImagen.getImagenesByObra(obraId)
-                : servicioImagen.getImagenes())
-                .stream()
-                .map(ImagenResponse::fromEntity)
-                .toList());
+        boolean variasObras = obraId != null && obraId.size() > 1;
+        if (variasObras && !portada) {
+            throw new IllegalArgumentException(
+                    "Para pedir las imágenes de varias obras a la vez hay que usar portada=true");
+        }
+
+        if (portada) {
+            return ResponseEntity.ok(servicioImagen.getPortadas(obraId).stream()
+                    .map(ImagenResponse::fromPortada)
+                    .toList());
+        }
+
+        List<Imagen> imagenes;
+        if (obraId != null && !obraId.isEmpty()) {
+            imagenes = servicioImagen.getImagenesByObra(obraId.get(0));
+        } else {
+            imagenes = servicioImagen.getImagenes();
+        }
+
+        return ResponseEntity.ok(imagenes.stream().map(ImagenResponse::fromEntity).toList());
     }
 
 
