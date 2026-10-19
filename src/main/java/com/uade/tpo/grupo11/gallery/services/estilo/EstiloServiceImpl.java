@@ -44,13 +44,13 @@ public class EstiloServiceImpl implements EstiloService {
     // Crea el estilo con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public Estilo crearEstilo(EstiloRequest request) {
-        estiloRepository.findByNombreEstilo(request.getNombreEstilo())
+        estiloRepository.findByNombreEstilo(request.getNombre_estilo())
                 .ifPresent(e -> {
-                    throw new EstiloDuplicadoException(request.getNombreEstilo());
+                    throw new EstiloDuplicadoException(request.getNombre_estilo());
                 });
 
         Estilo estilo = new Estilo();
-        estilo.setNombreEstilo(request.getNombreEstilo());
+        estilo.setNombreEstilo(request.getNombre_estilo());
 
         return estiloRepository.save(estilo);
     }
@@ -74,18 +74,18 @@ public class EstiloServiceImpl implements EstiloService {
                 );
 
         estiloRepository
-                .findByNombreEstilo(request.getNombreEstilo())
+                .findByNombreEstilo(request.getNombre_estilo())
                 .ifPresent(existente -> {
 
                     if (!existente.getId().equals(id)) {
                         throw new EstiloDuplicadoException(
-                                request.getNombreEstilo()
+                                request.getNombre_estilo()
                         );
                     }
                 });
 
         estilo.setNombreEstilo(
-                request.getNombreEstilo()
+                request.getNombre_estilo()
         );
 
         return estiloRepository.save(estilo);
