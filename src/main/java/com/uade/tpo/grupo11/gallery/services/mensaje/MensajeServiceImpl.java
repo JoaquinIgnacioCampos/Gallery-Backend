@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.entities.Encargo;
 import com.uade.tpo.grupo11.gallery.entities.Mensaje;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.EncargoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.MensajeRepository;
@@ -39,8 +40,7 @@ public class MensajeServiceImpl implements MensajeService {
                 .orElseThrow(() -> new MensajeNotFoundException(id));
 
         Encargo encargo = mensaje.getEncargo();
-        OwnershipGuard.verificar(usuarioLogueado,
-                encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
+        verificarParticipante(encargo, usuarioLogueado);
 
         return mensaje;
     }
@@ -51,8 +51,7 @@ public class MensajeServiceImpl implements MensajeService {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
-        OwnershipGuard.verificar(usuarioLogueado,
-                encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
+        verificarParticipante(encargo, usuarioLogueado);
 
         Page<Mensaje> mensajes = mensajeRepository.findByEncargoIdOrderByFecha_creacion_mensajeDesc(encargoId, pageable);
         if (mensajes.isEmpty()) {
@@ -61,12 +60,13 @@ public class MensajeServiceImpl implements MensajeService {
         return mensajes;
     }
 
-    // Devuelve los mensajes enviados por el usuario. Solo el propio usuario (o ADMIN).
+    // Devuelve los mensajes enviados por el propio usuario. ADMIN no accede a conversaciones.
     @Override
     public Page<Mensaje> getMensajesByUsuario(Long usuarioId, Usuario usuarioLogueado, PageRequest pageable) {
+        if (usuarioLogueado.getRol_usuario() == Rol.ADMIN || !OwnershipGuard.esPropio(usuarioLogueado, usuarioId)) {
+            throw new AccesoDenegadoException("Los mensajes son privados de los participantes");
+        }
         usuarioRepository.findById(usuarioId).orElseThrow(() -> new UsuarioNotFoundException(usuarioId));
-
-        OwnershipGuard.verificar(usuarioLogueado, usuarioId);
 
         Page<Mensaje> mensajes = mensajeRepository.findByEmisorId(usuarioId, pageable);
         if (mensajes.isEmpty()) {
@@ -84,8 +84,7 @@ public class MensajeServiceImpl implements MensajeService {
         Encargo encargo = encargoRepository.findById(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
-        OwnershipGuard.verificar(usuarioLogueado,
-                encargo.getUsuario().getId(), encargo.getArtista().getUsuario().getId());
+        verificarParticipante(encargo, usuarioLogueado);
 
         if (encargo.getEstado_encargo() == com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo.CANCELADO) {
             throw new EncargoCanceladoException(encargoId);
@@ -97,5 +96,12 @@ public class MensajeServiceImpl implements MensajeService {
         mensaje.setContenido_mensaje(contenido);
 
         return mensajeRepository.save(mensaje);
+    }
+    private void verificarParticipante(Encargo encargo, Usuario usuarioLogueado) {
+        if (usuarioLogueado.getRol_usuario() == Rol.ADMIN
+                || (!OwnershipGuard.esPropio(usuarioLogueado, encargo.getUsuario().getId())
+                && !OwnershipGuard.esPropio(usuarioLogueado, encargo.getArtista().getUsuario().getId()))) {
+            throw new AccesoDenegadoException("Los mensajes son privados de los participantes");
+        }
     }
 }

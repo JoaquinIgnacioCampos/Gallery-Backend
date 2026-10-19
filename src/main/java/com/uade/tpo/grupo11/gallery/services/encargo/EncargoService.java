@@ -12,6 +12,8 @@ import java.util.List;
 
 // Contrato: que sabe hacer el servicio de los encargos. La implementacion es la que lleva la logica.
 public interface EncargoService {
+    // Listado completo para la vista de administracion, sin mensajes.
+    Page<Encargo> getEncargos(Usuario usuarioLogueado, PageRequest pageable);
     // Busca el encargo por id. Solo lo pueden ver el cliente y el artista involucrados.
     Encargo getEncargoById(Long id, Usuario usuarioLogueado);
     // Devuelve los encargos del artista. Solo el propio artista (o ADMIN) puede pedirlos.

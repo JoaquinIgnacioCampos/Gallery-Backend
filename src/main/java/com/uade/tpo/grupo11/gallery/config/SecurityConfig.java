@@ -106,10 +106,11 @@ public class SecurityConfig {
 
                         // ENCARGOS: los pide quien compra; el estado lo mueve el artista.
                         // Que sea EL artista de ese encargo lo verifica el service, no esta regla.
+                        .requestMatchers(HttpMethod.GET, "/api/encargos").hasAuthority("ADMIN")
                         .requestMatchers(HttpMethod.POST, "/api/encargos/**")
-                                .hasAnyAuthority("CLIENTE", "ARTISTA_CLIENTE", "ADMIN")
+                                .hasAnyAuthority("CLIENTE", "ARTISTA_CLIENTE")
                         .requestMatchers(HttpMethod.PATCH, "/api/encargos/**")
-                        .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
+                                .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE")
 
 
                         // COMPRAR: carrito y checkout son de quien compra.
