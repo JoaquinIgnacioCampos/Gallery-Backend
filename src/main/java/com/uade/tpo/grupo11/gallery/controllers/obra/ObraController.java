@@ -31,8 +31,9 @@ public class ObraController {
     @GetMapping
     public ResponseEntity<Page<ObraResponse>> getObras(
             @RequestParam(required = false) Long artistaId,
-            @Parameter(description = "Categoria de la obra: ID del estilo. Opcional.")
-            @RequestParam(required = false) Long estiloId,
+            @Parameter(description = "Estilos de la obra: uno o varios IDs separados por coma (estiloId=1,2). "
+                    + "Trae las obras que tengan alguno de ellos. Opcional.")
+            @RequestParam(required = false) List<Long> estiloId,
             @Parameter(description = "Precio base minimo de una variante, inclusive; sin marco ni descuentos.")
             @RequestParam(required = false) BigDecimal precioMin,
             @Parameter(description = "Precio base maximo de la misma variante, inclusive; sin marco ni descuentos.")

@@ -53,7 +53,7 @@ public class ObraServiceImpl implements ObraService {
 
     // Busca obras con filtros opcionales y combinables. Valida los datos antes de consultar.
     @Override
-    public Page<Obra> buscarConFiltros(Long artistaId, Long estiloId, BigDecimal precioMin, BigDecimal precioMax,
+    public Page<Obra> buscarConFiltros(Long artistaId, List<Long> estiloId, BigDecimal precioMin, BigDecimal precioMax,
                                        String q, String orden, PageRequest pageable) {
         if (precioMin != null && precioMin.signum() < 0) {
             throw new IllegalArgumentException("El precio minimo no puede ser negativo.");
@@ -91,15 +91,20 @@ public class ObraServiceImpl implements ObraService {
         if (artistaId != null && !perfilArtistaRepository.existsById(artistaId)) {
             throw new PerfilArtistaNotFoundException(artistaId);
         }
-        if (estiloId != null && !estiloRepository.existsById(estiloId)) {
-            throw new RecursoNoEncontradoException("No existe el estilo con ID: " + estiloId);
+        // Estilos: sin repetidos; cada uno tiene que existir. Lista vacia = sin filtro de estilo.
+        List<Long> estiloIds = estiloId == null ? List.of() : estiloId.stream().distinct().toList();
+        for (Long unEstilo : estiloIds) {
+            if (!estiloRepository.existsById(unEstilo)) {
+                throw new RecursoNoEncontradoException("No existe el estilo con ID: " + unEstilo);
+            }
         }
 
         // "Hoy" en Argentina: un descuento vence al terminar su ultimo dia.
         LocalDate hoy = LocalDate.now(ZoneId.of("America/Argentina/Buenos_Aires"));
 
         Page<Obra> resultados = repoObra.buscarConFiltros(
-                artistaId, estiloId, precioMin, precioMax, patron, hoy, signo, pageable);
+                artistaId, estiloIds.size(), estiloIds.isEmpty() ? List.of(-1L) : estiloIds,
+                precioMin, precioMax, patron, hoy, signo, pageable);
 
         // Verificar si la consulta volvió vacía (el handler responde 204)
         if (resultados.isEmpty()) {

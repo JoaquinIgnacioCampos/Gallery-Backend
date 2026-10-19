@@ -28,8 +28,10 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
             + "ELSE v.precio_variante END ";
 
     // Filtros comunes de la búsqueda (el texto busca en nombre de obra y nombre artístico).
+    // Estilos: con varios elegidos alcanza con que la obra tenga ALGUNO. "cantidadEstilos" evita
+    // depender de una lista vacía (IN () no es válido): sin estilos se manda List.of(-1L) y no se usa.
     String FILTROS = " AND (:artistaId IS NULL OR o.artista.id = :artistaId) "
-            + "AND (:estiloId IS NULL OR e.id = :estiloId) "
+            + "AND (:cantidadEstilos = 0 OR e.id IN :estiloIds) "
             + "AND (:precioMin IS NULL OR v.precio_variante >= :precioMin) "
             + "AND (:precioMax IS NULL OR v.precio_variante <= :precioMax) "
             + "AND (:patron IS NULL OR LOWER(o.nombre_obra) LIKE :patron ESCAPE '!' "
@@ -66,7 +68,8 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
                     + "WHERE " + PUBLICADA + FILTROS)
     Page<Obra> buscarConFiltros(
             @Param("artistaId") Long artistaId,
-            @Param("estiloId") Long estiloId,
+            @Param("cantidadEstilos") int cantidadEstilos,
+            @Param("estiloIds") List<Long> estiloIds,
             @Param("precioMin") BigDecimal precioMin,
             @Param("precioMax") BigDecimal precioMax,
             @Param("patron") String patron,

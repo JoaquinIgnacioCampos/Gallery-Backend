@@ -27,12 +27,15 @@ public class PerfilArtistaController {
     @Autowired
     private EncargoService encargoService;
 
-    // Devuelve los perfiles de artista.
+    // Devuelve los perfiles de artista. q busca en el nombre artistico; estiloId (uno o varios, separados
+    // por coma) filtra por los estilos de sus obras publicadas. Los dos son opcionales y combinables.
     @GetMapping
     public ResponseEntity<Page<PerfilArtistaResponse>> getPerfilArtistas(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) List<Long> estiloId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(perfilArtistaService.getPerfilArtistas(Paginacion.de(page, size))
+        return ResponseEntity.ok(perfilArtistaService.buscarPerfilArtistas(q, estiloId, Paginacion.de(page, size))
                 .map(PerfilArtistaResponse::fromEntity));
     }
 

@@ -43,5 +43,7 @@ public interface PerfilArtistaService {
     // Devuelve las ventas del artista: las facturas emitidas a su nombre, de la mas nueva a la mas vieja.
     Page<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable);
 
+    Page<PerfilArtista> buscarPerfilArtistas(String q, List<Long> estiloId, PageRequest pageable);
+
     Optional<PerfilArtista> getPerfilArtistaByUsuarioOptional(Long usuarioId);
 }
