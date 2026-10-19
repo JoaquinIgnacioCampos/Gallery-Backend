@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,4 +31,22 @@ public interface PerfilArtistaRepository extends JpaRepository<PerfilArtista, Lo
 
     // Utilizado en vista de AdminCatalogo del front
     boolean existsByEstilosId(Long estiloId);
+
+
+    // Busqueda de artistas: por texto en el nombre artistico y por estilos. Los estilos se toman de las
+    // obras PUBLICADAS del artista (la misma regla del catalogo): alcanza con que tenga obras de ALGUNO
+    // de los estilos elegidos. Pageable debe venir SIN sort: el orden lo define la consulta.
+    @Query(value = "SELECT a FROM PerfilArtista a WHERE "
+            + "(:patron IS NULL OR LOWER(a.nombre_artistico) LIKE :patron ESCAPE '!') "
+            + "AND (:cantidadEstilos = 0 OR EXISTS (SELECT 1 FROM Obra o JOIN o.estilos e "
+            + "WHERE o.artista = a AND e.id IN :estiloIds AND " + ObraRepository.PUBLICADA + ")) "
+            + "ORDER BY a.id ASC",
+            countQuery = "SELECT COUNT(a) FROM PerfilArtista a WHERE "
+                    + "(:patron IS NULL OR LOWER(a.nombre_artistico) LIKE :patron ESCAPE '!') "
+                    + "AND (:cantidadEstilos = 0 OR EXISTS (SELECT 1 FROM Obra o JOIN o.estilos e "
+                    + "WHERE o.artista = a AND e.id IN :estiloIds AND " + ObraRepository.PUBLICADA + "))")
+    Page<PerfilArtista> buscar(@Param("patron") String patron,
+                               @Param("cantidadEstilos") int cantidadEstilos,
+                               @Param("estiloIds") List<Long> estiloIds,
+                               Pageable pageable);
 }

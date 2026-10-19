@@ -112,6 +112,32 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         return perfiles;
     }
 
+    // Busca artistas por nombre artistico y por estilos de sus obras publicadas (alguno de los elegidos).
+    // Sin resultados: 204 (ListaVaciaException).
+    @Override
+    public Page<PerfilArtista> buscarPerfilArtistas(String q, List<Long> estiloId, PageRequest pageable) {
+        // Texto en minuscula y con % _ ! escapados para que se busquen literalmente.
+        String patron = null;
+        if (q != null && !q.isBlank()) {
+            patron = "%" + q.trim().toLowerCase()
+                    .replace("!", "!!")
+                    .replace("%", "!%")
+                    .replace("_", "!_") + "%";
+        }
+
+        // Estilos: sin repetidos. Lista vacia = sin filtro (se manda un id de relleno que no se usa).
+        List<Long> estiloIds = estiloId == null ? List.of() : estiloId.stream().distinct().toList();
+
+        Page<PerfilArtista> perfiles = perfilArtistaRepository.buscar(
+                patron, estiloIds.size(), estiloIds.isEmpty() ? List.of(-1L) : estiloIds, pageable);
+
+        if (perfiles.isEmpty()) {
+            throw new ListaVaciaException("No se encontraron artistas que coincidan con la busqueda");
+        }
+
+        return perfiles;
+    }
+
     // Busca el perfil de artista por id. Si no existe, se lanza la excepcion y el handler responde 404.
     @Override
     public PerfilArtista getPerfilArtistaById(Long perfilArtistaId) {
