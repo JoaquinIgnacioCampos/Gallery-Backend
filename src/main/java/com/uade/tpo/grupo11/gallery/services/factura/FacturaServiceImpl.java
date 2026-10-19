@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaRequest;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
+import com.uade.tpo.grupo11.gallery.entities.ItemFactura;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.exceptions.FacturaNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
@@ -14,13 +15,19 @@ import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 // Logica de negocio de las facturas: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -34,6 +41,12 @@ public class FacturaServiceImpl implements FacturaService {
 
     @Autowired
     private CompraRepository compraRepository;
+
+    @Autowired
+    private ItemFacturaRepository itemFacturaRepository;
+
+    @Autowired
+    private ImagenRepository imagenRepository;
 
 
     // Devuelve las facturas. Solo el ADMIN
@@ -75,6 +88,32 @@ public class FacturaServiceImpl implements FacturaService {
                 factura.getCompra().getUsuario().getId());
 
         return factura;
+    }
+
+
+    // Devuelve el detalle de una venta. Los items llegan con su variante, obra, tamanio y marco en una sola
+    // consulta, y las portadas de todas las obras en otra (con IN): no hay pedidos por obra.
+    @Override
+    @Transactional(readOnly = true)
+    public DetalleDeVenta getDetalleDeVenta(Long facturaId, Usuario usuarioLogueado) {
+        Factura factura = getFacturaById(facturaId, usuarioLogueado);
+
+        List<ItemFactura> items = itemFacturaRepository.findDetalleByFacturaId(facturaId);
+
+        List<Long> obraIds = new ArrayList<>();
+        items.forEach(item -> obraIds.add(item.getVariante().getObra().getId()));
+
+        Map<Long, String> portadaPorObra = new HashMap<>();
+        if (!obraIds.isEmpty()) {
+            imagenRepository.findPortadasDeObras(obraIds)
+                    .forEach(fila -> portadaPorObra.putIfAbsent(fila.getObraId(), fila.getUrl()));
+        }
+
+        List<DetalleDeVenta.Linea> lineas = new ArrayList<>();
+        items.forEach(item -> lineas.add(new DetalleDeVenta.Linea(
+                item, portadaPorObra.get(item.getVariante().getObra().getId()))));
+
+        return new DetalleDeVenta(factura, lineas);
     }
 
 

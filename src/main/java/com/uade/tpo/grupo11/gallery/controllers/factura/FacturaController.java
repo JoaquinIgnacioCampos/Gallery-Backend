@@ -44,6 +44,16 @@ public class FacturaController {
                 facturaService.getFacturaById(facturaId, usuarioLogueado)));
     }
 
+    // GET - El detalle de una venta: comprador, entrega y obras vendidas, todo en un solo pedido.
+    // Lo ve quien compró, el artista que vendió o ADMIN.
+    @GetMapping("/{facturaId}/detalle")
+    public ResponseEntity<DetalleVentaResponse> getDetalleDeVenta(
+            @PathVariable Long facturaId,
+            @AuthenticationPrincipal Usuario usuarioLogueado) {
+        return ResponseEntity.ok(DetalleVentaResponse.fromDetalle(
+                facturaService.getDetalleDeVenta(facturaId, usuarioLogueado)));
+    }
+
     //GET - Obtiene la factura por una compra especifica (el id de la compra)
     //Solo el que hizo la compra, no el que vendio la obra
     @GetMapping("/compra/{compraId}")
