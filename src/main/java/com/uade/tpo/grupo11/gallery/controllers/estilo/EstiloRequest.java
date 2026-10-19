@@ -8,5 +8,5 @@ import lombok.Data;
 public class EstiloRequest {
 
     @NotBlank(message = "El nombre del estilo es obligatorio")
-    private String nombreEstilo;
+    private String nombre_estilo;
 }
