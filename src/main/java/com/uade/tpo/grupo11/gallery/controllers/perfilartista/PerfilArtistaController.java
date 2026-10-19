@@ -3,7 +3,6 @@ package com.uade.tpo.grupo11.gallery.controllers.perfilartista;
 import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
 import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
-import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
@@ -104,31 +103,29 @@ public class PerfilArtistaController {
                 .map(MiObraResponse::fromResumen));
     }
 
-    // Las ventas del artista: una fila por factura emitida a su nombre. El service
+    // Las ventas del artista: una fila por factura emitida a su nombre, y lo vendido en total. El service
     // verifica que quien pregunta sea el dueño del perfil, no cualquier artista.
     @GetMapping("/{perfilArtistaId}/facturas")
-    public ResponseEntity<Page<FacturaResponse>> getFacturasByPerfilArtista(
+    public ResponseEntity<VentasResponse> getFacturasByPerfilArtista(
             @PathVariable Long perfilArtistaId,
             @AuthenticationPrincipal Usuario usuarioLogueado,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        return ResponseEntity.ok(perfilArtistaService
-                .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado, Paginacion.de(page, size))
-                .map(FacturaResponse::fromEntity));
+        return ResponseEntity.ok(VentasResponse.fromVentas(perfilArtistaService
+                .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado, Paginacion.de(page, size))));
     }
 
     // Las propias ventas: el id sale del token, no hace falta que el artista lo sepa.
     @GetMapping("/me/facturas")
-    public ResponseEntity<Page<FacturaResponse>> getFacturasPropias(
+    public ResponseEntity<VentasResponse> getFacturasPropias(
             @AuthenticationPrincipal Usuario usuarioLogueado,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
-        return ResponseEntity.ok(perfilArtistaService
-                .getFacturasByPerfilArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))
-                .map(FacturaResponse::fromEntity));
+        return ResponseEntity.ok(VentasResponse.fromVentas(perfilArtistaService
+                .getFacturasByPerfilArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))));
     }
 
     // Los encargos que le pidieron al artista. El service verifica que quien pregunta

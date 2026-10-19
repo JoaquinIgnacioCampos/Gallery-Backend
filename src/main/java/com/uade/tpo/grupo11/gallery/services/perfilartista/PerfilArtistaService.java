@@ -4,7 +4,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
-import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -40,8 +39,9 @@ public interface PerfilArtistaService {
     // (estilos, portada y variantes). Sale de una cantidad fija de consultas, sin importar cuantas obras haya.
     Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, PageRequest pageable);
 
-    // Devuelve las ventas del artista: las facturas emitidas a su nombre, de la mas nueva a la mas vieja.
-    Page<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable);
+    // Devuelve las ventas del artista: las facturas emitidas a su nombre, de la mas nueva a la mas vieja,
+    // junto con lo vendido en total.
+    VentasDelArtista getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable);
 
     Page<PerfilArtista> buscarPerfilArtistas(String q, List<Long> estiloId, PageRequest pageable);
 

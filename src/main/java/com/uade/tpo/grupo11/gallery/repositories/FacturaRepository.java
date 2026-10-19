@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 // Habla con la base. Al extender JpaRepository, el CRUD basico ya viene hecho.
@@ -28,4 +29,9 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
             + "ORDER BY f.fecha_creacion_factura DESC, f.id DESC",
             countQuery = "SELECT COUNT(f) FROM Factura f WHERE f.artista.id = :artistaId")
     Page<Factura> findByArtistaIdOrdenadas(@Param("artistaId") Long artistaId, Pageable pageable);
+
+    // Lo vendido por un artista en total: la base suma todas sus facturas, no solo las de una pagina.
+    // COALESCE porque el SUM de cero facturas es null y asi se devuelve 0.
+    @Query("SELECT COALESCE(SUM(f.precio_total_factura), 0) FROM Factura f WHERE f.artista.id = :artistaId")
+    BigDecimal sumarVentasDelArtista(@Param("artistaId") Long artistaId);
 }

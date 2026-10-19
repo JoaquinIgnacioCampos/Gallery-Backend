@@ -220,7 +220,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     // Devuelve las ventas del artista. Son datos de plata, asi que no alcanza con tener
     // el rol: hay que ser el dueño de ese perfil (o ADMIN), y eso lo decide el token.
     @Override
-    public Page<Factura> getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable) {
+    public VentasDelArtista getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable) {
         PerfilArtista perfil = getPerfilArtistaById(perfilArtistaId);
         OwnershipGuard.verificar(usuarioLogueado, perfil.getUsuario().getId());
 
@@ -232,7 +232,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
                     : "El artista con ID " + perfilArtistaId + " no registra ventas ni facturas");
         }
 
-        return facturas;
+        return new VentasDelArtista(facturas, facturaRepository.sumarVentasDelArtista(perfilArtistaId));
     }
 
     // Regla de negocio: el nombre artistico no puede venir vacio.
