@@ -52,14 +52,18 @@ public class SecurityConfig {
                         .requestMatchers("/error").permitAll()
 
 
+                        // El propio perfil de artista sale del token: sin login no hay "me". Solo lo tienen los
+                        // artistas: un ADMIN no tiene perfil, asi que "me" no le aplica y recibe 403 (no un 404).
+                        // Va ANTES de la regla de las ventas y los encargos, porque "/api/artistas/*/facturas"
+                        // tambien coincide con "/api/artistas/me/facturas" y gana la primera que coincide.
+                        .requestMatchers(HttpMethod.GET, "/api/artistas/me", "/api/artistas/me/**")
+                                .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE")
+                        .requestMatchers(HttpMethod.PATCH, "/api/artistas/me")
+                                .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE")
                         // Las ventas y los encargos de un artista son privados: van ANTES de la
                         // regla publica del catalogo, porque gana la primera que coincide y
                         // "/api/artistas/**" las dejaria abiertas. Que sea SU artista lo verifica el service.
                         .requestMatchers(HttpMethod.GET, "/api/artistas/*/facturas", "/api/artistas/*/encargos")
-                                .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
-                        // El propio perfil de artista sale del token: sin login no hay "me".
-                        // Tambien va antes del catalogo para que "/api/artistas/**" no lo deje publico.
-                        .requestMatchers(HttpMethod.GET, "/api/artistas/me", "/api/artistas/me/**")
                                 .hasAnyAuthority("ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
                         // El catalogo se puede mirar sin loguearse, pero solo mirar.
