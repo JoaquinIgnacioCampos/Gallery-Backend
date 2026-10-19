@@ -7,7 +7,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
-import com.uade.tpo.grupo11.gallery.entities.Factura;
 import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -15,11 +14,13 @@ import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
+import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ResumenDeVariantes;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
+import com.uade.tpo.grupo11.gallery.repositories.VentaDeArtista;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,8 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     private ObraRepository obraRepository;
     @Autowired
     private FacturaRepository facturaRepository;
+    @Autowired
+    private ItemFacturaRepository itemFacturaRepository;
     @Autowired
     private VarianteRepository varianteRepository;
     @Autowired
@@ -224,7 +227,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         PerfilArtista perfil = getPerfilArtistaById(perfilArtistaId);
         OwnershipGuard.verificar(usuarioLogueado, perfil.getUsuario().getId());
 
-        Page<Factura> facturas = facturaRepository.findByArtistaIdOrdenadas(perfilArtistaId, pageable);
+        Page<VentaDeArtista> facturas = facturaRepository.findVentasDelArtista(perfilArtistaId, pageable);
 
         if (facturas.isEmpty()) {
             throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioLogueado, perfil.getUsuario().getId())
@@ -232,7 +235,17 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
                     : "El artista con ID " + perfilArtistaId + " no registra ventas ni facturas");
         }
 
-        return new VentasDelArtista(facturas, facturaRepository.sumarVentasDelArtista(perfilArtistaId));
+        // La cantidad de obras de toda la pagina se pide de una vez (una consulta con IN): no hay una por factura.
+        List<Long> ids = new ArrayList<>();
+        facturas.forEach(factura -> ids.add(factura.getId()));
+
+        Map<Long, Long> obrasPorFactura = new HashMap<>();
+        itemFacturaRepository.contarObrasPorFacturas(ids).forEach(fila -> obrasPorFactura.put(fila.getFacturaId(), fila.getCantidad()));
+
+        Page<VentaResumen> ventas = facturas.map(factura ->
+                new VentaResumen(factura, obrasPorFactura.getOrDefault(factura.getId(), 0L)));
+
+        return new VentasDelArtista(ventas, facturaRepository.sumarVentasDelArtista(perfilArtistaId));
     }
 
     // Regla de negocio: el nombre artistico no puede venir vacio.

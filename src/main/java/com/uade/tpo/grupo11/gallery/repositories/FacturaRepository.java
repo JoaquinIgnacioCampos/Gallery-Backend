@@ -25,10 +25,13 @@ public interface FacturaRepository extends JpaRepository<Factura, Long> {
     // Las ventas de un artista, de la mas nueva a la mas vieja. Con el id como desempate (varias facturas
     // pueden tener la misma fecha) para que las paginas no repitan ni omitan ventas.
     // Va escrita a mano porque los campos llevan guion bajo y el Sort de Spring los tomaria como rutas.
-    @Query(value = "SELECT f FROM Factura f WHERE f.artista.id = :artistaId "
+    // Devuelve solo las columnas que muestra la lista (no la entidad): asi no se cargan la compra ni quien
+    // compro, que por ser relaciones EAGER se pedirian de a una por cada factura.
+    @Query(value = "SELECT f.id AS id, f.compra.id AS compraId, f.fecha_creacion_factura AS fecha, "
+            + "f.precio_total_factura AS total FROM Factura f WHERE f.artista.id = :artistaId "
             + "ORDER BY f.fecha_creacion_factura DESC, f.id DESC",
             countQuery = "SELECT COUNT(f) FROM Factura f WHERE f.artista.id = :artistaId")
-    Page<Factura> findByArtistaIdOrdenadas(@Param("artistaId") Long artistaId, Pageable pageable);
+    Page<VentaDeArtista> findVentasDelArtista(@Param("artistaId") Long artistaId, Pageable pageable);
 
     // Lo vendido por un artista en total: la base suma todas sus facturas, no solo las de una pagina.
     // COALESCE porque el SUM de cero facturas es null y asi se devuelve 0.

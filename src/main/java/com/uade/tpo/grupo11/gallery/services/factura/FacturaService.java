@@ -20,6 +20,10 @@ public interface FacturaService {
     // Busca la factura por id. Si no existe, se lanza la excepcion y el handler responde 404.
     Factura getFacturaById(Long facturaId, Usuario usuarioLogueado);
 
+    // Devuelve el detalle de una venta: quien compro, como se entrega y cada obra vendida con su portada.
+    // Solo accede el dueño de esa compra, el artista que vendio o ADMIN.
+    DetalleDeVenta getDetalleDeVenta(Long facturaId, Usuario usuarioLogueado);
+
     // Crea la factura con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     Factura createFactura(FacturaRequest request);
 
