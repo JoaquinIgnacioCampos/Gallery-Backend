@@ -27,6 +27,16 @@ public class EncargoController {
     @Autowired
     private MensajeService mensajeService;
 
+    // Todos los encargos: el service exige ADMIN y la respuesta no incluye mensajes.
+    @GetMapping
+    public ResponseEntity<Page<EncargoResponse>> getEncargos(
+            @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        return ResponseEntity.ok(encargoService.getEncargos(usuarioLogueado, Paginacion.de(page, size))
+                .map(EncargoResponse::fromEntity));
+    }
+
     // Busca el encargo por id. Solo lo pueden ver el cliente y el artista del encargo.
     @GetMapping("/{id}")
     public ResponseEntity<EncargoResponse> getEncargoById(

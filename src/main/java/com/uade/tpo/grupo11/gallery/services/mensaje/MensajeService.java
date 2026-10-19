@@ -12,7 +12,7 @@ public interface MensajeService {
     Mensaje getMensajeById(Long id, Usuario usuarioLogueado);
     // Devuelve los mensajes del encargo. Solo el cliente y el artista del encargo.
     Page<Mensaje> getMensajesByEncargo(Long encargoId, Usuario usuarioLogueado, PageRequest pageable);
-    // Devuelve los mensajes enviados por el usuario. Solo el propio usuario (o ADMIN).
+    // Devuelve los mensajes enviados por el usuario. Solo el propio usuario; ADMIN no accede a los mensajes.
     Page<Mensaje> getMensajesByUsuario(Long usuarioId, Usuario usuarioLogueado, PageRequest pageable);
     // Crea el mensaje. El emisor es siempre el usuario logueado, nunca un id del body.
     Mensaje createMensaje(Long encargoId, Usuario usuarioLogueado, String contenido);
