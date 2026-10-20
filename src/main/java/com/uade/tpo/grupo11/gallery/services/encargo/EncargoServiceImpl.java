@@ -154,7 +154,7 @@ public class EncargoServiceImpl implements EncargoService {
         return encargoRepository.save(encargo);
     }
 
-    // El artista mueve el encargo al estado siguiente si la transicion es valida. Tanto el cliente como el Artista pueden cancelar el encargo.
+    // El artista mueve el encargo al estado siguiente si la transicion es valida. Tanto el cliente como el Artista pueden cancelar el encargo, pero solo mientras esta pendiente: una vez aprobado el precio ya no se cancela.
     // Al terminar el encargo se emite su factura, con el precio congelado al aprobarlo.
     @Override
     @Transactional
@@ -259,12 +259,12 @@ public class EncargoServiceImpl implements EncargoService {
         encargo.setFactura(facturaRepository.save(factura));
     }
 
-    // Dice a que estados se puede pasar desde el actual. Volver a PENDIENTE reabre la negociacion del precio. TERMINADO pasa a PAGADO solo con el pago; PAGADO y CANCELADO son finales.
+    // Dice a que estados se puede pasar desde el actual. Solo se cancela desde PENDIENTE: aprobado y en proceso ya no. Volver a PENDIENTE reabre la negociacion del precio. TERMINADO pasa a PAGADO solo con el pago; PAGADO y CANCELADO son finales.
     private List<EstadoEncargo> transicionesValidas(EstadoEncargo estadoActual) {
         return switch (estadoActual) {
             case PENDIENTE -> List.of(EstadoEncargo.CANCELADO);
-            case APROBADO -> List.of(EstadoEncargo.EN_PROCESO, EstadoEncargo.PENDIENTE, EstadoEncargo.CANCELADO);
-            case EN_PROCESO -> List.of(EstadoEncargo.TERMINADO, EstadoEncargo.PENDIENTE, EstadoEncargo.CANCELADO);
+            case APROBADO -> List.of(EstadoEncargo.EN_PROCESO, EstadoEncargo.PENDIENTE);
+            case EN_PROCESO -> List.of(EstadoEncargo.TERMINADO, EstadoEncargo.PENDIENTE);
             case TERMINADO, PAGADO, CANCELADO -> List.of();
         };
     }
