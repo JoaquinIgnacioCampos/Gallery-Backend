@@ -11,6 +11,7 @@ import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.VarianteDuplicadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
@@ -21,7 +22,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 // Logica de negocio de las variantes: valida, resuelve las relaciones y coordina los repositorios.
 @Service
@@ -90,9 +93,15 @@ public class VarianteServiceImpl implements VarianteService {
                 .findById(request.getId_tamanio())
                 .orElseThrow(() -> new TamanioLienzoNotFoundException(request.getId_tamanio()));
 
+        // Una obra tiene una sola variante por tamanio, aunque el pedido no venga de la pantalla.
+        if (repoVariante.existsByObraIdAndTamanioId(obra.getId(), tamanio.getId())) {
+            throw new VarianteDuplicadaException(obra.getId(), tamanio.getNombre_tamanio());
+        }
+
         validarPrecio(request.getPrecio_variante());
         validarStock(request.getStock_variante());
         validarDescuento(request.getPorcentaje_descuento());
+        validarFechaDescuento(request.getDescuento_hasta());
 
         Variante variante = Variante.builder()
                 .obra(obra)
@@ -120,9 +129,19 @@ public class VarianteServiceImpl implements VarianteService {
                 .findById(request.getId_tamanio())
                 .orElseThrow(() -> new TamanioLienzoNotFoundException(request.getId_tamanio()));
 
+        // Al cambiar de tamanio no se puede pisar el de otra variante de la misma obra.
+        if (repoVariante.existsByObraIdAndTamanioIdAndIdNot(
+                varianteExistente.getObra().getId(), tamanio.getId(), varianteId)) {
+            throw new VarianteDuplicadaException(varianteExistente.getObra().getId(), tamanio.getNombre_tamanio());
+        }
+
         validarPrecio(request.getPrecio_variante());
         validarStock(request.getStock_variante());
         validarDescuento(request.getPorcentaje_descuento());
+        // Un descuento ya vencido que se deja como esta no bloquea otros cambios: solo se valida una fecha nueva.
+        if (!Objects.equals(request.getDescuento_hasta(), varianteExistente.getDescuento_hasta())) {
+            validarFechaDescuento(request.getDescuento_hasta());
+        }
 
         // La obra de una variante no se cambia: una variante nace colgada de su obra.
         varianteExistente.setTamanio(tamanio);
@@ -176,8 +195,8 @@ public class VarianteServiceImpl implements VarianteService {
     // Reglas de negocio: viven en el Service, no en el Controller ni en el Repository.
     private void validarPrecio(BigDecimal precio) {
 
-        if (precio == null || precio.signum() < 0) {
-            throw new IllegalArgumentException("El precio no puede ser negativo");
+        if (precio == null || precio.signum() <= 0) {
+            throw new IllegalArgumentException("El precio debe ser mayor a 0");
         }
     }
 
@@ -186,6 +205,16 @@ public class VarianteServiceImpl implements VarianteService {
 
         if (stock == null || stock < 0) {
             throw new IllegalArgumentException("El stock no puede ser negativo");
+        }
+    }
+
+
+    // Regla de negocio: un descuento no puede terminar antes de hoy (hoy inclusive es valido). Sin fecha, no vence.
+    private void validarFechaDescuento(LocalDate descuentoHasta) {
+
+        if (descuentoHasta != null && descuentoHasta.isBefore(LocalDate.now(Variante.ZONA))) {
+            throw new IllegalArgumentException("La fecha del descuento (" + descuentoHasta
+                    + ") ya pasó: tiene que ser hoy o una fecha futura");
         }
     }
 
