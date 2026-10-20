@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo11.gallery.controllers.imagen;
 
 import com.uade.tpo.grupo11.gallery.entities.Imagen;
+import com.uade.tpo.grupo11.gallery.repositories.ImagenPortada;
 
 // Lo que la API devuelve de las imagenes. No exponemos la entidad: evita recursion y datos de mas.
 public record ImagenResponse(
@@ -16,6 +17,16 @@ public record ImagenResponse(
                 imagen.getObra().getId(),
                 imagen.getOrden_imagen(),
                 imagen.getUrl_imagen()
+        );
+    }
+
+    // Lo mismo, desde las columnas de una portada (sin cargar la obra).
+    public static ImagenResponse fromPortada(ImagenPortada portada) {
+        return new ImagenResponse(
+                portada.getId(),
+                portada.getObraId(),
+                portada.getOrden(),
+                portada.getUrl()
         );
     }
 }
