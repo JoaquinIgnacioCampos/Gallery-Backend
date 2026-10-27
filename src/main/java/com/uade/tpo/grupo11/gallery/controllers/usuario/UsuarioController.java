@@ -6,6 +6,7 @@ import com.uade.tpo.grupo11.gallery.entities.*;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
 import com.uade.tpo.grupo11.gallery.controllers.carrito.CarritoResponse;
 import com.uade.tpo.grupo11.gallery.controllers.compra.CompraResponse;
+import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponder;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
 import com.uade.tpo.grupo11.gallery.controllers.mensaje.MensajeResponse;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
@@ -30,6 +31,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
+    @Autowired
+    private EncargoResponder encargoResponder;
+
     @Autowired
     private UsuarioService usuarioService;
     @Autowired
@@ -191,8 +195,7 @@ public class UsuarioController {
             @AuthenticationPrincipal Usuario usuarioLogueado,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(encargoService.getEncargosByUsuario(usuario_id, usuarioLogueado, Paginacion.de(page, size))
-                .map(EncargoResponse::fromEntity));
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(encargoService.getEncargosByUsuario(usuario_id, usuarioLogueado, Paginacion.de(page, size))));
     }
 
     // Los encargos propios: el id sale del token, no hace falta que el cliente lo sepa.
@@ -201,9 +204,7 @@ public class UsuarioController {
             @AuthenticationPrincipal Usuario usuarioLogueado,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(encargoService
-                .getEncargosByUsuario(usuarioLogueado.getId(), usuarioLogueado, Paginacion.de(page, size))
-                .map(EncargoResponse::fromEntity));
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(encargoService.getEncargosByUsuario(usuarioLogueado.getId(), usuarioLogueado, Paginacion.de(page, size))));
     }
 
 
