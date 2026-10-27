@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.compra.CompraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ public interface CompraService {
     Compra createCompra(CompraRequest request);
 
     // Te devuelve tus compras solo con el token
-    Page<Compra> getMisCompras(Usuario usuarioActual, PageRequest pageable);
+    Page<Compra> getMisCompras(Usuario usuarioActual, FiltroPorEntregaYFecha filtro, PageRequest pageable);
 
     // Actualiza la compra: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
     Compra updateCompra(Long compraId, CompraRequest request);

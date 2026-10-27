@@ -6,6 +6,9 @@ import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponder;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 import com.uade.tpo.grupo11.gallery.services.encargo.EncargoService;
 import com.uade.tpo.grupo11.gallery.services.perfilartista.PerfilArtistaService;
 import jakarta.validation.Valid;
@@ -22,10 +25,10 @@ import java.util.List;
 public class PerfilArtistaController {
 
     @Autowired
-    private PerfilArtistaService perfilArtistaService;
+    private EncargoResponder encargoResponder;
 
     @Autowired
-    private EncargoResponder encargoResponder;
+    private PerfilArtistaService perfilArtistaService;
 
     @Autowired
     private EncargoService encargoService;
@@ -95,15 +98,21 @@ public class PerfilArtistaController {
     // Las propias obras: el id sale del token, no hace falta que el artista lo sepa.
     // Incluye las que no estan en venta, porque el artista las sigue gestionando. Cada obra trae el
     // resumen que necesita la lista (estilos, portada y cantidad de variantes).
+    // Filtros opcionales y combinables, como en /api/obras: nombreObra (texto en el nombre de la obra), estiloId (uno o varios, con
+    // coma), enVenta (true o false; sin enviarlo vienen todas) y sinStock (true: solo con variantes sin stock).
     @GetMapping("/me/obras")
     public ResponseEntity<Page<MiObraResponse>> getObrasPropias(
             @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) String nombreObra,
+            @RequestParam(required = false) List<Long> estiloId,
+            @RequestParam(required = false) Boolean enVenta,
+            @RequestParam(defaultValue = "false") boolean sinStock,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(perfilArtistaService
-                .getObrasPropias(perfilPropio.getId(), Paginacion.de(page, size))
+                .getObrasPropias(perfilPropio.getId(), nombreObra, estiloId, enVenta, sinStock, Paginacion.de(page, size))
                 .map(MiObraResponse::fromResumen));
     }
 
@@ -113,23 +122,33 @@ public class PerfilArtistaController {
     public ResponseEntity<VentasResponse> getFacturasByPerfilArtista(
             @PathVariable Long perfilArtistaId,
             @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(required = false) String entrega,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
         return ResponseEntity.ok(VentasResponse.fromVentas(perfilArtistaService
-                .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado, Paginacion.de(page, size))));
+                .getFacturasByPerfilArtista(perfilArtistaId, usuarioLogueado,
+                        FiltroPorEntregaYFecha.armar(desde, hasta, entrega), Paginacion.de(page, size))));
     }
 
     // Las propias ventas: el id sale del token, no hace falta que el artista lo sepa.
+    // Filtros opcionales: desde y hasta (fechas yyyy-MM-dd, inclusive) y entrega (envio, retiro o encargo).
+    // Valen para la lista y para el total vendido.
     @GetMapping("/me/facturas")
     public ResponseEntity<VentasResponse> getFacturasPropias(
             @AuthenticationPrincipal Usuario usuarioLogueado,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(required = false) String entrega,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(VentasResponse.fromVentas(perfilArtistaService
-                .getFacturasByPerfilArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))));
+                .getFacturasByPerfilArtista(perfilPropio.getId(), usuarioLogueado,
+                        FiltroPorEntregaYFecha.armar(desde, hasta, entrega), Paginacion.de(page, size))));
     }
 
     // Los encargos que le pidieron al artista. El service verifica que quien pregunta

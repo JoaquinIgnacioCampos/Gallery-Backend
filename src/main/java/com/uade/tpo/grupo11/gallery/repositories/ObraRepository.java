@@ -50,6 +50,31 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
     // la obra recién creada para cargarle las fotos y las variantes.
     Page<Obra> findByArtistaIdAndEliminadaFalse(Long artistaId, Pageable pageable);
 
+    // Filtros opcionales y combinables de "Mis obras" (todos son AND; sin ninguno trae todas las del artista):
+    //   estadoDeVenta                 : 0 todas, 1 solo las que estan en venta, 2 solo las que no
+    //   estilos                       : con varios alcanza con que la obra tenga ALGUNO ("cantidadEstilos" evita una lista vacia)
+    //   patronDeNombre                : texto en el nombre de la obra (ya escapado, ver TextoDeBusqueda)
+    //   soloConVariantesSinStock      : solo las que tienen alguna variante sin stock
+    String FILTROS_PROPIAS = "WHERE obra.artista.id = :artistaId AND obra.eliminada = false "
+            + "AND (:estadoDeVenta = 0 OR (:estadoDeVenta = 1 AND obra.en_venta = true) "
+            + "OR (:estadoDeVenta = 2 AND obra.en_venta = false)) "
+            + "AND (:cantidadEstilos = 0 OR estilo.id IN :estiloIds) "
+            + "AND (:patronDeNombre IS NULL OR LOWER(obra.nombre_obra) LIKE :patronDeNombre ESCAPE '!') "
+            + "AND (:soloConVariantesSinStock = false OR EXISTS (SELECT 1 FROM Variante varianteSinStock "
+            + "WHERE varianteSinStock.obra = obra AND varianteSinStock.stock_variante = 0)) ";
+
+    // Pageable debe venir SIN sort: el orden (por id) lo define la propia consulta, asi las paginas no repiten ni omiten obras.
+    @Query(value = "SELECT DISTINCT obra FROM Obra obra LEFT JOIN obra.estilos estilo " + FILTROS_PROPIAS + "ORDER BY obra.id",
+            countQuery = "SELECT COUNT(DISTINCT obra) FROM Obra obra LEFT JOIN obra.estilos estilo " + FILTROS_PROPIAS)
+    Page<Obra> buscarPropias(
+            @Param("artistaId") Long artistaId,
+            @Param("estadoDeVenta") int estadoDeVenta,
+            @Param("cantidadEstilos") int cantidadEstilos,
+            @Param("estiloIds") List<Long> estiloIds,
+            @Param("patronDeNombre") String patronDeNombre,
+            @Param("soloConVariantesSinStock") boolean soloConVariantesSinStock,
+            Pageable pageable);
+
     // Los ids de los estilos de varias obras en una sola consulta: una fila por cada par (obra, estilo).
     @Query("SELECT o.id AS obraId, e.id AS estiloId FROM Obra o JOIN o.estilos e WHERE o.id IN :obraIds")
     List<EstiloDeObra> findEstilosDeObras(@Param("obraIds") List<Long> obraIds);
