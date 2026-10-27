@@ -177,7 +177,7 @@ public class EncargoServiceImpl implements EncargoService {
 
         EstadoEncargo estadoActual = encargo.getEstado_encargo();
 
-        if (!transicionesValidas(estadoActual).contains(nuevoEstado)) {
+        if (!estadoActual.estadosSiguientes().contains(nuevoEstado)) {
             throw new TransicionEstadoInvalidaException(estadoActual, nuevoEstado);
         }
 
@@ -257,16 +257,6 @@ public class EncargoServiceImpl implements EncargoService {
                 .fecha_creacion_factura(java.time.LocalDateTime.now())
                 .build();
         encargo.setFactura(facturaRepository.save(factura));
-    }
-
-    // Dice a que estados se puede pasar desde el actual. Solo se cancela desde PENDIENTE: aprobado y en proceso ya no. Volver a PENDIENTE reabre la negociacion del precio. TERMINADO pasa a PAGADO solo con el pago; PAGADO y CANCELADO son finales.
-    private List<EstadoEncargo> transicionesValidas(EstadoEncargo estadoActual) {
-        return switch (estadoActual) {
-            case PENDIENTE -> List.of(EstadoEncargo.CANCELADO);
-            case APROBADO -> List.of(EstadoEncargo.EN_PROCESO, EstadoEncargo.PENDIENTE);
-            case EN_PROCESO -> List.of(EstadoEncargo.TERMINADO, EstadoEncargo.PENDIENTE);
-            case TERMINADO, PAGADO, CANCELADO -> List.of();
-        };
     }
 
 }

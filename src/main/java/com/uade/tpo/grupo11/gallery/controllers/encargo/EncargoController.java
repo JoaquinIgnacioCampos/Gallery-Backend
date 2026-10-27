@@ -22,6 +22,9 @@ import java.util.List;
 public class EncargoController {
 
     @Autowired
+    private EncargoResponder encargoResponder;
+
+    @Autowired
     private EncargoService encargoService;
 
     @Autowired
@@ -33,8 +36,13 @@ public class EncargoController {
             @AuthenticationPrincipal Usuario usuarioLogueado,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(encargoService.getEncargos(usuarioLogueado, Paginacion.de(page, size))
-                .map(EncargoResponse::fromEntity));
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(encargoService.getEncargos(usuarioLogueado, Paginacion.de(page, size))));
+    }
+
+    // Lo que se puede elegir al pedir un encargo (tipos de pintura y de lienzo), con su texto. Lo ve cualquier usuario logueado.
+    @GetMapping("/opciones")
+    public ResponseEntity<OpcionesEncargoResponse> getOpciones() {
+        return ResponseEntity.ok(OpcionesEncargoResponse.conTodasLasOpciones());
     }
 
     // Busca el encargo por id. Solo lo pueden ver el cliente y el artista del encargo.
@@ -42,7 +50,7 @@ public class EncargoController {
     public ResponseEntity<EncargoResponse> getEncargoById(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(encargoService.getEncargoById(id, usuarioLogueado)));
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(encargoService.getEncargoById(id, usuarioLogueado)));
     }
 
     // Los encargos del artista y del usuario se piden desde /api/artistas/{id}/encargos
@@ -56,7 +64,7 @@ public class EncargoController {
             @AuthenticationPrincipal Usuario usuarioLogueado) {
         Encargo result = encargoService.createEncargo(request, usuarioLogueado);
         return ResponseEntity.created(URI.create("/api/encargos/" + result.getId()))
-                .body(EncargoResponse.fromEntity(result));
+                .body(encargoResponder.armarRespuesta(result));
     }
     // Devuelve los mensajes del encargo. Solo el cliente y el artista del encargo.
     @GetMapping("/{encargoId}/mensajes")
@@ -77,7 +85,7 @@ public class EncargoController {
             @Valid @RequestBody CambiarEstadoRequest request,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
 
-        return ResponseEntity.ok(EncargoResponse.fromEntity(
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(
                 encargoService.cambiarEstado(id, request.getNuevoEstado(), usuarioLogueado)));
     }
 
@@ -87,7 +95,7 @@ public class EncargoController {
             @PathVariable Long id,
             @Valid @RequestBody DefinirPrecioRequest request,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(
                 encargoService.definirPrecio(id, request.getPrecio_acordado(), usuarioLogueado)));
     }
 
@@ -96,7 +104,7 @@ public class EncargoController {
     public ResponseEntity<EncargoResponse> aceptarPrecio(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(
                 encargoService.aceptarPrecio(id, usuarioLogueado)));
     }
 
@@ -105,7 +113,7 @@ public class EncargoController {
     public ResponseEntity<EncargoResponse> pagarEncargo(
             @PathVariable Long id,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
-        return ResponseEntity.ok(EncargoResponse.fromEntity(
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(
                 encargoService.pagarEncargo(id, usuarioLogueado)));
     }
 

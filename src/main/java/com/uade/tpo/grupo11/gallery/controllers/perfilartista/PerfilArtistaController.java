@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.perfilartista;
 
 import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
 import org.springframework.data.domain.Page;
+import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponder;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
@@ -22,6 +23,9 @@ public class PerfilArtistaController {
 
     @Autowired
     private PerfilArtistaService perfilArtistaService;
+
+    @Autowired
+    private EncargoResponder encargoResponder;
 
     @Autowired
     private EncargoService encargoService;
@@ -137,9 +141,7 @@ public class PerfilArtistaController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
-        return ResponseEntity.ok(encargoService
-                .getEncargosByArtista(perfilArtistaId, usuarioLogueado, Paginacion.de(page, size))
-                .map(EncargoResponse::fromEntity));
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(encargoService.getEncargosByArtista(perfilArtistaId, usuarioLogueado, Paginacion.de(page, size))));
     }
 
     // Los encargos propios, resolviendo el perfil desde la identidad del token: no hace
@@ -151,8 +153,6 @@ public class PerfilArtistaController {
             @RequestParam(required = false) Integer size
     ) {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
-        return ResponseEntity.ok(encargoService
-                .getEncargosByArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))
-                .map(EncargoResponse::fromEntity));
+        return ResponseEntity.ok(encargoResponder.armarRespuesta(encargoService.getEncargosByArtista(perfilPropio.getId(), usuarioLogueado, Paginacion.de(page, size))));
     }
 }
