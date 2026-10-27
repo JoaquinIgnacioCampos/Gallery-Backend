@@ -11,6 +11,9 @@ import com.uade.tpo.grupo11.gallery.entities.Obra;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.enums.Rol;
+import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
+import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
+import com.uade.tpo.grupo11.gallery.services.filtro.TextoDeBusqueda;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
@@ -184,12 +187,18 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     // no corta la lista (para eso no se usan los services de imagen y variante, que lanzan ListaVaciaException).
     @Override
     @Transactional(readOnly = true)
-    public Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, PageRequest pageable) {
+    public Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, String nombreObra, List<Long> estiloId, Boolean enVenta,
+                                                   boolean sinStock, PageRequest pageable) {
         getPerfilArtistaById(perfilArtistaId);
 
-        // Sin un orden fijo la base puede repetir u omitir obras entre una pagina y otra.
-        PageRequest ordenado = pageable.withSort(Sort.by("id"));
-        Page<Obra> obras = obraRepository.findByArtistaIdAndEliminadaFalse(perfilArtistaId, ordenado);
+        // Estilos: sin repetidos; una lista vacia = sin filtro de estilo (IN () no es valido: se manda un id que no existe).
+        List<Long> estiloIds = estiloId == null ? List.of() : estiloId.stream().distinct().toList();
+        // En venta: 0 todas, 1 solo las que estan en venta, 2 solo las que no.
+        int estadoDeVenta = enVenta == null ? 0 : (enVenta ? 1 : 2);
+
+        // La consulta ordena por id: asi las paginas no repiten ni omiten obras.
+        Page<Obra> obras = obraRepository.buscarPropias(perfilArtistaId, estadoDeVenta, estiloIds.size(),
+                estiloIds.isEmpty() ? List.of(-1L) : estiloIds, TextoDeBusqueda.patron(nombreObra), sinStock, pageable);
 
         if (obras.isEmpty()) {
             throw new ListaVaciaException("Todavía no tenés obras publicadas");
@@ -223,11 +232,13 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     // Devuelve las ventas del artista. Son datos de plata, asi que no alcanza con tener
     // el rol: hay que ser el dueño de ese perfil (o ADMIN), y eso lo decide el token.
     @Override
-    public VentasDelArtista getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable) {
+    public VentasDelArtista getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado,
+                                                       FiltroPorEntregaYFecha filtro, PageRequest pageable) {
         PerfilArtista perfil = getPerfilArtistaById(perfilArtistaId);
         OwnershipGuard.verificar(usuarioLogueado, perfil.getUsuario().getId());
 
-        Page<VentaDeArtista> facturas = facturaRepository.findVentasDelArtista(perfilArtistaId, pageable);
+        Page<VentaDeArtista> facturas = facturaRepository.findVentasDelArtista(perfilArtistaId, filtro.desde(),
+                filtro.hasta(), filtro.filtroDeEntrega(), TipoEntrega.ENVIO_DOMICILIO, TipoEntrega.RETIRO_LOCAL, pageable);
 
         if (facturas.isEmpty()) {
             throw new ListaVaciaException(OwnershipGuard.esPropio(usuarioLogueado, perfil.getUsuario().getId())
@@ -245,7 +256,8 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         Page<VentaResumen> ventas = facturas.map(factura ->
                 new VentaResumen(factura, obrasPorFactura.getOrDefault(factura.getId(), 0L)));
 
-        return new VentasDelArtista(ventas, facturaRepository.sumarVentasDelArtista(perfilArtistaId));
+        return new VentasDelArtista(ventas, facturaRepository.sumarVentasDelArtista(perfilArtistaId, filtro.desde(),
+                filtro.hasta(), filtro.filtroDeEntrega(), TipoEntrega.ENVIO_DOMICILIO, TipoEntrega.RETIRO_LOCAL));
     }
 
     // Regla de negocio: el nombre artistico no puede venir vacio.

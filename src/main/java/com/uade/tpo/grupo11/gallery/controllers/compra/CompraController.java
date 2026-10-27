@@ -5,6 +5,9 @@ import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.controllers.factura.FacturaResponse;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
+import org.springframework.format.annotation.DateTimeFormat;
+import java.time.LocalDate;
 import com.uade.tpo.grupo11.gallery.services.compra.CompraService;
 import com.uade.tpo.grupo11.gallery.services.factura.FacturaService;
 
@@ -39,12 +42,17 @@ public class CompraController {
                 .map(CompraResponse::fromEntity));
     }
 
+    // Filtros opcionales: desde y hasta (fechas yyyy-MM-dd, inclusive) y entrega (envio, retiro o encargo).
     @GetMapping("/me")
     public ResponseEntity<Page<CompraResponse>> getMisCompras(
             @AuthenticationPrincipal Usuario usuarioActual,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+            @RequestParam(required = false) String entrega,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        return ResponseEntity.ok(compraService.getMisCompras(usuarioActual, Paginacion.de(page, size))
+        return ResponseEntity.ok(compraService.getMisCompras(usuarioActual,
+                        FiltroPorEntregaYFecha.armar(desde, hasta, entrega), Paginacion.de(page, size))
                 .map(CompraResponse::fromEntity));
     }
 

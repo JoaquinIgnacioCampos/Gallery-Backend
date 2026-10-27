@@ -1,6 +1,7 @@
 package com.uade.tpo.grupo11.gallery.services.perfilartista;
 
 import org.springframework.data.domain.Page;
+import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaRequest;
 import com.uade.tpo.grupo11.gallery.controllers.perfilartista.PerfilArtistaUpdateRequest;
@@ -37,11 +38,15 @@ public interface PerfilArtistaService {
 
     // Devuelve las obras que gestiona el propio artista, esten o no en venta, cada una con su resumen
     // (estilos, portada y variantes). Sale de una cantidad fija de consultas, sin importar cuantas obras haya.
-    Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, PageRequest pageable);
+    // Filtros opcionales y combinables: texto en el nombre, estilos (alcanza con uno), si esta en venta o no
+    // (null = todas) y solo las que tienen alguna variante sin stock.
+    Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, String nombreObra, List<Long> estiloId, Boolean enVenta,
+                                            boolean sinStock, PageRequest pageable);
 
     // Devuelve las ventas del artista: las facturas emitidas a su nombre, de la mas nueva a la mas vieja,
-    // junto con lo vendido en total.
-    VentasDelArtista getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado, PageRequest pageable);
+    // junto con lo vendido en total. El filtro (fechas y entrega) se aplica a la lista y al total.
+    VentasDelArtista getFacturasByPerfilArtista(Long perfilArtistaId, Usuario usuarioLogueado,
+                                                FiltroPorEntregaYFecha filtro, PageRequest pageable);
 
     Page<PerfilArtista> buscarPerfilArtistas(String q, List<Long> estiloId, PageRequest pageable);
 

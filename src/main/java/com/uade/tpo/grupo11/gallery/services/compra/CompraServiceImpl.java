@@ -5,6 +5,8 @@ import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.compra.CompraRequest;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
+import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
+import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
 import com.uade.tpo.grupo11.gallery.exceptions.CompraNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.UsuarioNotFoundException;
@@ -68,10 +70,11 @@ public class CompraServiceImpl implements CompraService {
 
     // Atajo para "mis compras", igual que /me en Usuario.
     @Override
-    public Page<Compra> getMisCompras(Usuario usuarioActual, PageRequest pageable) {
-        Page<Compra> compras = compraRepository.findByUsuarioId(usuarioActual.getId(), pageable);
+    public Page<Compra> getMisCompras(Usuario usuarioActual, FiltroPorEntregaYFecha filtro, PageRequest pageable) {
+        Page<Compra> compras = compraRepository.buscarDeUsuario(usuarioActual.getId(), filtro.desde(), filtro.hasta(),
+                filtro.filtroDeEntrega(), TipoEntrega.ENVIO_DOMICILIO, TipoEntrega.RETIRO_LOCAL, pageable);
         if (compras.isEmpty()) {
-            throw new ListaVaciaException("No tenés compras registradas todavía");
+            throw new ListaVaciaException("No tenés compras registradas que coincidan");
         }
         return compras;
     }
