@@ -88,7 +88,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
         // No se puede comprar la propia obra: seria una autoventa.
         if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
-            throw new CompraPropiaException(variante.getId());
+            throw new CompraPropiaException(variante);
         }
 
         validarStockDisponible(carrito, variante, request.getCantidad(), null);
@@ -136,7 +136,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
         // No se puede comprar la propia obra: seria una autoventa.
         if (variante.getObra().getArtista().getUsuario().getId().equals(usuarioActual.getId())) {
-            throw new CompraPropiaException(variante.getId());
+            throw new CompraPropiaException(variante);
         }
 
         validarStockDisponible(carrito, variante, request.getCantidad(), itemId);
@@ -183,7 +183,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
         int total = yaEnCarrito + cantidadPedida;
         if (total > variante.getStock_variante()) {
-            throw new StockInsuficienteException(variante.getId(), total, variante.getStock_variante());
+            throw new StockInsuficienteException(variante, total, variante.getStock_variante());
         }
     }
 }

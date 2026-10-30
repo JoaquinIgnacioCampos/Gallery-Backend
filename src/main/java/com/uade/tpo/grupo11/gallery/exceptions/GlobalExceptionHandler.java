@@ -71,6 +71,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
     }
 
+    // El checkout rechazado por items no disponibles: 409 con un JSON que lista cada item (ver ProblemaDeItem),
+    // para que el front los marque en el carrito.
+    @ExceptionHandler(ItemsNoDisponiblesException.class)
+    public ResponseEntity<Map<String, Object>> handleItemsNoDisponibles(ItemsNoDisponiblesException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("mensaje", e.getMessage(), "items", e.getItems()));
+    }
+
     @ExceptionHandler(StockInsuficienteException.class)
     public ResponseEntity<String> handleStockInsuficiente(StockInsuficienteException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());  // 409, no 404
