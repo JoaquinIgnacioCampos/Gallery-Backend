@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.entities.ItemCarrito;
 import com.uade.tpo.grupo11.gallery.entities.Marco;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.services.PrecioVigente;
+import com.uade.tpo.grupo11.gallery.services.itemcarrito.DisponibilidadDeItem;
 
 import java.math.BigDecimal;
 
@@ -22,7 +23,10 @@ public record ItemCarritoResponse(
         String nombre_marco,
         BigDecimal precio_unitario,
         BigDecimal precio_marco,
-        BigDecimal subtotal
+        BigDecimal subtotal,
+        Integer stock_disponible,
+        boolean disponible,
+        String motivo_no_disponible
 ) {
     // Traduce la entidad a lo que ve el cliente, con los importes ya resueltos.
     public static ItemCarritoResponse fromEntity(ItemCarrito itemCarrito) {
@@ -34,6 +38,8 @@ public record ItemCarritoResponse(
         BigDecimal precioUnitario = PrecioVigente.de(variante);
         BigDecimal precioMarco = marco != null ? marco.getPrecio_marco() : BigDecimal.ZERO;
         BigDecimal cantidad = BigDecimal.valueOf(itemCarrito.getCantidad());
+        // Si la obra sigue a la venta y alcanza el stock: el front lo usa para avisar antes de pagar.
+        DisponibilidadDeItem disponibilidad = DisponibilidadDeItem.de(itemCarrito);
 
         return new ItemCarritoResponse(
                 itemCarrito.getId(),
@@ -47,7 +53,10 @@ public record ItemCarritoResponse(
                 marco != null ? marco.getNombre_marco() : null,
                 precioUnitario,
                 precioMarco,
-                precioUnitario.add(precioMarco).multiply(cantidad)
+                precioUnitario.add(precioMarco).multiply(cantidad),
+                disponibilidad.stockDisponible(),
+                disponibilidad.disponible(),
+                disponibilidad.motivo()
         );
     }
 }

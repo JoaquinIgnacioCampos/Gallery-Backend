@@ -10,8 +10,8 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoEntrega;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.CarritoVacioException;
 import com.uade.tpo.grupo11.gallery.exceptions.DireccionRequeridaException;
-import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
-import com.uade.tpo.grupo11.gallery.exceptions.ObraNoEnVentaException;
+import com.uade.tpo.grupo11.gallery.exceptions.ItemsNoDisponiblesException;
+import com.uade.tpo.grupo11.gallery.exceptions.ProblemaDeItem;
 import com.uade.tpo.grupo11.gallery.exceptions.StockInsuficienteException;
 import com.uade.tpo.grupo11.gallery.repositories.CarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.CompraRepository;
@@ -20,11 +20,13 @@ import com.uade.tpo.grupo11.gallery.repositories.ItemCarritoRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 import com.uade.tpo.grupo11.gallery.services.PrecioVigente;
+import com.uade.tpo.grupo11.gallery.services.itemcarrito.DisponibilidadDeItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -99,20 +101,25 @@ public class CheckoutServiceImpl implements CheckoutService {
             costoEnvio = BigDecimal.ZERO;
         }
 
-        // 2) Validamos el stock de TODO antes de tocar nada. Si una obra se dio de baja o se
-        //    saco de la venta despues de agregarla al carrito, se rechaza la compra entera.
+        // 2) Validamos la disponibilidad de TODO antes de tocar nada. Si una obra se dio de baja, se saco
+        //    de la venta o ya no alcanza el stock despues de agregarla al carrito, se rechaza la compra
+        //    entera. Se juntan todos los items con problema (no solo el primero) para que el front los marque.
+        List<ProblemaDeItem> problemas = new ArrayList<>();
         for (ItemCarrito item : items) {
-            Variante variante = item.getVariante();
-            if (variante.getObra().isEliminada()) {
-                throw new ObraEliminadaException(variante.getId(), variante.getObra().getId());
+            DisponibilidadDeItem disponibilidad = DisponibilidadDeItem.de(item);
+            if (!disponibilidad.disponible()) {
+                Variante variante = item.getVariante();
+                problemas.add(new ProblemaDeItem(
+                        item.getId(),
+                        variante.getObra().getNombre_obra(),
+                        variante.getTamanio().getNombre_tamanio(),
+                        item.getCantidad(),
+                        disponibilidad.stockDisponible(),
+                        disponibilidad.motivo()));
             }
-            if (!variante.getObra().isEn_venta()) {
-                throw new ObraNoEnVentaException(variante.getId(), variante.getObra().getId());
-            }
-            if (variante.getStock_variante() < item.getCantidad()) {
-                throw new StockInsuficienteException(
-                        variante.getId(), item.getCantidad(), variante.getStock_variante());
-            }
+        }
+        if (!problemas.isEmpty()) {
+            throw new ItemsNoDisponiblesException(problemas);
         }
 
 
@@ -181,7 +188,7 @@ public class CheckoutServiceImpl implements CheckoutService {
                 int filasAfectadas = varianteRepository.descontarStock(variante.getId(), item.getCantidad());
                 if (filasAfectadas == 0) {
                     throw new StockInsuficienteException(
-                            variante.getId(), item.getCantidad(), variante.getStock_variante());
+                            variante, item.getCantidad(), variante.getStock_variante());
                 }
 
                 totalFactura = totalFactura.add(totalItem);
