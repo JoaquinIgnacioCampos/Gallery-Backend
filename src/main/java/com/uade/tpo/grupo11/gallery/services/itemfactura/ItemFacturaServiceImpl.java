@@ -73,8 +73,11 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
         Factura factura = facturaRepository.findById(request.getFactura_id())
                 .orElseThrow(() -> new FacturaNotFoundException(request.getFactura_id()));
 
-        Marco marco = marcoRepository.findById(request.getMarco_id())
-                .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
+        // Sin marco: null (no suma al precio).
+        Marco marco = request.getMarco_id() == null
+                ? null
+                : marcoRepository.findById(request.getMarco_id())
+                        .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
 
         Variante variante = varianteRepository.findById(request.getVariante_id())
                 .orElseThrow(() -> new VarianteNotFoundException(request.getVariante_id()));
@@ -97,7 +100,8 @@ public class ItemFacturaServiceImpl implements ItemFacturaService {
         }
 
         //Precio final variante + marco elegido
-        BigDecimal precioUnitario = variante.getPrecio_variante().add(marco.getPrecio_marco());
+        BigDecimal precioMarco = marco != null ? marco.getPrecio_marco() : BigDecimal.ZERO;
+        BigDecimal precioUnitario = variante.getPrecio_variante().add(precioMarco);
         BigDecimal subtotal = precioUnitario.multiply(BigDecimal.valueOf(cantidad));
         BigDecimal montoDescuento = subtotal.multiply(porcentajeDescuento);
         BigDecimal total = subtotal.subtract(montoDescuento);

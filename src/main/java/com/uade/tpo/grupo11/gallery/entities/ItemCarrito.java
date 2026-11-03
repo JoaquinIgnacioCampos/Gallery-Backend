@@ -19,8 +19,9 @@ public class ItemCarrito {
     @Column(name = "item_id")
     private Long id;
 
+    // Opcional: la obra se puede comprar sin marco (null).
     @ManyToOne
-    @JoinColumn(name = "marco_id", nullable = false)
+    @JoinColumn(name = "marco_id")
     private Marco marco;
 
     @ManyToOne

@@ -19,7 +19,7 @@ public record ItemFacturaResponse(
         return new ItemFacturaResponse(
                 itemFactura.getId(),
                 itemFactura.getFactura().getId(),
-                itemFactura.getMarco().getId(),
+                itemFactura.getMarco() != null ? itemFactura.getMarco().getId() : null,
                 itemFactura.getVariante().getId(),
                 itemFactura.getCantidad_items(),
                 itemFactura.getTotal_item(),

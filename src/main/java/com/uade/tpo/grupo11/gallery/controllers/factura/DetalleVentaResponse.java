@@ -51,7 +51,7 @@ public record DetalleVentaResponse(
                             item.getVariante().getObra().getId(),
                             item.getVariante().getObra().getNombre_obra(),
                             item.getVariante().getTamanio().getNombre_tamanio(),
-                            item.getMarco().getNombre_marco(),
+                            item.getMarco() != null ? item.getMarco().getNombre_marco() : null,
                             item.getCantidad_items(),
                             item.getDescuento(),
                             item.getTotal_item(),

@@ -10,7 +10,7 @@ public class ItemFacturaRequest {
     @NotNull(message = "La factura es obligatoria")
     private Long factura_id;
 
-    @NotNull(message = "El marco es obligatorio")
+    // Sin marco: null.
     private Long marco_id;
 
     @NotNull(message = "La variante es obligatoria")
