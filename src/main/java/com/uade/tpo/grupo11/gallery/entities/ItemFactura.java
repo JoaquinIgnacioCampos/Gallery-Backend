@@ -19,8 +19,9 @@ public class ItemFactura {
     @JoinColumn(name = "factura_id", nullable = false)
     private Factura factura;
 
+    // Opcional: la obra se pudo comprar sin marco (null).
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "marco_id", nullable = false)
+    @JoinColumn(name = "marco_id")
     private Marco marco;
 
     @ManyToOne(fetch = FetchType.LAZY)

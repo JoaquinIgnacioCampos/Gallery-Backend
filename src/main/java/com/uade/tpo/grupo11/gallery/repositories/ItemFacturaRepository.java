@@ -25,7 +25,7 @@ public interface ItemFacturaRepository extends JpaRepository<ItemFactura, Long> 
     // Los items de una factura con su variante, obra, tamanio y marco ya cargados: una sola consulta
     // en vez de una por cada relacion de cada item.
     @Query("SELECT i FROM ItemFactura i JOIN FETCH i.variante v JOIN FETCH v.obra JOIN FETCH v.tamanio "
-            + "JOIN FETCH i.marco WHERE i.factura.id = :facturaId ORDER BY i.id")
+            + "LEFT JOIN FETCH i.marco WHERE i.factura.id = :facturaId ORDER BY i.id")
     List<ItemFactura> findDetalleByFacturaId(@Param("facturaId") Long facturaId);
 
     // Utilizado para vista de admincatalogo del front

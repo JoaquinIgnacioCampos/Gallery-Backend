@@ -65,6 +65,15 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     }
 
 
+    // El marco elegido, o null si la obra va sin marco.
+    private Marco buscarMarco(Long marcoId) {
+        if (marcoId == null) {
+            return null;
+        }
+        return marcoRepository.findById(marcoId).orElseThrow(() -> new MarcoNotFoundException(marcoId));
+    }
+
+
     // Crea el item del carrito con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
     @Override
     public ItemCarrito createItemCarrito(ItemCarritoRequest request, Usuario usuarioActual) {
@@ -76,9 +85,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         // No se puede agregar un item al carrito de otro usuario.
         OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
-        Marco marco = marcoRepository
-                .findById(request.getMarco_id())
-                .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
+        Marco marco = buscarMarco(request.getMarco_id());
 
         Variante variante = varianteRepository
                 .findById(request.getVariante_id())
@@ -124,9 +131,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         // El item tampoco puede pasarse al carrito de otro usuario.
         OwnershipGuard.verificar(usuarioActual, carrito.getUsuario().getId());
 
-        Marco marco = marcoRepository
-                .findById(request.getMarco_id())
-                .orElseThrow(() -> new MarcoNotFoundException(request.getMarco_id()));
+        Marco marco = buscarMarco(request.getMarco_id());
 
         Variante variante = varianteRepository
                 .findById(request.getVariante_id())
