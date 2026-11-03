@@ -22,7 +22,7 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
             + "AND EXISTS (SELECT 1 FROM Imagen ip WHERE ip.obra = o)";
 
     // Precio de una variante hoy: con su descuento solo si todavía no venció.
-    // Se usa únicamente para ordenar; los límites precioMin/precioMax siguen siendo sobre el precio base.
+    // Se usa para ordenar y para los límites precioMin/precioMax: el rango se compara con el precio que se paga.
     String PRECIO_VIGENTE = " CASE WHEN v.descuento_hasta IS NULL OR v.descuento_hasta >= :hoy "
             + "THEN v.precio_variante * (1 - COALESCE(v.porcentaje_descuento, 0) / 100.0) "
             + "ELSE v.precio_variante END ";
@@ -32,8 +32,8 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
     // depender de una lista vacía (IN () no es válido): sin estilos se manda List.of(-1L) y no se usa.
     String FILTROS = " AND (:artistaId IS NULL OR o.artista.id = :artistaId) "
             + "AND (:cantidadEstilos = 0 OR e.id IN :estiloIds) "
-            + "AND (:precioMin IS NULL OR v.precio_variante >= :precioMin) "
-            + "AND (:precioMax IS NULL OR v.precio_variante <= :precioMax) "
+            + "AND (:precioMin IS NULL OR" + PRECIO_VIGENTE + ">= :precioMin) "
+            + "AND (:precioMax IS NULL OR" + PRECIO_VIGENTE + "<= :precioMax) "
             + "AND (:patron IS NULL OR LOWER(o.nombre_obra) LIKE :patron ESCAPE '!' "
             + "     OR LOWER(o.artista.nombre_artistico) LIKE :patron ESCAPE '!') ";
 
