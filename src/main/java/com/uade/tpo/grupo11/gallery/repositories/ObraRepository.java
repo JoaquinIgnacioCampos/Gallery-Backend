@@ -104,4 +104,8 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
 
     // Utilizado para vista de admincatalogo del front
     boolean existsByEstilosId(Long estiloId);
+
+    // Cuenta únicamente las obras que cumplen la regla de publicación del catálogo.
+    @Query("SELECT COUNT(o) FROM Obra o WHERE " + PUBLICADA)
+    long countPublicadas();
 }
