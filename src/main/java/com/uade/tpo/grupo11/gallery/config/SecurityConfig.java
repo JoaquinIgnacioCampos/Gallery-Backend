@@ -76,6 +76,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/usuarios/*/rol").hasAuthority("ADMIN")
                         // Listado completo: informacion sensible, solo ADMIN (regla que faltaba agregar).
                         .requestMatchers(HttpMethod.GET, "/api/usuarios").hasAuthority("ADMIN")
+                        // METRICAS DEL SISTEMA: solo ADMIN.
+                        .requestMatchers(HttpMethod.GET, "/api/admin/metricas")
+                        .hasAuthority("ADMIN")
 
                         // Un usuario puntual: cualquier rol autenticado puede pedirlo; el service decide
                         // si es EL dueño o un ADMIN (OwnershipGuard), no esta regla.

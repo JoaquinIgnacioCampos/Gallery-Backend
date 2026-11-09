@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import java.math.BigDecimal;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,4 +37,40 @@ public interface CompraRepository extends JpaRepository<Compra, Long> {
             @Param("envioADomicilio") TipoEntrega envioADomicilio,
             @Param("retiroEnElLocal") TipoEntrega retiroEnElLocal,
             Pageable pageable);
+
+
+    // Cantidad de compras realizadas dentro de un rango de fecha.
+    @Query("""
+        SELECT COUNT(compra)
+        FROM Compra compra
+        WHERE compra.fecha_compra >= :desde
+        AND compra.fecha_compra < :hasta
+        """)
+    long contarComprasEntre(
+            @Param("desde") LocalDateTime desde,
+            @Param("hasta") LocalDateTime hasta
+    );
+
+
+    // Suma total facturada por todas las compras.
+    @Query("""
+        SELECT COALESCE(SUM(compra.total_compra), 0)
+        FROM Compra compra
+        """)
+    BigDecimal sumarIngresosTotales();
+
+
+    // Suma lo vendido dentro de un rango de fecha.
+    @Query("""
+        SELECT COALESCE(SUM(compra.total_compra), 0)
+        FROM Compra compra
+        WHERE compra.fecha_compra >= :desde
+        AND compra.fecha_compra < :hasta
+        """)
+    BigDecimal sumarIngresosEntre(
+            @Param("desde") LocalDateTime desde,
+            @Param("hasta") LocalDateTime hasta
+    );
 }
+
+

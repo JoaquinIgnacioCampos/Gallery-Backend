@@ -10,6 +10,12 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import com.uade.tpo.grupo11.gallery.entities.enums.EstadoEncargo;
+
+import java.util.Collection;
+
 // Habla con la base. Al extender JpaRepository, el CRUD basico ya viene hecho.
 // La respuesta de un encargo incluye los nombres del artista, el tamanio y el marco: el
 // EntityGraph los trae en la misma consulta. Sin eso, cada encargo de una lista pediria esas relaciones
@@ -36,4 +42,14 @@ public interface EncargoRepository extends JpaRepository<Encargo, Long> {
 
     @EntityGraph(attributePaths = {"artista", "tamanio", "marco"})
     Page<Encargo> findByUsuarioId(Long usuarioId, Pageable pageable);
+
+    // Cuenta los encargos que no están en alguno de los estados finales indicados.
+    @Query("""
+        SELECT COUNT(encargo)
+        FROM Encargo encargo
+        WHERE encargo.estado_encargo NOT IN :estados
+        """)
+    long contarActivos(
+            @Param("estados") Collection<EstadoEncargo> estados
+    );
 }
