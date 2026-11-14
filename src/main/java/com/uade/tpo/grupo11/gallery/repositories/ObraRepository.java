@@ -21,9 +21,9 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
             + "AND EXISTS (SELECT 1 FROM Variante vp WHERE vp.obra = o) "
             + "AND EXISTS (SELECT 1 FROM Imagen ip WHERE ip.obra = o)";
 
-    // Precio de una variante hoy: con su descuento solo si todavía no venció.
+    // Precio de una variante hoy: con su descuento solo si tiene fecha de fin y todavía no venció.
     // Se usa para ordenar y para los límites precioMin/precioMax: el rango se compara con el precio que se paga.
-    String PRECIO_VIGENTE = " CASE WHEN v.descuento_hasta IS NULL OR v.descuento_hasta >= :hoy "
+    String PRECIO_VIGENTE = " CASE WHEN v.descuento_hasta IS NOT NULL AND v.descuento_hasta >= :hoy "
             + "THEN v.precio_variante * (1 - COALESCE(v.porcentaje_descuento, 0) / 100.0) "
             + "ELSE v.precio_variante END ";
 

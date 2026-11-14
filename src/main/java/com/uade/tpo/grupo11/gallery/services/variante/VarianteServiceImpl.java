@@ -101,6 +101,7 @@ public class VarianteServiceImpl implements VarianteService {
         validarPrecio(request.getPrecio_variante());
         validarStock(request.getStock_variante());
         validarDescuento(request.getPorcentaje_descuento());
+        validarFechaObligatoria(request.getPorcentaje_descuento(), request.getDescuento_hasta());
         validarFechaDescuento(request.getDescuento_hasta());
 
         Variante variante = Variante.builder()
@@ -138,6 +139,7 @@ public class VarianteServiceImpl implements VarianteService {
         validarPrecio(request.getPrecio_variante());
         validarStock(request.getStock_variante());
         validarDescuento(request.getPorcentaje_descuento());
+        validarFechaObligatoria(request.getPorcentaje_descuento(), request.getDescuento_hasta());
         // Un descuento ya vencido que se deja como esta no bloquea otros cambios: solo se valida una fecha nueva.
         if (!Objects.equals(request.getDescuento_hasta(), varianteExistente.getDescuento_hasta())) {
             validarFechaDescuento(request.getDescuento_hasta());
@@ -215,6 +217,15 @@ public class VarianteServiceImpl implements VarianteService {
         if (descuentoHasta != null && descuentoHasta.isBefore(LocalDate.now(Variante.ZONA))) {
             throw new IllegalArgumentException("La fecha del descuento (" + descuentoHasta
                     + ") ya pasó: tiene que ser hoy o una fecha futura");
+        }
+    }
+
+
+    // Regla de negocio: un descuento siempre tiene fecha de fin (no puede quedar vigente para siempre).
+    private void validarFechaObligatoria(Integer porcentaje, LocalDate descuentoHasta) {
+
+        if (porcentaje != null && porcentaje > 0 && descuentoHasta == null) {
+            throw new IllegalArgumentException("El descuento necesita una fecha de fin");
         }
     }
 

@@ -14,7 +14,7 @@ public final class PrecioVigente {
     private PrecioVigente() {
     }
 
-    // Aplica el descuento solo si existe y no vencio. Si no, devuelve el precio de lista.
+    // Aplica el descuento solo si existe, tiene fecha de fin y no vencio. Si no, devuelve el precio de lista.
     public static BigDecimal de(Variante variante) {
 
         Integer porcentaje = variante.getPorcentaje_descuento();
@@ -22,7 +22,8 @@ public final class PrecioVigente {
 
         boolean vigente = porcentaje != null
                 && porcentaje > 0
-                && (hasta == null || !hasta.isBefore(LocalDate.now()));
+                && hasta != null
+                && !hasta.isBefore(LocalDate.now());
 
         if (!vigente) {
             return variante.getPrecio_variante();
