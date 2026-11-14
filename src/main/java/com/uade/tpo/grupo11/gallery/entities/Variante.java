@@ -65,7 +65,8 @@ public class Variante {
     // Porcentaje que rige HOY. El descuento vale hasta el día indicado inclusive;
     public int getPorcentajeDescuentoVigente() {
         if (porcentaje_descuento == null || porcentaje_descuento <= 0) return 0;
-        if (descuento_hasta != null && descuento_hasta.isBefore(LocalDate.now(ZONA))) return 0;
+        // Un descuento siempre tiene fecha de fin: sin fecha, o ya vencido, no rige.
+        if (descuento_hasta == null || descuento_hasta.isBefore(LocalDate.now(ZONA))) return 0;
         return porcentaje_descuento;
     }
 
