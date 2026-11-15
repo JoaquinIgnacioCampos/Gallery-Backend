@@ -75,10 +75,6 @@ public interface ObraRepository extends JpaRepository<Obra, Long> {
             @Param("soloConVariantesSinStock") boolean soloConVariantesSinStock,
             Pageable pageable);
 
-    // Los ids de los estilos de varias obras en una sola consulta: una fila por cada par (obra, estilo).
-    @Query("SELECT o.id AS obraId, e.id AS estiloId FROM Obra o JOIN o.estilos e WHERE o.id IN :obraIds")
-    List<EstiloDeObra> findEstilosDeObras(@Param("obraIds") List<Long> obraIds);
-
     // Búsqueda del catálogo. El orden se decide con "signo":
     //   0  -> más recientes (id descendente)
     //   1  -> menor precio primero (precio más bajo de cada obra, con descuento vigente)

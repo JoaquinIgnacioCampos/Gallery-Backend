@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.controllers.paginacion.Paginacion;
 import org.springframework.data.domain.Page;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponder;
 import com.uade.tpo.grupo11.gallery.controllers.encargo.EncargoResponse;
+import com.uade.tpo.grupo11.gallery.controllers.obra.ObraResponse;
 import com.uade.tpo.grupo11.gallery.entities.PerfilArtista;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
@@ -96,12 +97,12 @@ public class PerfilArtistaController {
     }
 
     // Las propias obras: el id sale del token, no hace falta que el artista lo sepa.
-    // Incluye las que no estan en venta, porque el artista las sigue gestionando. Cada obra trae el
-    // resumen que necesita la lista (estilos, portada y cantidad de variantes).
+    // Incluye las que no estan en venta, porque el artista las sigue gestionando. Cada obra viaja igual que en
+    // /api/obras: con sus estilos, sus variantes y sus imagenes.
     // Filtros opcionales y combinables, como en /api/obras: nombreObra (texto en el nombre de la obra), estiloId (uno o varios, con
     // coma), enVenta (true o false; sin enviarlo vienen todas) y sinStock (true: solo con variantes sin stock).
     @GetMapping("/me/obras")
-    public ResponseEntity<Page<MiObraResponse>> getObrasPropias(
+    public ResponseEntity<Page<ObraResponse>> getObrasPropias(
             @AuthenticationPrincipal Usuario usuarioLogueado,
             @RequestParam(required = false) String nombreObra,
             @RequestParam(required = false) List<Long> estiloId,
@@ -113,7 +114,7 @@ public class PerfilArtistaController {
         PerfilArtista perfilPropio = perfilArtistaService.getPerfilArtistaPropio(usuarioLogueado);
         return ResponseEntity.ok(perfilArtistaService
                 .getObrasPropias(perfilPropio.getId(), nombreObra, estiloId, enVenta, sinStock, Paginacion.de(page, size))
-                .map(MiObraResponse::fromResumen));
+                .map(ObraResponse::fromEntity));
     }
 
     // Las ventas del artista: una fila por factura emitida a su nombre, y lo vendido en total. El service
