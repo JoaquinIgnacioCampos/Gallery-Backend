@@ -36,12 +36,11 @@ public interface PerfilArtistaService {
     // Devuelve las obras del perfil de artista que ve el publico: solo las que estan en venta.
     Page<Obra> getObrasByPerfilArtista(Long perfilArtistaId, PageRequest pageable);
 
-    // Devuelve las obras que gestiona el propio artista, esten o no en venta, cada una con su resumen
-    // (estilos, portada y variantes). Sale de una cantidad fija de consultas, sin importar cuantas obras haya.
+    // Devuelve las obras que gestiona el propio artista, esten o no en venta (no las eliminadas).
     // Filtros opcionales y combinables: texto en el nombre, estilos (alcanza con uno), si esta en venta o no
     // (null = todas) y solo las que tienen alguna variante sin stock.
-    Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, String nombreObra, List<Long> estiloId, Boolean enVenta,
-                                            boolean sinStock, PageRequest pageable);
+    Page<Obra> getObrasPropias(Long perfilArtistaId, String nombreObra, List<Long> estiloId, Boolean enVenta,
+                               boolean sinStock, PageRequest pageable);
 
     // Devuelve las ventas del artista: las facturas emitidas a su nombre, de la mas nueva a la mas vieja,
     // junto con lo vendido en total. El filtro (fechas y entrega) se aplica a la lista y al total.

@@ -16,13 +16,10 @@ import com.uade.tpo.grupo11.gallery.services.filtro.FiltroPorEntregaYFecha;
 import com.uade.tpo.grupo11.gallery.services.filtro.TextoDeBusqueda;
 import com.uade.tpo.grupo11.gallery.exceptions.*;
 import com.uade.tpo.grupo11.gallery.repositories.FacturaRepository;
-import com.uade.tpo.grupo11.gallery.repositories.ImagenRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ItemFacturaRepository;
 import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
 import com.uade.tpo.grupo11.gallery.repositories.PerfilArtistaRepository;
-import com.uade.tpo.grupo11.gallery.repositories.ResumenDeVariantes;
 import com.uade.tpo.grupo11.gallery.repositories.UsuarioRepository;
-import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 import com.uade.tpo.grupo11.gallery.repositories.VentaDeArtista;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +46,6 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     private FacturaRepository facturaRepository;
     @Autowired
     private ItemFacturaRepository itemFacturaRepository;
-    @Autowired
-    private VarianteRepository varianteRepository;
-    @Autowired
-    private ImagenRepository imagenRepository;
 
     // Devuelve los perfiles de artista del usuario.
     @Override
@@ -182,13 +175,12 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
     }
 
     // Devuelve las obras que gestiona el propio artista: incluye las que no estan en venta, no las eliminadas.
-    // Los estilos, la portada y las variantes de toda la pagina se piden de una vez (una consulta cada uno,
-    // con IN) y se reparten en memoria: no hay una consulta por obra. Una obra sin fotos o sin variantes
-    // no corta la lista (para eso no se usan los services de imagen y variante, que lanzan ListaVaciaException).
+    // Cada obra se devuelve con sus variantes y sus imagenes (ver ObraResponse): Hibernate las trae para toda la pagina
+    // en una consulta (@BatchSize en Obra), no una por obra.
     @Override
     @Transactional(readOnly = true)
-    public Page<ObraPropiaResumen> getObrasPropias(Long perfilArtistaId, String nombreObra, List<Long> estiloId, Boolean enVenta,
-                                                   boolean sinStock, PageRequest pageable) {
+    public Page<Obra> getObrasPropias(Long perfilArtistaId, String nombreObra, List<Long> estiloId, Boolean enVenta,
+                                      boolean sinStock, PageRequest pageable) {
         getPerfilArtistaById(perfilArtistaId);
 
         // Estilos: sin repetidos; una lista vacia = sin filtro de estilo (IN () no es valido: se manda un id que no existe).
@@ -203,30 +195,7 @@ public class PerfilArtistaServiceImpl implements PerfilArtistaService {
         if (obras.isEmpty()) {
             throw new ListaVaciaException("Todavía no tenés obras publicadas");
         }
-
-        List<Long> ids = new ArrayList<>();
-        obras.forEach(obra -> ids.add(obra.getId()));
-
-        Map<Long, List<Long>> estilosPorObra = new HashMap<>();
-        obraRepository.findEstilosDeObras(ids).forEach(fila ->
-                estilosPorObra.computeIfAbsent(fila.getObraId(), clave -> new ArrayList<>()).add(fila.getEstiloId()));
-
-        Map<Long, ResumenDeVariantes> variantesPorObra = new HashMap<>();
-        varianteRepository.resumirPorObras(ids).forEach(fila -> variantesPorObra.put(fila.getObraId(), fila));
-
-        Map<Long, String> portadaPorObra = new HashMap<>();
-        imagenRepository.findPortadasDeObras(ids).forEach(fila -> portadaPorObra.putIfAbsent(fila.getObraId(), fila.getUrl()));
-
-        return obras.map(obra -> {
-            ResumenDeVariantes variantes =variantesPorObra.get(obra.getId());
-            return new ObraPropiaResumen(
-                    obra,
-                    estilosPorObra.getOrDefault(obra.getId(), List.of()),
-                    portadaPorObra.get(obra.getId()),
-                    variantes == null ? 0 : variantes.getCantidad(),
-                    variantes == null ? 0 : variantes.getSinStock()
-            );
-        });
+        return obras;
     }
 
     // Devuelve las ventas del artista. Son datos de plata, asi que no alcanza con tener

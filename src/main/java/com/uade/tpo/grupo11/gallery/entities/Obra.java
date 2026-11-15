@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -49,20 +50,26 @@ public class Obra {
     @JoinColumn(name = "artista_id", nullable = false)
     private PerfilArtista artista;
 
+    // @BatchSize: al recorrer una pagina de obras, Hibernate trae las variantes (y las imagenes y los estilos) de
+    // hasta 50 obras en una sola consulta con IN, en vez de una consulta por obra.
+
     // Una obra tiene muchas variantes. La FK vive en Variante, en su campo "obra".
     @OneToMany(mappedBy = "obra")
+    @BatchSize(size = 50)
     @Builder.Default
     private List<Variante> variantes = new ArrayList<>();
 
     // Una obra tiene muchas imagenes. mappedBy dice que el dueno de la relacion es Imagen:
     // la columna obra_id esta en la tabla imagen, no aca.
     @OneToMany(mappedBy = "obra")
+    @BatchSize(size = 50)
     @Builder.Default
     private List<Imagen> imagenes = new ArrayList<>();
 
     // Muchos a muchos: una obra puede tener varios estilos y un estilo agrupa varias obras.
     // Como ninguna de las dos tablas puede guardar una lista, JPA crea la tabla intermedia estilo_obra.
     @ManyToMany
+    @BatchSize(size = 50)
     @JoinTable(
             name = "estilo_obra",
             joinColumns = @JoinColumn(name = "obra_id"),
