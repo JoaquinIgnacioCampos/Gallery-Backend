@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
@@ -86,6 +87,28 @@ public class ImagenController {
             @AuthenticationPrincipal Usuario usuarioActual) throws IOException {
 
         return ResponseEntity.ok(ImagenResponse.fromEntity(servicioImagen.updateImagen(imagenId, request, usuarioActual)));
+    }
+
+
+    // Deja la galeria de una obra exactamente como llega, en un solo pedido y todo o nada (si algo falla, no cambia
+    // nada). Multipart:
+    //   orden        : la galeria final en orden; cada elemento es el id de una foto que se queda o "nueva-N"
+    //                  (el archivo N de nuevas). Las que no estan se borran.
+    //   nuevas       : los archivos de las fotos nuevas
+    //   reemplazoIds : las fotos que cambian de archivo; reemplazos trae esos archivos, en el mismo orden
+    // Devuelve la galeria como quedo, ordenada.
+    @PutMapping(value = "/galeria/{obraId}", consumes = "multipart/form-data")
+    public ResponseEntity<List<ImagenResponse>> reemplazarGaleria(
+            @PathVariable Long obraId,
+            @RequestParam List<String> orden,
+            @RequestParam(required = false) List<MultipartFile> nuevas,
+            @RequestParam(required = false) List<Long> reemplazoIds,
+            @RequestParam(required = false) List<MultipartFile> reemplazos,
+            @AuthenticationPrincipal Usuario usuarioActual) throws IOException {
+
+        List<Imagen> galeria = servicioImagen.reemplazarGaleria(
+                obraId, orden, nuevas, reemplazoIds, reemplazos, usuarioActual);
+        return ResponseEntity.ok(galeria.stream().map(ImagenResponse::fromEntity).toList());
     }
 
 
