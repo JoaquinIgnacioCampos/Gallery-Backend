@@ -17,11 +17,14 @@ import com.uade.tpo.grupo11.gallery.services.almacenamiento.AlmacenamientoServic
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 // Logica de negocio de las imagenes: valida, resuelve las relaciones y coordina los repositorios.
@@ -199,6 +202,125 @@ public class ImagenServiceImpl implements ImagenService {
         }
     }
 
+
+    // Deja la galeria de la obra como llega, todo en una sola transaccion: si algo falla (un archivo invalido, Cloudinary,
+    // la base) no queda nada a medias. Los archivos recien subidos se borran de Cloudinary si se revierte, y los que se
+    // reemplazan o se quitan se borran recien cuando se confirma.
+    //   orden        : la galeria final, en orden. Cada elemento es el id de una foto que se queda o "nueva-N" (el
+    //                  archivo N de nuevas). Las fotos de la obra que no estan, se borran.
+    //   reemplazoIds : fotos que se quedan pero cambian de archivo; reemplazos trae sus archivos, en el mismo orden.
+    @Override
+    @Transactional
+    public List<Imagen> reemplazarGaleria(Long obraId, List<String> orden, List<MultipartFile> nuevas,
+                                          List<Long> reemplazoIds, List<MultipartFile> reemplazos,
+                                          Usuario usuarioActual) throws IOException {
+        Obra obra = obraRepository
+                .findById(obraId)
+                .orElseThrow(() -> new ObraNotFoundException(obraId));
+        OwnershipGuard.verificar(usuarioActual, obra.getArtista().getUsuario().getId());
+        validarObraVigente(obra);
+
+        List<MultipartFile> archivosNuevos = nuevas == null ? List.of() : nuevas;
+        List<Long> idsReemplazados = reemplazoIds == null ? List.of() : reemplazoIds;
+        List<MultipartFile> archivosReemplazo = reemplazos == null ? List.of() : reemplazos;
+
+        Map<Long, Imagen> actuales = new HashMap<>();
+        for (Imagen imagen : repoImagen.findByObraIdOrdenadas(obraId)) {
+            actuales.put(imagen.getId(), imagen);
+        }
+
+        // Se valida todo antes de tocar nada: cada elemento del orden, una sola vez y de esta obra.
+        // Un elemento vacio se ignora (el formulario lo manda cuando la galeria queda sin fotos).
+        List<Object> galeria = new ArrayList<>();
+        Set<Long> quedan = new HashSet<>();
+        Set<Integer> nuevasUsadas = new HashSet<>();
+        for (String elemento : orden == null ? List.<String>of() : orden) {
+            if (elemento == null || elemento.isBlank()) {
+                continue;
+            }
+            if (elemento.startsWith("nueva-")) {
+                int indice = leerNumero(elemento.substring("nueva-".length()), elemento);
+                if (indice < 0 || indice >= archivosNuevos.size() || !nuevasUsadas.add(indice)) {
+                    throw new IllegalArgumentException("La foto nueva " + elemento + " no corresponde a ningún archivo enviado");
+                }
+                galeria.add(indice);
+            } else {
+                Long id = (long) leerNumero(elemento, elemento);
+                Imagen imagen = actuales.get(id);
+                if (imagen == null || !quedan.add(id)) {
+                    throw new IllegalArgumentException("La foto " + id + " no es de esta obra o está repetida");
+                }
+                galeria.add(imagen);
+            }
+        }
+        if (nuevasUsadas.size() != archivosNuevos.size()) {
+            throw new IllegalArgumentException("Hay archivos nuevos que no están en el orden de la galería");
+        }
+        if (idsReemplazados.size() != archivosReemplazo.size()) {
+            throw new IllegalArgumentException("Cada foto a reemplazar tiene que llegar con su archivo");
+        }
+        Map<Long, MultipartFile> reemplazoDe = new HashMap<>();
+        for (int i = 0; i < idsReemplazados.size(); i++) {
+            Long id = idsReemplazados.get(i);
+            if (!quedan.contains(id) || reemplazoDe.put(id, archivosReemplazo.get(i)) != null) {
+                throw new IllegalArgumentException("La foto " + id + " a reemplazar no está en la galería o está repetida");
+            }
+        }
+        for (MultipartFile archivo : archivosNuevos) {
+            almacenamiento.validarImagen(archivo);
+        }
+        for (MultipartFile archivo : archivosReemplazo) {
+            almacenamiento.validarImagen(archivo);
+        }
+
+        // Las que no siguen se borran (su archivo, recien cuando se confirma).
+        for (Imagen imagen : actuales.values()) {
+            if (!quedan.contains(imagen.getId())) {
+                repoImagen.delete(imagen);
+                almacenamiento.borrarDespuesDelCommit(imagen.getPublic_id_imagen());
+            }
+        }
+
+        // La galeria final: las que se quedan (con su archivo nuevo, si se reemplazo) y las nuevas, numeradas 1..n.
+        List<Imagen> resultado = new ArrayList<>();
+        for (Object elemento : galeria) {
+            Imagen imagen;
+            if (elemento instanceof Integer indice) {
+                AlmacenamientoService.ImagenSubida subida =
+                        almacenamiento.subir(archivosNuevos.get(indice), AlmacenamientoService.CARPETA_OBRAS);
+                almacenamiento.borrarSiSeRevierte(subida.publicId());
+                imagen = Imagen.builder()
+                        .obra(obra)
+                        .url_imagen(subida.url())
+                        .public_id_imagen(subida.publicId())
+                        .build();
+            } else {
+                imagen = (Imagen) elemento;
+                MultipartFile archivo = reemplazoDe.get(imagen.getId());
+                if (archivo != null) {
+                    AlmacenamientoService.ImagenSubida subida =
+                            almacenamiento.subir(archivo, AlmacenamientoService.CARPETA_OBRAS);
+                    almacenamiento.borrarSiSeRevierte(subida.publicId());
+                    almacenamiento.borrarDespuesDelCommit(imagen.getPublic_id_imagen());
+                    imagen.setUrl_imagen(subida.url());
+                    imagen.setPublic_id_imagen(subida.publicId());
+                }
+            }
+            imagen.setOrden_imagen(resultado.size() + 1);
+            resultado.add(imagen);
+        }
+
+        return repoImagen.saveAll(resultado);
+    }
+
+    // Un numero del orden de la galeria (un id o el indice de una foto nueva).
+    private int leerNumero(String texto, String elemento) {
+        try {
+            return Integer.parseInt(texto.trim());
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("El elemento \"" + elemento + "\" del orden de la galería no es válido");
+        }
+    }
 
     // Las imagenes de una obra eliminada quedan como registro: no se agregan, editan ni borran.
     private void validarObraVigente(Obra obra) {

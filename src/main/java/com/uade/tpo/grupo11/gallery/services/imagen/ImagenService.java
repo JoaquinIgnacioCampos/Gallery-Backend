@@ -5,6 +5,8 @@ import com.uade.tpo.grupo11.gallery.entities.Imagen;
 import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.repositories.ImagenPortada;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.util.List;
 
@@ -21,4 +23,11 @@ public interface ImagenService {
     Imagen createImagen(ImagenRequest request, Usuario usuarioActual) throws IOException;
     Imagen updateImagen(Long imagenId, ImagenRequest request, Usuario usuarioActual) throws IOException;
     void deleteImagen(Long imagenId, Usuario usuarioActual);
+
+    // Deja la galeria de la obra exactamente como llega, en una sola transaccion (todo o nada): en el orden de
+    // "orden" van las fotos que se quedan (por id) y las nuevas ("nueva-N" es el archivo N de "nuevas"); las que no
+    // estan se borran. "reemplazoIds" y "reemplazos" van de a pares: la foto y su archivo nuevo.
+    List<Imagen> reemplazarGaleria(Long obraId, List<String> orden, List<MultipartFile> nuevas,
+                                   List<Long> reemplazoIds, List<MultipartFile> reemplazos,
+                                   Usuario usuarioActual) throws IOException;
 }
