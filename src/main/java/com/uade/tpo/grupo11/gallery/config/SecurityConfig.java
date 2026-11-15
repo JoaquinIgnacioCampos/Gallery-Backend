@@ -138,6 +138,10 @@ public class SecurityConfig {
                         .hasAnyAuthority("CLIENTE", "ARTISTA", "ARTISTA_CLIENTE", "ADMIN")
 
 
+                        // Crear una compra vacia a nombre de un usuario es una correccion administrativa: sin esta regla
+                        // cualquier usuario logueado podia crearle compras a otro (cae en "anyRequest().authenticated()").
+                        .requestMatchers(HttpMethod.POST, "/api/usuarios/*/compras").hasAuthority("ADMIN")
+
                         // COMPRA/FACTURA/ITEM-FACTURA: los genera el checkout (llamada interna,
                         // no pasa por estas rutas HTTP). Escribirlos a mano queda solo para ADMIN,
                         // por ejemplo para una correccion administrativa.
