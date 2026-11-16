@@ -4,6 +4,7 @@ import com.uade.tpo.grupo11.gallery.entities.enums.TipoLienzo;
 import com.uade.tpo.grupo11.gallery.entities.enums.TipoPintura;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 
@@ -30,6 +31,7 @@ public class EncargoRequest {
     private TipoLienzo tipo_lienzo;
 
     @NotBlank(message = "La descripción del encargo es obligatoria")
+    @Size(max = 255, message = "La descripción puede tener hasta 255 caracteres")
     private String descripcion_encargo;
 
 }

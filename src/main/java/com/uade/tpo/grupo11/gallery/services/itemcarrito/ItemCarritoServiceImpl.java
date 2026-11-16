@@ -180,6 +180,9 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
     // Lo que ya hay en el carrito para la misma variante (sin contar el item que se edita) mas lo pedido no puede superar el stock.
     private void validarStockDisponible(Carrito carrito, Variante variante, int cantidadPedida, Long itemIdExcluido) {
+        if (cantidadPedida < 1) {
+            throw new IllegalArgumentException("La cantidad tiene que ser al menos 1");
+        }
         int yaEnCarrito = itemCarritoRepository.findByCarritoId(carrito.getId()).stream()
                 .filter(item -> item.getVariante().getId().equals(variante.getId()))
                 .filter(item -> itemIdExcluido == null || !item.getId().equals(itemIdExcluido))
