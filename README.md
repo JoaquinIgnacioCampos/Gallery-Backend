@@ -18,7 +18,6 @@ Necesita Java 17 o superior, MySQL 8 y una cuenta de Cloudinary.
 
 ```bash
 ./mvnw spring-boot:run      # en Windows: .\mvnw.cmd spring-boot:run
-./mvnw test                 # tests
 ```
 
 Las tablas se crean solas al arrancar. Para ver datos de ejemplo se importa el export de la demo (`gallery-demo.sql`,

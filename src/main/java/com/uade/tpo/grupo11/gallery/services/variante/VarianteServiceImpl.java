@@ -190,7 +190,7 @@ public class VarianteServiceImpl implements VarianteService {
         // Un tamaño que ya se vendio es parte del historial de las facturas, y uno que esta en un carrito lo van a
         // comprar: no se borra (para dejar de venderlo alcanza con poner su stock en 0).
         if (itemFacturaRepository.existsByVarianteId(varianteId) || itemCarritoRepository.existsByVarianteId(varianteId)) {
-            throw new VarianteEnUsoException(varianteId);
+            throw new VarianteEnUsoException(variante.getTamanio().getNombre_tamanio());
         }
 
         repoVariante.delete(variante);
