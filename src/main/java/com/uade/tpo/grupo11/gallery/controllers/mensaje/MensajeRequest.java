@@ -2,6 +2,7 @@ package com.uade.tpo.grupo11.gallery.controllers.mensaje;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 // Lo que el cliente manda para crear o modificar los mensajes. Las relaciones viajan como ids.
@@ -15,5 +16,6 @@ public class MensajeRequest {
     // cualquiera podria escribir un mensaje haciendose pasar por otro.
 
     @NotBlank(message = "El contenido del mensaje es obligatorio")
+    @Size(max = 255, message = "El mensaje puede tener hasta 255 caracteres")
     private String contenido;
 }

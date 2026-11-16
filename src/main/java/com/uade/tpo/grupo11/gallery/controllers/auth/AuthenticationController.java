@@ -22,7 +22,7 @@ public class AuthenticationController {
     // POST y no GET aunque solo "consulte": las credenciales viajan en el cuerpo,
     // y un GET las dejaria escritas en la URL y en los logs del servidor.
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<AuthenticationResponse> authenticate(@Valid @RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));
     }
 

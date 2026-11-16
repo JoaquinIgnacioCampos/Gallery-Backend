@@ -70,7 +70,9 @@ public class CheckoutServiceImpl implements CheckoutService {
     public Compra checkout(Long usuarioId, TipoEntrega tipoEntregaElegido) {
 
         // 1) Buscamos el carrito del usuario y sus items.
-        Carrito carrito = carritoRepository.findByUsuarioId(usuarioId)
+        // Se bloquea la fila del carrito hasta el final de la transaccion: dos checkout a la vez del mismo carrito
+        // se hacen en fila y el segundo ya lo encuentra vacio (sin esto se podia comprar dos veces lo mismo).
+        Carrito carrito = carritoRepository.findByUsuarioIdParaActualizar(usuarioId)
                 .orElseThrow(() -> new CarritoNotFoundException(usuarioId));
 
         List<ItemCarrito> items = itemCarritoRepository.findByCarritoId(carrito.getId());
@@ -99,6 +101,12 @@ public class CheckoutServiceImpl implements CheckoutService {
         } else {
             direccionEntrega = DIRECCION_RETIRO_GALERIA;
             costoEnvio = BigDecimal.ZERO;
+        }
+
+        for (ItemCarrito item : items) {
+            if (item.getCantidad() == null || item.getCantidad() < 1) {
+                throw new IllegalArgumentException("El carrito tiene un item con una cantidad invalida");
+            }
         }
 
         // 2) Validamos la disponibilidad de TODO antes de tocar nada. Si una obra se dio de baja, se saco

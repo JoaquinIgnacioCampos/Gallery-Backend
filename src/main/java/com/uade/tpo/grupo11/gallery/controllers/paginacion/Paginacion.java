@@ -4,6 +4,9 @@ import org.springframework.data.domain.PageRequest;
 
 public final class Paginacion {
 
+    // Tope de elementos por pagina: sin el, un size enorme pide toda la tabla en una sola consulta.
+    public static final int TAMANIO_MAXIMO = 100;
+
     private Paginacion() {
     }
 
@@ -12,6 +15,6 @@ public final class Paginacion {
         if (page == null || size == null) {
             return PageRequest.of(0, Integer.MAX_VALUE);
         }
-        return PageRequest.of(page, size);
+        return PageRequest.of(page, Math.min(size, TAMANIO_MAXIMO));
     }
 }
