@@ -139,7 +139,9 @@ public class EncargoServiceImpl implements EncargoService {
     @Transactional
     public Encargo pagarEncargo(Long encargoId, Usuario usuarioLogueado) {
         verificarEscritura(usuarioLogueado);
-        Encargo encargo = encargoRepository.findById(encargoId)
+        // Bloquea el encargo hasta el final de la transaccion: dos pagos a la vez (doble clic, reintento) se hacen en
+        // fila y el segundo ya lo encuentra PAGADO, asi no se emite la factura dos veces.
+        Encargo encargo = encargoRepository.findByIdParaActualizar(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
         if (!encargo.getUsuario().getId().equals(usuarioLogueado.getId())) {
