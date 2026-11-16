@@ -101,6 +101,20 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
             throw new CompraPropiaException(variante);
         }
 
+        // Si ya hay una linea con la misma variante y el mismo marco, se le suma la cantidad: no se duplica.
+        Long marcoId = marco == null ? null : marco.getId();
+        ItemCarrito existente = itemCarritoRepository.findByCarritoId(carrito.getId()).stream()
+                .filter(item -> item.getVariante().getId().equals(variante.getId()))
+                .filter(item -> java.util.Objects.equals(marcoId, item.getMarco() == null ? null : item.getMarco().getId()))
+                .findFirst()
+                .orElse(null);
+        if (existente != null) {
+            int total = existente.getCantidad() + request.getCantidad();
+            validarStockDisponible(carrito, variante, total, existente.getId());
+            existente.setCantidad(total);
+            return itemCarritoRepository.save(existente);
+        }
+
         validarStockDisponible(carrito, variante, request.getCantidad(), null);
 
         ItemCarrito itemCarrito = ItemCarrito.builder()

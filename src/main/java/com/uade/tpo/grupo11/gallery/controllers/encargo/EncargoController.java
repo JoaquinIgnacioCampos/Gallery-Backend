@@ -99,13 +99,15 @@ public class EncargoController {
                 encargoService.definirPrecio(id, request.getPrecio_acordado(), usuarioLogueado)));
     }
 
-    // El cliente acepta el precio cargado: el encargo queda aprobado y el precio congelado.
+    // El cliente acepta el precio cargado (manda el monto que ve): el encargo queda aprobado y el precio congelado.
+    // Si el artista lo cambio mientras tanto, responde 409 y no aprueba nada.
     @PostMapping("/{id}/aceptar-precio")
     public ResponseEntity<EncargoResponse> aceptarPrecio(
             @PathVariable Long id,
+            @Valid @RequestBody AceptarPrecioRequest request,
             @AuthenticationPrincipal Usuario usuarioLogueado) {
         return ResponseEntity.ok(encargoResponder.armarRespuesta(
-                encargoService.aceptarPrecio(id, usuarioLogueado)));
+                encargoService.aceptarPrecio(id, request.getPrecio_acordado(), usuarioLogueado)));
     }
 
     // El cliente paga el encargo terminado. El pago es simulado desde el front; el cambio a PAGADO lo hace el back.

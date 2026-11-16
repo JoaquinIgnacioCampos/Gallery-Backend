@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -26,6 +27,12 @@ public interface EncargoRepository extends JpaRepository<Encargo, Long> {
     @Override
     @EntityGraph(attributePaths = {"artista", "tamanio", "marco"})
     Optional<Encargo> findById(Long id);
+
+    // Lo mismo, pero bloquea la fila (SELECT ... FOR UPDATE) hasta el final de la transaccion: proponer el precio y
+    // aceptarlo se hacen en fila, asi no se cruzan.
+    @Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT e FROM Encargo e WHERE e.id = :id")
+    Optional<Encargo> findByIdParaActualizar(@Param("id") Long id);
 
     @Override
     @EntityGraph(attributePaths = {"artista", "tamanio", "marco"})

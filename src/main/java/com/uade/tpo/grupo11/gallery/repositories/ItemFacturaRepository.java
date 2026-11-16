@@ -30,4 +30,6 @@ public interface ItemFacturaRepository extends JpaRepository<ItemFactura, Long> 
 
     // Utilizado para vista de admincatalogo del front
     boolean existsByMarcoId(Long marcoId);
+
+    boolean existsByVarianteId(Long varianteId);
 }

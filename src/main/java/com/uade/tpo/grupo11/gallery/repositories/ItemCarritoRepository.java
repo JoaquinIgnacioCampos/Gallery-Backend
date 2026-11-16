@@ -19,4 +19,6 @@ public interface ItemCarritoRepository extends JpaRepository<ItemCarrito, Long> 
 
     // Utilizado para vista de admincatalogo del front
     boolean existsByMarcoId(Long marcoId);
+
+    boolean existsByVarianteId(Long varianteId);
 }

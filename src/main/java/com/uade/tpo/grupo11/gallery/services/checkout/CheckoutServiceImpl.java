@@ -115,8 +115,19 @@ public class CheckoutServiceImpl implements CheckoutService {
         //    de la venta o ya no alcanza el stock despues de agregarla al carrito, se rechaza la compra
         //    entera. Se juntan todos los items con problema (no solo el primero) para que el front los marque.
         List<ProblemaDeItem> problemas = new ArrayList<>();
+        // Lo pedido de cada variante entre todas sus lineas (distinto marco): cada linea sola puede alcanzar y todas
+        // juntas no.
+        Map<Long, Integer> pedidoPorVariante = new java.util.HashMap<>();
+        for (ItemCarrito item : items) {
+            pedidoPorVariante.merge(item.getVariante().getId(), item.getCantidad(), Integer::sum);
+        }
         for (ItemCarrito item : items) {
             DisponibilidadDeItem disponibilidad = DisponibilidadDeItem.de(item);
+            int stock = Math.max(item.getVariante().getStock_variante(), 0);
+            if (disponibilidad.disponible() && pedidoPorVariante.get(item.getVariante().getId()) > stock) {
+                disponibilidad = new DisponibilidadDeItem(false, stock,
+                        "Entre todas las lineas de este tamaño pedis mas de lo que queda (" + stock + ").");
+            }
             if (!disponibilidad.disponible()) {
                 Variante variante = item.getVariante();
                 problemas.add(new ProblemaDeItem(

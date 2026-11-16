@@ -1,5 +1,6 @@
 package com.uade.tpo.grupo11.gallery.services.variante;
 
+import com.uade.tpo.grupo11.gallery.repositories.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import com.uade.tpo.grupo11.gallery.controllers.variante.VarianteRequest;
@@ -9,13 +10,11 @@ import com.uade.tpo.grupo11.gallery.entities.Usuario;
 import com.uade.tpo.grupo11.gallery.entities.Variante;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraEliminadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.ObraNotFoundException;
+import com.uade.tpo.grupo11.gallery.exceptions.VarianteEnUsoException;
 import com.uade.tpo.grupo11.gallery.exceptions.ListaVaciaException;
 import com.uade.tpo.grupo11.gallery.exceptions.TamanioLienzoNotFoundException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteDuplicadaException;
 import com.uade.tpo.grupo11.gallery.exceptions.VarianteNotFoundException;
-import com.uade.tpo.grupo11.gallery.repositories.ObraRepository;
-import com.uade.tpo.grupo11.gallery.repositories.TamanioLienzoRepository;
-import com.uade.tpo.grupo11.gallery.repositories.VarianteRepository;
 import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,12 @@ public class VarianteServiceImpl implements VarianteService {
 
     @Autowired
     private VarianteRepository repoVariante;
+
+    @Autowired
+    private ItemFacturaRepository itemFacturaRepository;
+
+    @Autowired
+    private ItemCarritoRepository itemCarritoRepository;
 
     @Autowired
     private ObraRepository obraRepository;
@@ -181,6 +186,12 @@ public class VarianteServiceImpl implements VarianteService {
 
         OwnershipGuard.verificar(usuarioActual, variante.getObra().getArtista().getUsuario().getId());
         validarObraVigente(variante.getObra());
+
+        // Un tamaño que ya se vendio es parte del historial de las facturas, y uno que esta en un carrito lo van a
+        // comprar: no se borra (para dejar de venderlo alcanza con poner su stock en 0).
+        if (itemFacturaRepository.existsByVarianteId(varianteId) || itemCarritoRepository.existsByVarianteId(varianteId)) {
+            throw new VarianteEnUsoException(varianteId);
+        }
 
         repoVariante.delete(variante);
     }
