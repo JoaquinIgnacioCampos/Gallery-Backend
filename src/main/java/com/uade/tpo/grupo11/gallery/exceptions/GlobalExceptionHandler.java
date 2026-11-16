@@ -127,6 +127,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());  // 400: el cliente mando datos invalidos
     }
 
+    @ExceptionHandler(PrecioEncargoCambiadoException.class)
+    public ResponseEntity<String> handlePrecioEncargoCambiado(PrecioEncargoCambiadoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    @ExceptionHandler(VarianteEnUsoException.class)
+    public ResponseEntity<String> handleVarianteEnUso(VarianteEnUsoException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+    }
+
+    // Red de seguridad: una clave foranea que impide borrar algo que otra tabla todavia usa es un conflicto (409),
+    // no un error del servidor.
+    @ExceptionHandler(org.springframework.dao.DataIntegrityViolationException.class)
+    public ResponseEntity<String> handleIntegridad(org.springframework.dao.DataIntegrityViolationException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body("La operacion no se pudo completar porque otros datos todavia dependen de este.");
+    }
+
     @ExceptionHandler(EncargoCerradoPrecioException.class)
     public ResponseEntity<String> handleEncargoCerradoPrecio(EncargoCerradoPrecioException e) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());

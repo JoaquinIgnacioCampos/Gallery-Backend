@@ -29,6 +29,6 @@ public interface EncargoService {
     // El artista carga o cambia el precio mientras el encargo este pendiente.
     Encargo definirPrecio(Long encargoId, java.math.BigDecimal precio, Usuario usuarioLogueado);
     // El cliente acepta el precio cargado por el artista: el encargo queda aprobado y el precio congelado.
-    Encargo aceptarPrecio(Long encargoId, Usuario usuarioLogueado);
+    Encargo aceptarPrecio(Long encargoId, java.math.BigDecimal precioVisto, Usuario usuarioLogueado);
 
 }

@@ -9,6 +9,9 @@ import lombok.Data;
 @Data
 public class ItemCarritoRequest {
 
+    // Tope de unidades por item. Lo usan tambien el service del carrito y el checkout.
+    public static final int CANTIDAD_MAXIMA = 999;
+
     // Sin marco: null.
     private Long marco_id;
 
@@ -21,6 +24,6 @@ public class ItemCarritoRequest {
     // Sin @Min, una cantidad negativa pasaba el chequeo de stock, sumaba stock en el checkout y bajaba el total.
     @NotNull(message = "La cantidad es obligatoria")
     @Min(value = 1, message = "La cantidad tiene que ser al menos 1")
-    @Max(value = 999, message = "La cantidad no puede superar 999")
+    @Max(value = CANTIDAD_MAXIMA, message = "La cantidad no puede superar 999")
     private Integer cantidad;
 }

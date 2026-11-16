@@ -151,11 +151,16 @@ public class EncargoServiceImpl implements EncargoService {
         }
 
         encargo.setEstado_encargo(EstadoEncargo.PAGADO);
+        // La factura (y la compra) se emiten con el pago, no antes: hasta ahora no hay nada cobrado. Un encargo que
+        // ya la tenia (se emitia al terminarlo) no la repite.
+        if (encargo.getFactura() == null) {
+            generarFactura(encargo);
+        }
         return encargoRepository.save(encargo);
     }
 
     // El artista mueve el encargo al estado siguiente si la transicion es valida. Tanto el cliente como el Artista pueden cancelar el encargo, pero solo mientras esta pendiente: una vez aprobado el precio ya no se cancela.
-    // Al terminar el encargo se emite su factura, con el precio congelado al aprobarlo.
+    // La factura del encargo se emite al pagarlo (ver pagarEncargo), con el precio congelado al aprobarlo.
     @Override
     @Transactional
     public Encargo cambiarEstado(Long encargoId, EstadoEncargo nuevoEstado, Usuario usuarioLogueado) {
@@ -182,17 +187,16 @@ public class EncargoServiceImpl implements EncargoService {
         }
 
         encargo.setEstado_encargo(nuevoEstado);
-        if (nuevoEstado == EstadoEncargo.TERMINADO) {
-            generarFactura(encargo);
-        }
         return encargoRepository.save(encargo);
     }
 
     // Solo el artista del encargo carga el precio, y solo mientras el encargo siga pendiente.
+    // Bloquea el encargo: no se cruza con un cliente que justo lo esta aceptando.
     @Override
+    @Transactional
     public Encargo definirPrecio(Long encargoId, java.math.BigDecimal precio, Usuario usuarioLogueado) {
         verificarEscritura(usuarioLogueado);
-        Encargo encargo = encargoRepository.findById(encargoId)
+        Encargo encargo = encargoRepository.findByIdParaActualizar(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
         boolean esArtistaDelEncargo = encargo.getArtista().getUsuario().getId().equals(usuarioLogueado.getId());
@@ -207,11 +211,13 @@ public class EncargoServiceImpl implements EncargoService {
     }
 
     // Solo el cliente del encargo puede aceptar el precio: ni el artista ni ADMIN aceptan por el cliente.
-    // Aceptar aprueba el encargo y congela el precio.
+    // Aceptar aprueba el encargo y congela el precio. El cliente manda el monto que tiene a la vista: si el artista lo
+    // cambio mientras tanto, no se aprueba (409) y el cliente ve el precio nuevo antes de decidir.
     @Override
-    public Encargo aceptarPrecio(Long encargoId, Usuario usuarioLogueado) {
+    @Transactional
+    public Encargo aceptarPrecio(Long encargoId, java.math.BigDecimal precioVisto, Usuario usuarioLogueado) {
         verificarEscritura(usuarioLogueado);
-        Encargo encargo = encargoRepository.findById(encargoId)
+        Encargo encargo = encargoRepository.findByIdParaActualizar(encargoId)
                 .orElseThrow(() -> new EncargoNotFoundException(encargoId));
 
         if (!encargo.getUsuario().getId().equals(usuarioLogueado.getId())) {
@@ -222,6 +228,9 @@ public class EncargoServiceImpl implements EncargoService {
 
         if (encargo.getPrecio_acordado() == null) {
             throw new PrecioEncargoNoDefinidoException(encargoId);
+        }
+        if (encargo.getPrecio_acordado().compareTo(precioVisto) != 0) {
+            throw new PrecioEncargoCambiadoException(encargoId, encargo.getPrecio_acordado());
         }
 
         encargo.setEstado_encargo(EstadoEncargo.APROBADO);
@@ -238,7 +247,7 @@ public class EncargoServiceImpl implements EncargoService {
         }
     }
 
-    // La factura se emite al terminar el encargo, con el precio congelado al aprobarlo.
+    // La factura se emite al pagar el encargo, con el precio congelado al aprobarlo.
     private void generarFactura(Encargo encargo) {
         java.math.BigDecimal precioFinal = encargo.getPrecio_acordado();
 

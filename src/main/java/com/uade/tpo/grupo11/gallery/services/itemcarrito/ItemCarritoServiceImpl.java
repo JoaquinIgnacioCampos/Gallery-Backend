@@ -17,6 +17,7 @@ import com.uade.tpo.grupo11.gallery.security.OwnershipGuard;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -75,11 +76,13 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
 
     // Crea el item del carrito con los datos del request. Las relaciones llegan como ids y se resuelven en el service.
+    // Bloquea el carrito (como el checkout) hasta terminar: un checkout en curso no se cruza con este cambio.
     @Override
+    @Transactional
     public ItemCarrito createItemCarrito(ItemCarritoRequest request, Usuario usuarioActual) {
 
         Carrito carrito = carritoRepository
-                .findById(request.getCarrito_id())
+                .findByIdParaActualizar(request.getCarrito_id())
                 .orElseThrow(() -> new CarritoNotFoundException(request.getCarrito_id()));
 
         // No se puede agregar un item al carrito de otro usuario.
@@ -98,6 +101,20 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
             throw new CompraPropiaException(variante);
         }
 
+        // Si ya hay una linea con la misma variante y el mismo marco, se le suma la cantidad: no se duplica.
+        Long marcoId = marco == null ? null : marco.getId();
+        ItemCarrito existente = itemCarritoRepository.findByCarritoId(carrito.getId()).stream()
+                .filter(item -> item.getVariante().getId().equals(variante.getId()))
+                .filter(item -> java.util.Objects.equals(marcoId, item.getMarco() == null ? null : item.getMarco().getId()))
+                .findFirst()
+                .orElse(null);
+        if (existente != null) {
+            int total = existente.getCantidad() + request.getCantidad();
+            validarStockDisponible(carrito, variante, total, existente.getId());
+            existente.setCantidad(total);
+            return itemCarritoRepository.save(existente);
+        }
+
         validarStockDisponible(carrito, variante, request.getCantidad(), null);
 
         ItemCarrito itemCarrito = ItemCarrito.builder()
@@ -112,7 +129,9 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
 
 
     // Actualiza el item del carrito: lo trae de la base y le pisa los campos, en vez de guardar lo que llega.
+    // Bloquea el carrito como el checkout (ver createItemCarrito).
     @Override
+    @Transactional
     public ItemCarrito updateItemCarrito(
             Long itemId,
             ItemCarritoRequest request,
@@ -125,7 +144,7 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
         OwnershipGuard.verificar(usuarioActual, itemCarrito.getCarrito().getUsuario().getId());
 
         Carrito carrito = carritoRepository
-                .findById(request.getCarrito_id())
+                .findByIdParaActualizar(request.getCarrito_id())
                 .orElseThrow(() -> new CarritoNotFoundException(request.getCarrito_id()));
 
         // El item tampoco puede pasarse al carrito de otro usuario.
@@ -182,6 +201,9 @@ public class ItemCarritoServiceImpl implements ItemCarritoService {
     private void validarStockDisponible(Carrito carrito, Variante variante, int cantidadPedida, Long itemIdExcluido) {
         if (cantidadPedida < 1) {
             throw new IllegalArgumentException("La cantidad tiene que ser al menos 1");
+        }
+        if (cantidadPedida > ItemCarritoRequest.CANTIDAD_MAXIMA) {
+            throw new IllegalArgumentException("La cantidad no puede superar " + ItemCarritoRequest.CANTIDAD_MAXIMA);
         }
         int yaEnCarrito = itemCarritoRepository.findByCarritoId(carrito.getId()).stream()
                 .filter(item -> item.getVariante().getId().equals(variante.getId()))

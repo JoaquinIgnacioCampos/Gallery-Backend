@@ -15,6 +15,13 @@ public final class Paginacion {
         if (page == null || size == null) {
             return PageRequest.of(0, Integer.MAX_VALUE);
         }
+        // Sin esto, PageRequest.of corta con su propio mensaje en ingles.
+        if (page < 0) {
+            throw new IllegalArgumentException("La pagina no puede ser negativa");
+        }
+        if (size < 1) {
+            throw new IllegalArgumentException("El tamanio de pagina tiene que ser al menos 1");
+        }
         return PageRequest.of(page, Math.min(size, TAMANIO_MAXIMO));
     }
 }

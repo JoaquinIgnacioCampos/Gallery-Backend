@@ -21,4 +21,9 @@ public interface CarritoRepository extends JpaRepository<Carrito, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT c FROM Carrito c WHERE c.usuario.id = :usuarioId")
     Optional<Carrito> findByUsuarioIdParaActualizar(@Param("usuarioId") Long usuarioId);
+
+    // Por id, con el mismo bloqueo: lo usan agregar, editar y quitar items, asi no se cruzan con un checkout en curso.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT c FROM Carrito c WHERE c.id = :id")
+    Optional<Carrito> findByIdParaActualizar(@Param("id") Long id);
 }
