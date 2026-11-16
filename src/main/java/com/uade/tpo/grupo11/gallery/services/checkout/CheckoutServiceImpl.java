@@ -1,4 +1,5 @@
 package com.uade.tpo.grupo11.gallery.services.checkout;
+import com.uade.tpo.grupo11.gallery.controllers.itemcarrito.ItemCarritoRequest;
 import com.uade.tpo.grupo11.gallery.entities.Carrito;
 import com.uade.tpo.grupo11.gallery.entities.Compra;
 import com.uade.tpo.grupo11.gallery.entities.Factura;
@@ -104,7 +105,8 @@ public class CheckoutServiceImpl implements CheckoutService {
         }
 
         for (ItemCarrito item : items) {
-            if (item.getCantidad() == null || item.getCantidad() < 1) {
+            if (item.getCantidad() == null || item.getCantidad() < 1
+                    || item.getCantidad() > ItemCarritoRequest.CANTIDAD_MAXIMA) {
                 throw new IllegalArgumentException("El carrito tiene un item con una cantidad invalida");
             }
         }
